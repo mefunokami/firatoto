@@ -1,0 +1,136 @@
+CREATE TABLE IF NOT EXISTS products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  brand VARCHAR(100),
+  model VARCHAR(100),
+  year VARCHAR(20),
+  price DECIMAL(10,2),
+  stock INT,
+  description TEXT,
+  category VARCHAR(100),
+  partNumber VARCHAR(100),
+  imageUrl VARCHAR(500) NOT NULL COMMENT 'Ana ürün fotoğrafı (zorunlu)',
+  imageUrl1 VARCHAR(500) COMMENT 'İkinci ürün fotoğrafı (opsiyonel)',
+  imageUrl2 VARCHAR(500) COMMENT 'Üçüncü ürün fotoğrafı (opsiyonel)',
+  trendyolUrl VARCHAR(500),
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  is_weekly_deal TINYINT(1) DEFAULT 0 COMMENT 'Haftanın fırsatı ürünü mü? 1=evet, 0=hayır'
+);
+
+-- Sabit markalar (referans için, tabloya gerek yok, kodda sabit)
+-- OPEL, CHEVROLET, BMW, MERCEDES-BENZ, VOLKSWAGEN, AUDİ, SEAT, SKODA, RENAULT, PEUGEOT, CİTROEN, FORD
+
+CREATE TABLE IF NOT EXISTS brand_models (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  brand VARCHAR(100) NOT NULL,
+  model VARCHAR(100) NOT NULL,
+  image_url VARCHAR(500)
+);
+
+-- Örnek veri eklemek için (isteğe bağlı)
+INSERT INTO brand_models (brand, model) VALUES
+('OPEL', 'Astra'),
+('BMW', 'E60'),
+('FORD', 'Focus');
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  admin TINYINT(1) DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS homepage_sliders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  image_url VARCHAR(500) NOT NULL,
+  title VARCHAR(255),
+  description TEXT,
+  link VARCHAR(500),
+  slider_order INT DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS productbrands (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS addresses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  surname VARCHAR(100) NOT NULL,
+  country VARCHAR(100) NOT NULL,
+  city VARCHAR(100) NOT NULL,
+  district VARCHAR(100) NOT NULL,
+  phone VARCHAR(20),
+  mobile VARCHAR(20) NOT NULL,
+  tc VARCHAR(20),
+  address TEXT NOT NULL,
+  type VARCHAR(20) DEFAULT 'bireysel',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  address_id INT NOT NULL,
+  cart_json TEXT NOT NULL,
+  total DECIMAL(10,2) NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  payment_type VARCHAR(20),
+  note TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (address_id) REFERENCES addresses(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS bank_accounts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  bank_name VARCHAR(100) NOT NULL,
+  iban VARCHAR(34) NOT NULL,
+  account_holder VARCHAR(100) NOT NULL,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  user_id INT NOT NULL,
+  user_name VARCHAR(100) NOT NULL,
+  user_surname VARCHAR(100) NOT NULL,
+  rating INT NOT NULL,
+  comment TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS blogs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  content TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+ALTER TABLE blogs ADD COLUMN image_url VARCHAR(500) DEFAULT NULL;
+ALTER TABLE blogs ADD COLUMN slug VARCHAR(255) UNIQUE AFTER title; 
+
+CREATE TABLE IF NOT EXISTS faq (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  question VARCHAR(500) NOT NULL,
+  answer TEXT NOT NULL,
+  faq_order INT DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+); 

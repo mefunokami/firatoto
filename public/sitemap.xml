@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://firatotoyedekparca.com/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://firatotoyedekparca.com/hakkımızda</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://firatotoyedekparca.com/iletisim</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://firatotoyedekparca.com/cart</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://firatotoyedekparca.com/favorites</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://firatotoyedekparca.com/account</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://firatotoyedekparca.com/blog</loc>
+    <priority>0.7</priority>
+  </url>
+</urlset>
