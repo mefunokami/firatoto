@@ -10,29 +10,31 @@ const Footer = () => {
     <footer className="bg-neutral-800 text-white pt-10 md:pt-16 pb-6 md:pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* LOGO EN ÜSTE */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 md:gap-8">
+          {/* 1. Logo */}
           <div>
             <div className="mb-4">
               <a href="https://firatotoyedekparca.com" target="_self">
                 <img src={logo} alt="Fırat Oto Logo" className="h-20 w-auto" />
               </a>
             </div>
-            {/* Sol üstteki yazı ve ikonlar kaldırıldı, sadece logo üstte */}
             <div className="flex gap-4 mt-6">               
                 <a href="https://www.instagram.com/firatotoyedekparcafbm/" target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700"><Instagram /></a>
             </div>
           </div>
+          {/* 2. Alışveriş */}
           <div>
             <p className="font-bold text-lg mb-2 flex items-center gap-2">
               ALIŞVERİŞ
               <span className="block w-8 h-1 bg-yellow-500 rounded ml-2"></span>
             </p>
             <ul className="space-y-1 text-sm">
-                              <li><a href="/iletisim" className="hover:text-yellow-400">İletişim Ve Hesap Numaraları</a></li>
+              <li><a href="/iletisim" className="hover:text-yellow-400">İletişim Ve Hesap Numaraları</a></li>
               <li><a href="/hakkımızda" className="hover:text-yellow-400">Hakkımızda</a></li>
               <li><a href="/blog" className="hover:text-yellow-400">Blog</a></li>
             </ul>
           </div>
+          {/* 3. Sipariş */}
           <div>
             <p className="font-bold text-lg mb-2 flex items-center gap-2">
               SİPARİŞ
@@ -46,6 +48,7 @@ const Footer = () => {
               <li><button type="button" className="underline text-left" onClick={() => setModal('kosullar')}>Şartlar ve Koşullar</button></li>
             </ul>
           </div>
+          {/* 4. Bize Ulaşın */}
           <div>
             <p className="font-bold text-lg mb-4">Bize Ulaşın</p>
             <address className="text-gray-400 not-italic space-y-2 text-sm">
@@ -59,6 +62,21 @@ const Footer = () => {
                 <p><strong className="text-white">Telefon:</strong> 0501 353 0101</p>
                 <p><strong className="text-white">Telefon:</strong> 0555 178 6221</p>
             </address>
+          </div>
+          {/* 5. Harita */}
+          <div>
+            <div className="w-full h-full min-h-[200px] rounded-lg overflow-hidden shadow-lg border border-gray-700">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3184.3591!2d35.3087!3d36.9822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15288f6d38796da7%3A0x912b4e1cde2b651a!2zRsSxcmF0IE90byBZZWRlayBQYXLDp2E!5e0!3m2!1str!2str!4v1709971035652!5m2!1str!2str"
+                title="Fırat Oto Yedek Parça Konum"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              ></iframe>
+            </div>
           </div>
         </div>
         <div className="mt-8 md:mt-12">

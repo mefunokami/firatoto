@@ -5,6 +5,7 @@ import BrandMenu from '@/components/BrandMenu';
 import UserLoginPage from '@/pages/UserLoginPage';
 import Header from '@/components/Header';
 import { toast } from '@/components/ui/use-toast';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 
 const Layout = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -96,6 +97,7 @@ const Layout = () => {
         </div>
         <Outlet context={{ searchTerm, setSearchTerm, popularProductsRef, brandModelFilter, handleBrandModelSelect }} />
       </main>
+      <FloatingWhatsApp />
       <Footer />
       <UserLoginPage open={loginOpen} setOpen={setLoginOpen} setUser={setUser} />
     </div>

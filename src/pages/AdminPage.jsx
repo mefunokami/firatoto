@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Plus, Package, TrendingUp, AlertCircle, Settings, Wrench, ArrowLeft, Car, Checkbox, Users } from 'lucide-react';
+import { Plus, Package, TrendingUp, AlertCircle, Settings, Wrench, ArrowLeft, Car, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
