@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CartContext } from '@/lib/CartContext.jsx';
 
@@ -23,8 +23,19 @@ const sampleCart = [
 
 export default function CartDrawer({ open, onClose }) {
   const { cart } = useContext(CartContext);
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || item.qty || 1), 0);
+  const kargoUcreti = subtotal >= 5000 ? 0 : cart.reduce((sum, item) => sum + 350 * (item.quantity || item.qty || 1), 0);
+  const total = subtotal + kargoUcreti;
   const navigate = useNavigate();
+  const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setShowToast(true);
+      const timer = setTimeout(() => setShowToast(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   const handleBuy = () => {
     onClose && onClose();
@@ -33,6 +44,44 @@ export default function CartDrawer({ open, onClose }) {
 
   return (
     <>
+      {/* Toast Bildirimi */}
+      {showToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 99999,
+            background: '#1a1a1a',
+            color: '#fff',
+            padding: '14px 24px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '14px',
+            fontWeight: '500',
+            minWidth: '280px',
+            maxWidth: '90vw',
+            animation: 'fadeInUp 0.4s ease',
+          }}
+        >
+          <span style={{ fontSize: '20px' }}>🚚</span>
+          <span><strong>5.000 TL ve üzeri</strong> siparişlerinizde kargo <strong style={{ color: '#4ade80' }}>ÜCRETSİZ!</strong></span>
+          <button
+            onClick={() => setShowToast(false)}
+            style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}
+          >✕</button>
+        </div>
+      )}
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+      `}</style>
       {/* Overlay */}
       <div
         className={`fixed inset-0 bg-black bg-opacity-30 z-40 transition-opacity duration-200 ${open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
@@ -85,9 +134,23 @@ export default function CartDrawer({ open, onClose }) {
           ))}
         </div>
         <div className="px-6 py-4 border-t">
+          <div className="flex justify-between items-center mb-1 text-sm">
+            <span>Ara Toplam</span>
+            <span>{subtotal.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</span>
+          </div>
+          <div className="flex justify-between items-center mb-3 text-sm">
+            <span>Kargo</span>
+            <span>
+              {subtotal >= 5000 ? (
+                <span className="text-green-600 font-bold">ÜCRETSİZ ★</span>
+              ) : (
+                kargoUcreti.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })
+              )}
+            </span>
+          </div>
           <div className="flex justify-between items-center mb-4">
             <span className="font-semibold">Sepet Toplamı</span>
-            <span className="font-bold text-lg">{(total).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</span>
+            <span className="font-bold text-lg">{total.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</span>
           </div>
           <button onClick={handleBuy} className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded mb-2 text-base">SATIN AL</button>
           <button onClick={() => { onClose && onClose(); navigate('/'); }} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded text-base">ALIŞVERİŞE DEVAM ET</button>

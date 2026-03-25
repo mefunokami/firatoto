@@ -15,6 +15,7 @@ export default function OrderStep2Page() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [paymentTab, setPaymentTab] = useState('card');
   const navigate = useNavigate();
@@ -35,6 +36,9 @@ export default function OrderStep2Page() {
   useEffect(() => {
     fetchAddresses();
     // fetchBankAccounts(); // Bu kısım ContactInfoPage'daki sabit QNB Finansbank hesabı ile değiştirildi
+    setShowToast(true);
+    const timer = setTimeout(() => setShowToast(false), 4000);
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchAddresses = async () => {
@@ -152,11 +156,49 @@ export default function OrderStep2Page() {
   const subtotal = cart.reduce((sum, item) => sum + item.price * (item.quantity || item.qty || 1), 0);
   // KDV tamamen kaldırıldı
   // Kargo hesaplama
-  const kargoUcreti = subtotal >= 2500 ? 0 : cart.reduce((sum, item) => sum + 350 * (item.quantity || item.qty || 1), 0);
+  const kargoUcreti = subtotal >= 5000 ? 0 : cart.reduce((sum, item) => sum + 350 * (item.quantity || item.qty || 1), 0);
   const total = subtotal + kargoUcreti;
 
   return (
     <div className="min-h-screen bg-[#f7f7f7]">
+      {/* Toast Bildirimi */}
+      {showToast && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            background: '#1a1a1a',
+            color: '#fff',
+            padding: '14px 24px',
+            borderRadius: '12px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '14px',
+            fontWeight: '500',
+            minWidth: '280px',
+            maxWidth: '90vw',
+            animation: 'fadeInUp 0.4s ease',
+          }}
+        >
+          <span style={{ fontSize: '20px' }}>🚚</span>
+          <span><strong>5.000 TL ve üzeri</strong> siparişlerinizde kargo <strong style={{ color: '#4ade80' }}>ÜCRETSİZ!</strong></span>
+          <button
+            onClick={() => setShowToast(false)}
+            style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}
+          >✕</button>
+        </div>
+      )}
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+      `}</style>
       <div className="w-full bg-[#d7efdf] border-b border-[#c2e3ce]">
         <div className="max-w-7xl mx-auto flex items-center justify-center py-2 px-4">
           <span className="inline-flex items-center gap-2 text-sm text-gray-700 font-medium">
@@ -279,8 +321,8 @@ export default function OrderStep2Page() {
             <div className="flex justify-between mb-2 text-sm">
               <span>Kargo</span>
               <span>
-                {subtotal >= 2500 ? (
-                  <span className="text-green-600 font-bold flex items-center gap-1">0,00 TL <span title="2500 TL ve üzeri ücretsiz kargo">★</span></span>
+                {subtotal >= 5000 ? (
+                  <span className="text-green-600 font-bold flex items-center gap-1">0,00 TL <span title="5000 TL ve üzeri ücretsiz kargo">★</span></span>
                 ) : (
                   kargoUcreti.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })
                 )}
