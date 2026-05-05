@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Plus, Package, TrendingUp, AlertCircle, Settings, Wrench, ArrowLeft, Car, Users } from 'lucide-react';
+import { Plus, Package, TrendingUp, AlertCircle, Settings, Wrench, ArrowLeft, Car, Users, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
@@ -13,35 +13,67 @@ import { Input } from '@/components/ui/input';
 import { CartProvider } from '@/lib/CartContext.jsx';
 
 const API_URL = 'https://firatotoyedekparca.com/api/products.php';
+const PAGE_SIZE = 50; // Sayfa başı ürün sayısı
 
 const SABIT_MARKALAR = [
   "OPEL", "CHEVROLET", "BMW", "MERCEDES-BENZ", "VOLKSWAGEN", "AUDİ", "SEAT", "SKODA", "PEUGEOT", "CİTROEN", "FORD"
 ];
 
 function AdminPage() {
-  const [products, setProducts] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [activeTab, setActiveTab] = useState('list');
-  const [showModelModal, setShowModelModal] = useState(false);
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [newModel, setNewModel] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
-  const navigate = useNavigate();
-  const [categories, setCategories] = useState([]);
-  const [newCategory, setNewCategory] = useState('');
-  const [showWeeklyDealOnly, setShowWeeklyDealOnly] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [usersLoading, setUsersLoading] = useState(false);
-  const [usersError, setUsersError] = useState('');
+  // Ürün listesi state
+  const [products, setProducts]         = useState([]);
+  const [loading, setLoading]           = useState(false);
+  const [currentPage, setCurrentPage]   = useState(1);
+  const [totalPages, setTotalPages]     = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [searchTerm, setSearchTerm]     = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [sortField, setSortField]       = useState('createdAt');
+  const [sortOrder, setSortOrder]       = useState('desc');
 
-  // Ürünleri API'den çek
-  const fetchProducts = () => {
-    fetch(API_URL)
+  // Form / UI state
+  const [showForm, setShowForm]         = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [activeTab, setActiveTab]       = useState('list');
+  const [showModelModal, setShowModelModal] = useState(false);
+  const [selectedBrand, setSelectedBrand]   = useState('');
+  const [newModel, setNewModel]         = useState('');
+  const [isAdding, setIsAdding]         = useState(false);
+  const navigate                        = useNavigate();
+  const [categories, setCategories]     = useState([]);
+  const [newCategory, setNewCategory]   = useState('');
+  const [users, setUsers]               = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError]     = useState('');
+
+  // ─── Ürünleri API'den çek (server-side sayfalama) ───
+  const fetchProducts = useCallback((page = 1, search = searchTerm, category = filterCategory) => {
+    setLoading(true);
+    const params = new URLSearchParams({
+      page:  String(page),
+      limit: String(PAGE_SIZE),
+    });
+    if (search)   params.append('search',   search);
+    if (category) params.append('category', category);
+
+    fetch(`${API_URL}?${params.toString()}`)
       .then(res => res.json())
-      .then(data => setProducts(data))
-      .catch(() => setProducts([]));
-  };
+      .then(data => {
+        if (data && typeof data === 'object' && !Array.isArray(data) && data.products) {
+          setProducts(data.products);
+          setCurrentPage(data.page);
+          setTotalPages(data.pages);
+          setTotalProducts(data.total);
+        } else {
+          // Eski format (fallback)
+          setProducts(Array.isArray(data) ? data : []);
+          setTotalPages(1);
+          setTotalProducts(Array.isArray(data) ? data.length : 0);
+        }
+      })
+      .catch(() => setProducts([]))
+      .finally(() => setLoading(false));
+  }, [searchTerm, filterCategory]);
 
   // Kategorileri çek
   useEffect(() => {
@@ -52,10 +84,12 @@ function AdminPage() {
     }
   }, [activeTab]);
 
+  // İlk yükleme
   useEffect(() => {
-    fetchProducts();
+    fetchProducts(1);
   }, []);
 
+  // Kullanıcılar sekmesi
   useEffect(() => {
     if (activeTab === 'users') {
       setUsersLoading(true);
@@ -70,21 +104,43 @@ function AdminPage() {
     }
   }, [activeTab]);
 
-  // Ürün ekle/güncelle
+  // ─── Sayfalama callback'leri ───
+  const handlePageChange = (page) => {
+    fetchProducts(page, searchTerm, filterCategory);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSearchChange = (val) => {
+    setSearchTerm(val);
+    fetchProducts(1, val, filterCategory);
+  };
+
+  const handleCategoryChange = (val) => {
+    setFilterCategory(val);
+    fetchProducts(1, searchTerm, val);
+  };
+
+  const handleSortChange = (field, order) => {
+    setSortField(field);
+    setSortOrder(order);
+    // Sıralama server-side desteklendiğinde buraya parametre eklenebilir
+  };
+
+  // ─── CRUD ───
   const handleSaveProduct = async (productData) => {
-    const url = editingProduct ? `${API_URL}?id=${editingProduct.id}` : API_URL;
+    const url    = editingProduct ? `${API_URL}?id=${editingProduct.id}` : API_URL;
     const method = 'POST';
 
     try {
-      const res = await fetch(url, {
+      const res  = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData)
       });
       const data = await res.json();
-      if ((res.ok && (data.success || data.id))) {
+      if (res.ok && (data.success || data.id)) {
         toast({ title: 'Başarılı!', description: editingProduct ? 'Ürün güncellendi.' : 'Ürün eklendi.' });
-        fetchProducts();
+        fetchProducts(currentPage);
         setShowForm(false);
         setActiveTab('list');
         setEditingProduct(null);
@@ -102,14 +158,12 @@ function AdminPage() {
     }
   };
 
-  // Ürün düzenleme
   const handleEditProduct = (product) => {
     setEditingProduct(product);
     setShowForm(true);
     setActiveTab('add');
   };
 
-  // Ürün sil
   const handleDeleteProduct = (productId) => {
     if (window.confirm('Bu ürünü silmek istediğinizden emin misiniz?')) {
       fetch(`${API_URL}?id=${productId}`, { method: 'DELETE' })
@@ -117,7 +171,9 @@ function AdminPage() {
         .then((res) => {
           if (res.success) {
             toast({ title: 'Ürün Silindi', description: 'Ürün başarıyla silindi.' });
-            fetchProducts();
+            // Silme sonrası mevcut sayfayı yenile (son ürünse bir önceki sayfaya git)
+            const newPage = products.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
+            fetchProducts(newPage);
           } else {
             toast({ title: 'Hata!', description: res.error || 'Bir hata oluştu.', variant: 'destructive' });
           }
@@ -137,10 +193,10 @@ function AdminPage() {
     setActiveTab('list');
   };
 
+  // İstatistikler (mevcut sayfadan değil, toplam sayıdan)
   const stats = {
-    totalProducts: products.length,
-    totalValue: products.reduce((sum, p) => sum + (parseFloat(p.price) * (p.stock || 0)), 0),
-    lowStock: products.filter(p => (p.stock || 0) < 5).length,
+    totalProducts,
+    lowStock:   products.filter(p => (p.stock || 0) < 5).length,
     categories: new Set(products.map(p => p.category).filter(Boolean)).size
   };
 
@@ -239,7 +295,8 @@ function AdminPage() {
         </header>
 
         <main className="container mx-auto p-2 sm:p-4 md:p-6 lg:p-8">
-          <motion.div 
+          {/* İstatistik Kartları */}
+          <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -250,20 +307,24 @@ function AdminPage() {
                 <CardTitle className="text-sm font-medium text-muted-foreground">Toplam Ürün</CardTitle>
                 <Package className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent><div className="text-2xl font-bold text-foreground">{stats.totalProducts}</div></CardContent>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : totalProducts.toLocaleString('tr-TR')}
+                </div>
+              </CardContent>
             </Card>
 
             <Card className="bg-card shadow-sm border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Toplam Stok Değeri</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Bu Sayfada</CardTitle>
                 <Car className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent><div className="text-2xl font-bold text-foreground">₺{stats.totalValue.toLocaleString('tr-TR')}</div></CardContent>
+              <CardContent><div className="text-2xl font-bold text-foreground">{products.length}</div></CardContent>
             </Card>
 
             <Card className="bg-card shadow-sm border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Düşük Stoklu Ürünler</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Düşük Stoklu</CardTitle>
                 <AlertCircle className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent><div className="text-2xl font-bold text-foreground">{stats.lowStock}</div></CardContent>
@@ -271,10 +332,14 @@ function AdminPage() {
 
             <Card className="bg-card shadow-sm border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Toplam Kategori</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">Sayfa</CardTitle>
                 <Settings className="h-4 w-4 text-primary" />
               </CardHeader>
-              <CardContent><div className="text-2xl font-bold text-foreground">{stats.categories}</div></CardContent>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">
+                  {currentPage} <span className="text-base text-muted-foreground">/ {totalPages}</span>
+                </div>
+              </CardContent>
             </Card>
           </motion.div>
 
@@ -291,6 +356,18 @@ function AdminPage() {
                 products={products}
                 onEdit={handleEditProduct}
                 onDelete={handleDeleteProduct}
+                // Server-side sayfalama props
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalProducts={totalProducts}
+                limit={PAGE_SIZE}
+                loading={loading}
+                onPageChange={handlePageChange}
+                onSearchChange={handleSearchChange}
+                onCategoryChange={handleCategoryChange}
+                onSortChange={handleSortChange}
+                filterCategory={filterCategory}
+                externalSearch={searchTerm}
               />
             )}
           </motion.div>

@@ -78,8 +78,8 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     try {
       console.log('Form submit edildi!');
       console.log('Form data:', formData); // Debug için eklendi
-      if (!formData.name || !formData.brand || !formData.price || !formData.imageUrl) {
-        toast({ title: "Hata!", description: "Lütfen zorunlu alanları doldurun (Ürün Adı, Marka, Fiyat ve Ana Fotoğraf).", variant: "destructive" });
+      if (!formData.name || !formData.brand || !formData.imageUrl) {
+        toast({ title: "Hata!", description: "Lütfen zorunlu alanları doldurun (Ürün Adı, Marka ve Ana Fotoğraf).", variant: "destructive" });
         return;
       }
       if (/^\d+$/.test(formData.description.trim())) {
@@ -157,8 +157,8 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                 <Input name="year" value={formData.year} onChange={handleChange} className="bg-background" placeholder="Örn: 2015-2020" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-muted-foreground mb-1">Fiyat (₺) *</label>
-                <Input name="price" type="number" step="0.01" value={formData.price} onChange={handleChange} className="bg-background" placeholder="0.00" required />
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Fiyat (₺) <span className="text-xs text-gray-400">(opsiyonel)</span></label>
+                <Input name="price" type="number" step="0.01" value={formData.price} onChange={handleChange} className="bg-background" placeholder="0.00" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-1">Stok Adedi</label>

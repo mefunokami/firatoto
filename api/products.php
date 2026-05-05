@@ -211,25 +211,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
 }
 // GET: Ürünleri listele
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET['weekly_deal'])) {
-    $brand = isset($_GET['brand']) ? $_GET['brand'] : null;
-    $model = isset($_GET['model']) ? $_GET['model'] : null;
-    $sql = "SELECT * FROM products WHERE 1=1";
+    $brand    = isset($_GET['brand'])    ? $_GET['brand']    : null;
+    $model    = isset($_GET['model'])    ? $_GET['model']    : null;
+    $search   = isset($_GET['search'])   ? trim($_GET['search'])   : null;
+    $category = isset($_GET['category']) ? trim($_GET['category']) : null;
+
+    // Sayfalama parametreleri (admin için)
+    $usePagination = isset($_GET['page']);
+    $page  = max(1, intval($_GET['page']  ?? 1));
+    $limit = min(200, max(10, intval($_GET['limit'] ?? 50)));
+    $offset = ($page - 1) * $limit;
+
+    $where = "WHERE 1=1";
     $params = [];
-    $types = '';
+    $types  = '';
+
     if ($brand) {
-        $sql .= " AND (brand = ? OR slug_brand = ?)";
+        $where .= " AND (brand = ? OR slug_brand = ?)";
         $params[] = $brand;
         $params[] = slugify($brand);
         $types .= 'ss';
     }
     if ($model) {
-        $sql .= " AND (model = ? OR slug_model = ?)";
+        $where .= " AND (model = ? OR slug_model = ?)";
         $params[] = $model;
         $params[] = slugify($model);
         $types .= 'ss';
     }
-    $sql .= " ORDER BY createdAt DESC";
-    if (count($params) > 0) {
+    if ($search) {
+        $where .= " AND (name LIKE ? OR partNumber LIKE ? OR brand LIKE ? OR model LIKE ?)";
+        $sp = '%' . $search . '%';
+        $params[] = $sp; $params[] = $sp; $params[] = $sp; $params[] = $sp;
+        $types .= 'ssss';
+    }
+    if ($category) {
+        $where .= " AND category = ?";
+        $params[] = $category;
+        $types .= 's';
+    }
+
+    // --- Admin sayfalama modu ---
+    if ($usePagination) {
+        // Toplam sayı
+        $countSql = "SELECT COUNT(*) as total FROM products $where";
+        if ($types) {
+            $cStmt = $conn->prepare($countSql);
+            $cStmt->bind_param($types, ...$params);
+            $cStmt->execute();
+            $total = $cStmt->get_result()->fetch_assoc()['total'];
+        } else {
+            $total = $conn->query($countSql)->fetch_assoc()['total'];
+        }
+
+        $sql = "SELECT * FROM products $where ORDER BY createdAt DESC LIMIT ? OFFSET ?";
+        $pParams = array_merge($params, [$limit, $offset]);
+        $pTypes  = $types . 'ii';
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($pTypes, ...$pParams);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $products = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['slug_brand'] = slugify($row['brand']);
+            $row['slug_name']  = slugify($row['name']);
+            $products[] = $row;
+        }
+        echo json_encode([
+            'products' => $products,
+            'total'    => intval($total),
+            'page'     => $page,
+            'limit'    => $limit,
+            'pages'    => max(1, (int)ceil($total / $limit))
+        ]);
+        exit;
+    }
+
+    // --- Geriye dönük uyumlu mod (public site, brand/model filtreli) ---
+    $sql = "SELECT * FROM products $where ORDER BY createdAt DESC";
+    if ($types) {
         $stmt = $conn->prepare($sql);
         $stmt->bind_param($types, ...$params);
         $stmt->execute();
@@ -239,9 +299,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
     }
     $products = [];
     while ($row = $result->fetch_assoc()) {
-        // slug_brand ve slug_name alanlarını ekle
         $row['slug_brand'] = slugify($row['brand']);
-        $row['slug_name'] = slugify($row['name']);
+        $row['slug_name']  = slugify($row['name']);
         $products[] = $row;
     }
     echo json_encode($products);
