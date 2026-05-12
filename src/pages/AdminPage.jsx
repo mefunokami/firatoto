@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Plus, Package, TrendingUp, AlertCircle, Settings, Wrench, ArrowLeft, Car, Users, Loader2 } from 'lucide-react';
+import { Plus, Package, TrendingUp, AlertCircle, Settings, Wrench, ArrowLeft, Car, Users, Loader2, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { CartProvider } from '@/lib/CartContext.jsx';
 
-const API_URL = 'https://firatotoyedekparca.com/api/products.php';
+const API_URL = '/api/products.php';
 const PAGE_SIZE = 50; // Sayfa başı ürün sayısı
 
 const SABIT_MARKALAR = [
@@ -273,6 +273,11 @@ function AdminPage() {
                 <button onClick={() => { setActiveTab('list'); setShowForm(false); }} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${activeTab === 'list' && !showForm ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Package className="h-4 w-4" />Ürün Listesi</button>
                 <div className="h-8 w-px bg-gray-700 mx-1" />
                 <button onClick={handleNewProduct} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${activeTab === 'add' || showForm ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Plus className="h-4 w-4" />{editingProduct ? "Ürün Düzenle" : "Yeni Ürün Ekle"}</button>
+                <div className="h-8 w-px bg-gray-700 mx-1" />
+                <button onClick={() => navigate('/admin/xml-import')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  <span>Toplu İçe Aktar</span>
+                </button>
                 <div className="h-8 w-px bg-gray-700 mx-1" />
                 <button onClick={() => { navigate('/admin/categories'); }} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${activeTab === 'categories' ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Settings className="h-4 w-4" />Kategoriler</button>
                 <div className="h-8 w-px bg-gray-700 mx-1" />

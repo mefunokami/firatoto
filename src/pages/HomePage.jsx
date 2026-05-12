@@ -13,7 +13,7 @@ import HomeSlider from '@/components/HomeSlider';
 import WeeklyDealSlider from '@/components/WeeklyDealSlider';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
-const API_URL = 'https://firatotoyedekparca.com/api/products.php';
+const API_URL = '/api/products.php';
 
 const SABIT_MARKALAR = [
   { value: "OPEL", label: "OPEL" },

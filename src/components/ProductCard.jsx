@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 
 const ProductCard = ({ product, onEdit, onDelete }) => {
   const formatPrice = (price) => {
+    if (!price || parseFloat(price) === 0) return 'Fiyatı Sorunuz.';
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(price);
   };
   const formatDate = (dateString) => {

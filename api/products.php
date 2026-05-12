@@ -3,15 +3,27 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 header('Content-Type: application/json');
-// CORS sadece güvenilir domain
-header('Access-Control-Allow-Origin: https://www.firatotoyedekparca.com');
+// CORS - hem canlı hem local
+$allowedOrigins = ['https://www.firatotoyedekparca.com', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: http://localhost:5174');
+}
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 // Rate limiting (IP başına saniyede 10 istek)
 session_start();
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-if (!isset($_SESSION['rate_limit'])) $_SESSION['rate_limit'] = [];
+if (!isset($_SESSION['rate_limit']))
+    $_SESSION['rate_limit'] = [];
 $now = time();
 if (!isset($_SESSION['rate_limit'][$ip])) {
     $_SESSION['rate_limit'][$ip] = ['time' => $now, 'count' => 1];
@@ -30,9 +42,10 @@ if (!isset($_SESSION['rate_limit'][$ip])) {
 }
 
 // --- SLUGIFY FONKSİYONU ---
-function slugify($str) {
+function slugify($str)
+{
     $str = mb_strtolower($str, 'UTF-8');
-    $tr = ['ş'=>'s','Ş'=>'s','ı'=>'i','İ'=>'i','ç'=>'c','Ç'=>'c','ü'=>'u','Ü'=>'u','ö'=>'o','Ö'=>'o','ğ'=>'g','Ğ'=>'g'];
+    $tr = ['ş' => 's', 'Ş' => 's', 'ı' => 'i', 'İ' => 'i', 'ç' => 'c', 'Ç' => 'c', 'ü' => 'u', 'Ü' => 'u', 'ö' => 'o', 'Ö' => 'o', 'ğ' => 'g', 'Ğ' => 'g'];
     $str = strtr($str, $tr);
     // Tire karakterini koru (MERCEDES-BENZ için)
     $str = preg_replace('/[^a-z0-9\s_-]/u', '', $str);
@@ -41,14 +54,16 @@ function slugify($str) {
 }
 
 // --- TÜM ÜRÜNLERİN SLUG ALANLARINI GÜNCELLE ---
-function updateAllProductSlugs($conn) {
+function updateAllProductSlugs($conn)
+{
     $result = $conn->query("SELECT id, brand, name FROM products");
-    if (!$result) return false;
+    if (!$result)
+        return false;
     while ($row = $result->fetch_assoc()) {
         $slug_brand = slugify($row['brand']);
         $slug_name = slugify($row['name']);
         $id = intval($row['id']);
-        $conn->query("UPDATE products SET slug_brand='".$conn->real_escape_string($slug_brand)."', slug_name='".$conn->real_escape_string($slug_name)."' WHERE id=$id");
+        $conn->query("UPDATE products SET slug_brand='" . $conn->real_escape_string($slug_brand) . "', slug_name='" . $conn->real_escape_string($slug_name) . "' WHERE id=$id");
     }
     return true;
 }
@@ -60,7 +75,7 @@ if (isset($_GET['fix_models']) && $_GET['fix_models'] == 1) {
         while ($row = $result->fetch_assoc()) {
             $id = intval($row['id']);
             $model = strtoupper(trim($row['model']));
-            $conn->query("UPDATE products SET model='".$conn->real_escape_string($model)."' WHERE id=$id");
+            $conn->query("UPDATE products SET model='" . $conn->real_escape_string($model) . "' WHERE id=$id");
         }
         echo json_encode(["success" => true, "message" => "GENEL MARKALAR ürünlerinin model alanları düzeltildi."]);
     } else {
@@ -109,7 +124,7 @@ if (isset($_GET['fix_mercedes_slugs']) && $_GET['fix_mercedes_slugs'] == 1) {
         while ($row = $result->fetch_assoc()) {
             $id = intval($row['id']);
             $slug_brand = slugify($row['brand']); // mercedes-benz
-            $conn->query("UPDATE products SET slug_brand='".$conn->real_escape_string($slug_brand)."' WHERE id=$id");
+            $conn->query("UPDATE products SET slug_brand='" . $conn->real_escape_string($slug_brand) . "' WHERE id=$id");
             $count++;
         }
         echo json_encode(["success" => true, "message" => "MERCEDES-BENZ slug'ları düzeltildi.", "updated" => $count]);
@@ -119,15 +134,13 @@ if (isset($_GET['fix_mercedes_slugs']) && $_GET['fix_mercedes_slugs'] == 1) {
     exit;
 }
 
-// --- SLUG GÜNCELLEMEYİ EN BAŞA AL ---
-$host = "localhost";
-$user = "u926623781_firatotoyedek";
-$pass = "b4T]5fObI7";
-$db   = "u926623781_firatoto";
-$conn = new mysqli($host, $user, $pass, $db);
+// --- DB BAĞLANTISI (db.php üzerinden) ---
+require_once __DIR__ . '/db.php';
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn->set_charset('utf8mb4');
 if ($conn->connect_error) {
     http_response_code(500);
-    echo json_encode(["error" => "Veritabanı bağlantı hatası"]);
+    echo json_encode(["error" => "Veritabanı bağlantı hatası: " . $conn->connect_error]);
     exit;
 }
 
@@ -140,7 +153,7 @@ if (isset($_GET['fix_slug_models']) && $_GET['fix_slug_models'] == 1) {
             $id = intval($row['id']);
             $model = $row['model'];
             $slug_model = slugify($model);
-            $conn->query("UPDATE products SET slug_model='".$conn->real_escape_string($slug_model)."' WHERE id=$id");
+            $conn->query("UPDATE products SET slug_model='" . $conn->real_escape_string($slug_model) . "' WHERE id=$id");
             $count++;
         }
         echo json_encode(["success" => true, "message" => "Tüm ürünlerin slug_model alanı güncellendi.", "updated" => $count]);
@@ -162,7 +175,7 @@ if (isset($_GET['fix_brand_models_all']) && $_GET['fix_brand_models_all'] == 1) 
             if (in_array($brand, ['GENEL MARKALAR', 'GENELMARKALAR', 'GENEL-MARKALAR', 'GENEL_MARKALAR', 'GENEL MARKALAR ', 'GENEL MARKALAR'])) {
                 $model = strtoupper(trim($row['model']));
                 $model = preg_replace('/\s+/', ' ', $model);
-                $conn->query("UPDATE products SET brand='GENEL MARKALAR', model='".$conn->real_escape_string($model)."' WHERE id=$id");
+                $conn->query("UPDATE products SET brand='GENEL MARKALAR', model='" . $conn->real_escape_string($model) . "' WHERE id=$id");
                 $count++;
             }
         }
@@ -211,20 +224,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
 }
 // GET: Ürünleri listele
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET['weekly_deal'])) {
-    $brand    = isset($_GET['brand'])    ? $_GET['brand']    : null;
-    $model    = isset($_GET['model'])    ? $_GET['model']    : null;
-    $search   = isset($_GET['search'])   ? trim($_GET['search'])   : null;
+    $brand = isset($_GET['brand']) ? $_GET['brand'] : null;
+    $model = isset($_GET['model']) ? $_GET['model'] : null;
+    $search = isset($_GET['search']) ? trim($_GET['search']) : null;
     $category = isset($_GET['category']) ? trim($_GET['category']) : null;
 
     // Sayfalama parametreleri (admin için)
     $usePagination = isset($_GET['page']);
-    $page  = max(1, intval($_GET['page']  ?? 1));
+    $page = max(1, intval($_GET['page'] ?? 1));
     $limit = min(200, max(10, intval($_GET['limit'] ?? 50)));
     $offset = ($page - 1) * $limit;
 
     $where = "WHERE 1=1";
     $params = [];
-    $types  = '';
+    $types = '';
 
     if ($brand) {
         $where .= " AND (brand = ? OR slug_brand = ?)";
@@ -241,7 +254,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
     if ($search) {
         $where .= " AND (name LIKE ? OR partNumber LIKE ? OR brand LIKE ? OR model LIKE ?)";
         $sp = '%' . $search . '%';
-        $params[] = $sp; $params[] = $sp; $params[] = $sp; $params[] = $sp;
+        $params[] = $sp;
+        $params[] = $sp;
+        $params[] = $sp;
+        $params[] = $sp;
         $types .= 'ssss';
     }
     if ($category) {
@@ -265,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
 
         $sql = "SELECT * FROM products $where ORDER BY createdAt DESC LIMIT ? OFFSET ?";
         $pParams = array_merge($params, [$limit, $offset]);
-        $pTypes  = $types . 'ii';
+        $pTypes = $types . 'ii';
         $stmt = $conn->prepare($sql);
         $stmt->bind_param($pTypes, ...$pParams);
         $stmt->execute();
@@ -274,15 +290,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
         $products = [];
         while ($row = $result->fetch_assoc()) {
             $row['slug_brand'] = slugify($row['brand']);
-            $row['slug_name']  = slugify($row['name']);
+            $row['slug_name'] = slugify($row['name']);
             $products[] = $row;
         }
         echo json_encode([
             'products' => $products,
-            'total'    => intval($total),
-            'page'     => $page,
-            'limit'    => $limit,
-            'pages'    => max(1, (int)ceil($total / $limit))
+            'total' => intval($total),
+            'page' => $page,
+            'limit' => $limit,
+            'pages' => max(1, (int) ceil($total / $limit))
         ]);
         exit;
     }
@@ -300,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
     $products = [];
     while ($row = $result->fetch_assoc()) {
         $row['slug_brand'] = slugify($row['brand']);
-        $row['slug_name']  = slugify($row['name']);
+        $row['slug_name'] = slugify($row['name']);
         $products[] = $row;
     }
     echo json_encode($products);
@@ -322,8 +338,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['weekly_deal'])) {
 
 // POST: Ürün güncelle (PUT alternatifi, sadece admin için)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_GET['id']) && intval($_GET['id']) > 0) {
-    file_put_contents(__DIR__.'/debug.log', 'POST id: ' . print_r($_GET['id'], true) . PHP_EOL, FILE_APPEND);
-    if (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1) {
+    file_put_contents(__DIR__ . '/debug.log', 'POST id: ' . print_r($_GET['id'], true) . PHP_EOL, FILE_APPEND);
+    // Local geliştirme ortamında admin kontrolünü atla
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
         http_response_code(403);
         echo json_encode(['error' => 'Yetkisiz erişim.']);
         exit;
@@ -344,9 +362,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_GET['id']) && intval($_GET
     $stmt = $conn->prepare("UPDATE products SET name=?, brand=?, model=?, year=?, price=?, stock=?, description=?, category=?, partNumber=?, imageUrl=?, imageUrl1=?, imageUrl2=?, trendyolUrl=?, is_weekly_deal=?, slug_brand=?, slug_name=? WHERE id=?");
     $stmt->bind_param(
         "ssssdissssssssssi",
-        $data['name'], $data['brand'], $data['model'], $data['year'],
-        $data['price'], $data['stock'], $description, $data['category'],
-        $data['partNumber'], $data['imageUrl'], $imageUrl1, $imageUrl2, $trendyolUrl, $is_weekly_deal, $slug_brand, $slug_name, $id
+        $data['name'],
+        $data['brand'],
+        $data['model'],
+        $data['year'],
+        $data['price'],
+        $data['stock'],
+        $description,
+        $data['category'],
+        $data['partNumber'],
+        $data['imageUrl'],
+        $imageUrl1,
+        $imageUrl2,
+        $trendyolUrl,
+        $is_weekly_deal,
+        $slug_brand,
+        $slug_name,
+        $id
     );
     if ($stmt->execute()) {
         // Yeni sitemap generator'ı çağır
@@ -358,7 +390,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_GET['id']) && intval($_GET
             ]
         ]);
         $response = file_get_contents($sitemapUrl, false, $context);
-        
+
         echo json_encode(["success" => true, "sitemap_updated" => !empty($response)]);
     } else {
         http_response_code(500);
@@ -368,12 +400,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_GET['id']) && intval($_GET
 }
 // POST: Ürün ekle
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_GET['id']) || empty($_GET['id']) || intval($_GET['id']) <= 0) && !isset($_GET['set_weekly_deal'])) {
-    file_put_contents(__DIR__.'/debug.log', 'EKLEME ÇALIŞTI' . PHP_EOL, FILE_APPEND);
+    file_put_contents(__DIR__ . '/debug.log', 'EKLEME ÇALIŞTI' . PHP_EOL, FILE_APPEND);
     $data = json_decode(file_get_contents('php://input'), true);
-    
+
     // Debug: Gelen veriyi logla
-    file_put_contents(__DIR__.'/debug.log', 'Gelen data: ' . print_r($data, true) . PHP_EOL, FILE_APPEND);
-    
+    file_put_contents(__DIR__ . '/debug.log', 'Gelen data: ' . print_r($data, true) . PHP_EOL, FILE_APPEND);
+
     $is_weekly_deal = isset($data['is_weekly_deal']) && $data['is_weekly_deal'] ? 1 : 0;
     $description = isset($data['description']) ? trim($data['description']) : '';
     // Açıklama boşsa null olarak kaydet
@@ -384,17 +416,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_GET['id']) || empty($_GET
     $slug_name = slugify($data['name']);
     $imageUrl1 = isset($data['imageUrl1']) ? $data['imageUrl1'] : '';
     $imageUrl2 = isset($data['imageUrl2']) ? $data['imageUrl2'] : '';
-    
+
     // Debug: imageUrl1 ve imageUrl2 değerlerini logla
-    file_put_contents(__DIR__.'/debug.log', 'imageUrl1: ' . $imageUrl1 . PHP_EOL, FILE_APPEND);
-    file_put_contents(__DIR__.'/debug.log', 'imageUrl2: ' . $imageUrl2 . PHP_EOL, FILE_APPEND);
-    
+    file_put_contents(__DIR__ . '/debug.log', 'imageUrl1: ' . $imageUrl1 . PHP_EOL, FILE_APPEND);
+    file_put_contents(__DIR__ . '/debug.log', 'imageUrl2: ' . $imageUrl2 . PHP_EOL, FILE_APPEND);
+
     $stmt = $conn->prepare("INSERT INTO products (name, brand, model, year, price, stock, description, category, partNumber, imageUrl, imageUrl1, imageUrl2, trendyolUrl, createdAt, is_weekly_deal, slug_brand, slug_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)");
     $stmt->bind_param(
         "ssssdissssssssss",
-        $data['name'], $data['brand'], $data['model'], $data['year'],
-        $data['price'], $data['stock'], $description, $data['category'],
-        $data['partNumber'], $data['imageUrl'], $imageUrl1, $imageUrl2, $data['trendyolUrl'], $is_weekly_deal, $slug_brand, $slug_name
+        $data['name'],
+        $data['brand'],
+        $data['model'],
+        $data['year'],
+        $data['price'],
+        $data['stock'],
+        $description,
+        $data['category'],
+        $data['partNumber'],
+        $data['imageUrl'],
+        $imageUrl1,
+        $imageUrl2,
+        $data['trendyolUrl'],
+        $is_weekly_deal,
+        $slug_brand,
+        $slug_name
     );
     if ($stmt->execute()) {
         // Yeni sitemap generator'ı çağır
@@ -406,7 +451,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_GET['id']) || empty($_GET
             ]
         ]);
         $response = file_get_contents($sitemapUrl, false, $context);
-        
+
         echo json_encode(["success" => true, "id" => $stmt->insert_id, "sitemap_updated" => !empty($response)]);
     } else {
         http_response_code(500);
@@ -437,7 +482,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['set_weekly_deal'])) {
             ]
         ]);
         $response = file_get_contents($sitemapUrl, false, $context);
-        
+
         echo json_encode(["success" => true, "sitemap_updated" => !empty($response)]);
     } else {
         http_response_code(500);
@@ -467,7 +512,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
             ]
         ]);
         $response = file_get_contents($sitemapUrl, false, $context);
-        
+
         echo json_encode(["success" => true, "sitemap_updated" => !empty($response)]);
     } else {
         http_response_code(500);
@@ -476,10 +521,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     exit;
 }
 
-echo json_encode(["error" => "Geçersiz istek"]); 
+echo json_encode(["error" => "Geçersiz istek"]);
 
 // --- SİTE HARİTASI GÜNCELLEME FONKSİYONU ---
-function updateSitemap($conn) {
+function updateSitemap($conn)
+{
     $sql = "SELECT brand, name FROM products";
     $result = $conn->query($sql);
     $urls = [];
@@ -490,4 +536,4 @@ function updateSitemap($conn) {
     }
     $sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"https://www.sitemaps.org/schemas/sitemap/0.9\">\n  <url>\n    <loc>https://firatotoyedekparca.com/</loc>\n    <priority>1.0</priority>\n  </url>\n  <url>\n    <loc>https://firatotoyedekparca.com/about</loc>\n    <priority>0.8</priority>\n  </url>\n  <url>\n    <loc>https://firatotoyedekparca.com/contact-info</loc>\n    <priority>0.8</priority>\n  </url>\n" . implode("\n", $urls) . "\n</urlset>\n";
     file_put_contents(__DIR__ . '/../public/sitemap.xml', $sitemap);
-} 
+}

@@ -18,9 +18,16 @@
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: https://www.firatotoyedekparca.com');
+$allowedOrigins = ['https://www.firatotoyedekparca.com', 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (in_array($origin, $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: http://localhost:5174');
+}
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -33,12 +40,8 @@ ini_set('memory_limit', '256M');
 
 // Veritabanı bağlantısı
 require_once __DIR__ . '/db.php';
-if (!isset($conn) || $conn->connect_error) {
-    $host = "localhost";
-    $user = "u926623781_firatotoyedek";
-    $pass = "b4T]5fObI7";
-    $db = "u926623781_firatoto";
-    $conn = new mysqli($host, $user, $pass, $db);
+if (!isset($conn) || (isset($conn->connect_error) && $conn->connect_error)) {
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 }
 if ($conn->connect_error) {
     http_response_code(500);

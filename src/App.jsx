@@ -34,6 +34,7 @@ import BlogPage from './pages/BlogPage';
 import AdminBlogPage from './pages/AdminBlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
 import AdminFaqPage from './pages/AdminFaqPage';
+import AdminXmlImportPage from './pages/AdminXmlImportPage';
 
 function App() {
   const [loginOpen, setLoginOpen] = React.useState(false);
@@ -105,6 +106,7 @@ function App() {
         } />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/admin/xml-import" element={<AdminXmlImportPage />} />
       </Routes>
       <Toaster />
     </CartProvider>

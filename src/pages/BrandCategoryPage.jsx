@@ -461,7 +461,7 @@ export default function BrandCategoryPage() {
                     >
                       <div className="text-center text-xs text-gray-700 mb-2 font-semibold w-full min-h-[32px]">{product.name}</div>
                       <img src={product.imageUrl || product.image} alt={product.name} className="w-32 h-32 object-contain mb-2" />
-                      <div className="font-bold text-lg mb-4">{product.price?.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
+                      <div className="font-bold text-lg mb-4">{(!product.price || parseFloat(product.price) === 0) ? 'Fiyatı Sorunuz.' : product.price?.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
                       <div className="flex w-full gap-2 mt-auto">
                         <button
                           className="flex-1 px-3 py-1 border rounded text-xs bg-yellow-400 hover:bg-yellow-500 text-white font-bold transition"

@@ -40,6 +40,7 @@ const PublicProductCard = ({ product }) => {
   };
 
   const formatPrice = (price) => {
+    if (!price || parseFloat(price) === 0) return 'Fiyatı Sorunuz.';
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(price);
   };
 

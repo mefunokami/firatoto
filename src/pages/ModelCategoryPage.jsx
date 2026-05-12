@@ -89,7 +89,7 @@ export default function ModelCategoryPage() {
                     {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="max-h-28" /> : <span className="text-gray-300">Görsel Yok</span>}
                   </div>
                   <div className="font-semibold text-center mb-2">{p.name}</div>
-                  <div className="font-bold text-lg mb-2">{Number(p.price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
+                  <div className="font-bold text-lg mb-2">{(!p.price || parseFloat(p.price) === 0) ? 'Fiyatı Sorunuz.' : Number(p.price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
                   <button 
                     className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-4 py-2 rounded w-full mb-2"
                     onClick={() => {

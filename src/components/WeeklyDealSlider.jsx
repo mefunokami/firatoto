@@ -170,7 +170,7 @@ export default function WeeklyDealSlider({ large }) {
           {products[current].name}
         </div>
         <div className="text-center text-black text-xl font-bold mt-2">
-          {Number(products[current].price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
+          {(!products[current].price || parseFloat(products[current].price) === 0) ? 'Fiyatı Sorunuz.' : Number(products[current].price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
         </div>
       </div>
     </div>

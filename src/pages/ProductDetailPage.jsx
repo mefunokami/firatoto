@@ -258,7 +258,7 @@ export default function ProductDetailPage() {
               </div>
               <div className="text-center md:text-right">
                 <div className="text-3xl md:text-4xl font-bold text-yellow-600">
-                  {Number(product.price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
+                  {(!product.price || parseFloat(product.price) === 0) ? 'Fiyatı Sorunuz.' : Number(product.price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
                 </div>
               </div>
             </div>
