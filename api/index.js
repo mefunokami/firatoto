@@ -18,7 +18,7 @@ const requireApiKey = (req, res, next) => {
   if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
     const apiKey = req.headers['x-api-key'] || req.query.api_key;
     const validApiKey = process.env.API_KEY || 'gizli-sifrem-12345'; // .env dosyasından okur veya varsayılanı kullanır
-    
+
     if (!apiKey || apiKey !== validApiKey) {
       return res.status(401).json({ error: 'Yetkisiz erişim: API Anahtarı eksik veya geçersiz.' });
     }
