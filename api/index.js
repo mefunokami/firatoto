@@ -11,6 +11,23 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
+// API Key Middleware (Güvenlik için)
+const requireApiKey = (req, res, next) => {
+  // GET isteklerine (listeleme) izin verebiliriz veya hepsini kapatabiliriz.
+  // Şu anlık veri değiştirme işlemleri (POST, PUT, DELETE) için API Key zorunlu kılıyoruz.
+  if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+    const apiKey = req.headers['x-api-key'] || req.query.api_key;
+    const validApiKey = process.env.API_KEY || 'gizli-sifrem-12345'; // .env dosyasından okur veya varsayılanı kullanır
+    
+    if (!apiKey || apiKey !== validApiKey) {
+      return res.status(401).json({ error: 'Yetkisiz erişim: API Anahtarı eksik veya geçersiz.' });
+    }
+  }
+  next();
+};
+
+app.use(requireApiKey);
+
 // MySQL bağlantısı
 const pool = mysql.createPool({
   host: process.env.DB_HOST,

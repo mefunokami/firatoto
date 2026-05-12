@@ -70,6 +70,12 @@ function updateAllProductSlugs($conn)
 
 // --- TÜM GENEL MARKALAR ÜRÜNLERİNİN MODEL ALANINI DÜZELT ---
 if (isset($_GET['fix_models']) && $_GET['fix_models'] == 1) {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
     $result = $conn->query("SELECT id, model FROM products WHERE brand = 'GENEL MARKALAR'");
     if ($result) {
         while ($row = $result->fetch_assoc()) {
@@ -86,6 +92,12 @@ if (isset($_GET['fix_models']) && $_GET['fix_models'] == 1) {
 
 // --- GENEL MARKALAR ve CASTROL varyasyonlarını topluca düzelt ---
 if (isset($_GET['fix_brand_model']) && $_GET['fix_brand_model'] == 1) {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
     $result = $conn->query("SELECT id, brand, model FROM products");
     if ($result) {
         $count = 0;
@@ -118,6 +130,12 @@ if (isset($_GET['fix_brand_model']) && $_GET['fix_brand_model'] == 1) {
 
 // --- MERCEDES-BENZ SLUG'LARINI DÜZELT ---
 if (isset($_GET['fix_mercedes_slugs']) && $_GET['fix_mercedes_slugs'] == 1) {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
     $result = $conn->query("SELECT id, brand FROM products WHERE brand = 'MERCEDES-BENZ'");
     if ($result) {
         $count = 0;
@@ -146,6 +164,12 @@ if ($conn->connect_error) {
 
 // --- TÜM ÜRÜNLERİN SLUG_MODEL ALANINI GÜNCELLE ---
 if (isset($_GET['fix_slug_models']) && $_GET['fix_slug_models'] == 1) {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
     $result = $conn->query("SELECT id, model FROM products");
     if ($result) {
         $count = 0;
@@ -165,6 +189,12 @@ if (isset($_GET['fix_slug_models']) && $_GET['fix_slug_models'] == 1) {
 
 // --- GENEL MARKALAR markalı TÜM ürünlerin brand ve model alanlarını topluca düzelt ---
 if (isset($_GET['fix_brand_models_all']) && $_GET['fix_brand_models_all'] == 1) {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
     $result = $conn->query("SELECT id, brand, model FROM products");
     if ($result) {
         $count = 0;
@@ -188,6 +218,12 @@ if (isset($_GET['fix_brand_models_all']) && $_GET['fix_brand_models_all'] == 1) 
 
 // --- TÜM ÜRÜNLERİN SLUG ALANLARINI GÜNCELLE (manuel tetikleme) ---
 if (isset($_GET['update_slugs']) && $_GET['update_slugs'] == 1) {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
     if (updateAllProductSlugs($conn)) {
         echo json_encode(["success" => true, "message" => "Tüm ürünlerin slug_brand ve slug_name alanları güncellendi."]);
     } else {
@@ -400,6 +436,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_GET['id']) && intval($_GET
 }
 // POST: Ürün ekle
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_GET['id']) || empty($_GET['id']) || intval($_GET['id']) <= 0) && !isset($_GET['set_weekly_deal'])) {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
+
     file_put_contents(__DIR__ . '/debug.log', 'EKLEME ÇALIŞTI' . PHP_EOL, FILE_APPEND);
     $data = json_decode(file_get_contents('php://input'), true);
 
@@ -462,6 +505,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_GET['id']) || empty($_GET
 
 // POST: Haftanın fırsatı olarak işaretle
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['set_weekly_deal'])) {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
+
     $data = json_decode(file_get_contents('php://input'), true);
     $id = isset($data['id']) ? intval($data['id']) : null;
     $is_weekly_deal = isset($data['is_weekly_deal']) ? intval($data['is_weekly_deal']) : 0;
@@ -493,6 +543,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['set_weekly_deal'])) {
 
 // DELETE: Ürün sil
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $isLocal = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1']);
+    if (!$isLocal && (!isset($_SESSION['user_id']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1)) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Yetkisiz erişim.']);
+        exit;
+    }
+
     parse_str($_SERVER['QUERY_STRING'], $params);
     $id = isset($params['id']) ? intval($params['id']) : null;
     if (!$id) {
