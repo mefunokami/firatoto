@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/ProductCard';
-import { Search, ListFilter, SortAsc, SortDesc, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2 } from 'lucide-react';
+import { Search, ListFilter, SortAsc, SortDesc, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, ImageOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const ProductList = ({
@@ -21,6 +21,8 @@ const ProductList = ({
   onSortChange,
   filterCategory,
   externalSearch,
+  filterNoImage,
+  onNoImageChange,
 }) => {
   const [searchTerm, setSearchTerm]       = useState(externalSearch || '');
   const [sortBy, setSortBy]               = useState('createdAt');
@@ -148,6 +150,23 @@ const ProductList = ({
                 />
                 <label htmlFor="weeklyDealOnly" className="text-yellow-700 font-medium select-none cursor-pointer text-sm">
                   Haftanın Fırsatları
+                </label>
+              </div>
+            )}
+
+            {/* Fotoğrafsız Ürünler filtresi (server-side modda) */}
+            {isServerSide && typeof onNoImageChange === 'function' && (
+              <div className="flex items-center gap-2 min-w-max">
+                <input
+                  type="checkbox"
+                  id="noImageFilter"
+                  checked={filterNoImage || false}
+                  onChange={e => onNoImageChange(e.target.checked)}
+                  className="accent-red-500 w-5 h-5"
+                />
+                <label htmlFor="noImageFilter" className="text-red-600 font-medium select-none cursor-pointer text-sm flex items-center gap-1">
+                  <ImageOff className="h-4 w-4" />
+                  Fotoğrafsız Ürünler
                 </label>
               </div>
             )}

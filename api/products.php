@@ -264,6 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
     $model = isset($_GET['model']) ? $_GET['model'] : null;
     $search = isset($_GET['search']) ? trim($_GET['search']) : null;
     $category = isset($_GET['category']) ? trim($_GET['category']) : null;
+    $noImage = isset($_GET['no_image']) && $_GET['no_image'] == '1';
 
     // Sayfalama parametreleri (admin için)
     $usePagination = isset($_GET['page']);
@@ -300,6 +301,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
         $where .= " AND category = ?";
         $params[] = $category;
         $types .= 's';
+    }
+    if ($noImage) {
+        $where .= " AND (imageUrl IS NULL OR imageUrl = '')";
     }
 
     // --- Admin sayfalama modu ---

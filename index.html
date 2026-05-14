@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>Fırat Oto Yedek Parça | Adana Yedek Parça | Uygun Fiyatlı Oto Parçaları</title>
-		<meta name="description" content="BMW yedek parça, Mercedes yedek parça, Audi yedek parça, Volkswagen yedek parça, Seat yedek parça, Skoda yedek parça, Mini yedek parça, Porsche yedek parça ve birçok araç modeline ait orijinal ve eş değer oto yedek parçalarına anında firatotoyedekparca.com adresinden ulaşabilirsiniz." />
-		<meta name="keywords" content="oto yedek parça, araç yedek parça, orijinal yedek parça, BMW yedek parça, Mercedes yedek parça, Audi yedek parça, Volkswagen yedek parça, Seat yedek parça, Skoda yedek parça, Mini yedek parça, Porsche yedek parça, Ford yedek parça" />
+		<meta name="description" content="Fırat Oto Yedek Parça - BMW yedek parça, Mercedes yedek parça, Audi yedek parça, Volkswagen yedek parça, VW yedek parça, orijinal yedek parça, OEM yedek parça. Adana'nın en büyük Alman araç yedek parça mağazası. Turbo hortumu, intercooler, triger seti, yağ filtresi, hava filtresi, far, stop lambası, fren balatası, fren diski, amortisör, radyatör, tampon, ızgara, spoiler ve binlerce oto yedek parça çeşidi. firatotoyedekparca.com" />
+		<meta name="keywords" content="BMW yedek parça, Mercedes yedek parça, Audi yedek parça, Volkswagen yedek parça, VW yedek parça, orijinal yedek parça, Alman araç yedek parça, OEM yedek parça, online yedek parça, Adana BMW yedek parça, Adana Mercedes yedek parça, Adana Audi yedek parça, Adana VW yedek parça, Adana Volkswagen yedek parça, Seyhan BMW parça, Çukurova Mercedes parça, Adana Alman oto parça, Adana oto yedek parça, BMW turbo hortumu, intercooler, triger seti, yağ filtresi, hava filtresi, far, stop lambası, z rot, rotil, rot, fren balatası, fren diski, amortisör, buji, bobin, kaput amortisörü, şanzıman kulağı, salıncak, sinyal, radyatör, karbüratör, yakıt pompası, manifold, motor kaputu, bagaj kapağı, çamurluk, tampon, m tampon, ızgara, spoiler, karter, piston, braket, sis farı, sis far çerçevesi, çeki kapağı, park sensörü, panjur, oto yedek parça, araç yedek parça, Seat yedek parça, Skoda yedek parça, Opel yedek parça, Ford yedek parça, Peugeot yedek parça, Citroen yedek parça" />
 		<meta name="title" content="Fırat Oto Yedek Parça | Adana Yedek Parça | Uygun Fiyatlı Oto Parçaları" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, minimal-ui" />
 		<meta name="format-detection" content="address=no" />
@@ -13,13 +13,14 @@
 		<link rel="canonical" href="https://www.firatotoyedekparca.com" />
 		<meta name="robots" content="index, follow" />
 		<meta name="copyright" content="Copyright © 2025 Fırat Oto Yedek Parça" />
-		<link rel="icon" href="/favicon.ico" type="image/x-icon" />
-		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+		<link rel="icon" href="/favicon.png" type="image/png" />
+		<link rel="shortcut icon" href="/favicon.png" type="image/png" />
 		<link rel="manifest" href="/manifest.json" />
 		<meta name="generator" content="MefuSoftware" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" />
+		<link rel="apple-touch-icon" sizes="192x192" href="/favicon-192.png" />
 		<link rel="apple-touch-icon" href="/favicon.png" />
 		
 		<!-- Open Graph Meta Tags -->
@@ -188,6 +189,85 @@ window.fetch = function(...args) {
 		});
 };
 </script>
+		<!-- Anti-Copy Protection -->
+		<style>
+			body {
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+			/* Input ve textarea alanlarında seçime izin ver */
+			input, textarea, [contenteditable="true"] {
+				-webkit-user-select: text;
+				-moz-user-select: text;
+				-ms-user-select: text;
+				user-select: text;
+			}
+		</style>
+		<script>
+		(function() {
+			// Admin sayfalarında korumayı devre dışı bırak
+			function isAdminPage() {
+				return window.location.pathname.startsWith('/admin');
+			}
+
+			// Sağ tık engelle
+			document.addEventListener('contextmenu', function(e) {
+				if (!isAdminPage()) {
+					e.preventDefault();
+					return false;
+				}
+			});
+
+			// Ctrl+C, Ctrl+U, Ctrl+S, Ctrl+A, Ctrl+X, F12 engelle
+			document.addEventListener('keydown', function(e) {
+				if (isAdminPage()) return;
+				// Input/textarea içindeyse izin ver
+				var tag = (e.target.tagName || '').toLowerCase();
+				if (tag === 'input' || tag === 'textarea') return;
+
+				if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'a' || e.key === 'A' || e.key === 'x' || e.key === 'X')) {
+					e.preventDefault();
+					return false;
+				}
+				if (e.key === 'F12') {
+					e.preventDefault();
+					return false;
+				}
+			});
+
+			// Sürükle-bırak engelle (resimler için)
+			document.addEventListener('dragstart', function(e) {
+				if (!isAdminPage()) {
+					e.preventDefault();
+					return false;
+				}
+			});
+
+			// Kopyalama olayını engelle
+			document.addEventListener('copy', function(e) {
+				if (!isAdminPage()) {
+					var tag = (e.target.tagName || '').toLowerCase();
+					if (tag !== 'input' && tag !== 'textarea') {
+						e.preventDefault();
+						return false;
+					}
+				}
+			});
+
+			// Kesme olayını engelle
+			document.addEventListener('cut', function(e) {
+				if (!isAdminPage()) {
+					var tag = (e.target.tagName || '').toLowerCase();
+					if (tag !== 'input' && tag !== 'textarea') {
+						e.preventDefault();
+						return false;
+					}
+				}
+			});
+		})();
+		</script>
 	</head>
 	<body>
 		<!-- Google Tag Manager (noscript) -->
@@ -233,6 +313,84 @@ window.fetch = function(...args) {
 			"name": "İletişim ve Hesap Numaraları",
 			"url": "https://firatotoyedekparca.com/iletisim",
 			"description": "Fırat Oto Yedek Parça iletişim ve hesap bilgileri. Telefon, e-posta ve adres detayları burada."
+		}
+		</script>
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": ["AutoPartsStore", "LocalBusiness"],
+			"name": "Fırat Oto Yedek Parça",
+			"alternateName": "Fırat Oto",
+			"url": "https://www.firatotoyedekparca.com",
+			"logo": "https://www.firatotoyedekparca.com/logo.png",
+			"image": "https://www.firatotoyedekparca.com/logo.png",
+			"description": "BMW yedek parça, Mercedes yedek parça, Audi yedek parça, Volkswagen yedek parça, VW yedek parça, orijinal yedek parça, OEM yedek parça. Adana'nın en güvenilir Alman araç yedek parça mağazası.",
+			"telephone": "+905439740121",
+			"priceRange": "₺₺",
+			"address": {
+				"@type": "PostalAddress",
+				"addressLocality": "Adana",
+				"addressRegion": "Adana",
+				"addressCountry": "TR"
+			},
+			"geo": {
+				"@type": "GeoCoordinates",
+				"latitude": "37.0",
+				"longitude": "35.3213"
+			},
+			"areaServed": [
+				{"@type": "City", "name": "Adana"},
+				{"@type": "City", "name": "Seyhan"},
+				{"@type": "City", "name": "Çukurova"},
+				{"@type": "Country", "name": "Türkiye"}
+			],
+			"knowsAbout": [
+				"BMW yedek parça", "Mercedes yedek parça", "Audi yedek parça",
+				"Volkswagen yedek parça", "VW yedek parça", "Orijinal yedek parça",
+				"Alman araç yedek parça", "OEM yedek parça", "Online yedek parça",
+				"Adana BMW yedek parça", "Adana Mercedes yedek parça",
+				"Adana Audi yedek parça", "Adana VW yedek parça",
+				"turbo hortumu", "intercooler", "triger seti",
+				"yağ filtresi", "hava filtresi", "far", "stop lambası",
+				"z rot", "rotil", "rot", "fren balatası", "fren diski",
+				"amortisör", "buji", "bobin", "kaput amortisörü",
+				"şanzıman kulağı", "salıncak", "sinyal", "radyatör",
+				"karbüratör", "yakıt pompası", "manifold",
+				"motor kaputu", "bagaj kapağı", "çamurluk",
+				"tampon", "m tampon", "ızgara", "spoiler",
+				"karter", "piston", "braket",
+				"sis farı", "sis far çerçevesi", "çeki kapağı",
+				"park sensörü", "panjur"
+			],
+			"hasOfferCatalog": {
+				"@type": "OfferCatalog",
+				"name": "Oto Yedek Parça Kataloğu",
+				"itemListElement": [
+					{"@type": "OfferCatalog", "name": "Motor Parçaları", "description": "Turbo hortumu, intercooler, triger seti, yağ filtresi, hava filtresi, buji, bobin, manifold, karbüratör, yakıt pompası, karter, piston"},
+					{"@type": "OfferCatalog", "name": "Fren Sistemi", "description": "Fren balatası, fren diski, fren kaliperi"},
+					{"@type": "OfferCatalog", "name": "Süspansiyon ve Direksiyon", "description": "Amortisör, z rot, rotil, rot, salıncak, şanzıman kulağı, kaput amortisörü"},
+					{"@type": "OfferCatalog", "name": "Aydınlatma", "description": "Far, stop lambası, sinyal, sis farı, sis far çerçevesi"},
+					{"@type": "OfferCatalog", "name": "Kaporta Parçaları", "description": "Motor kaputu, bagaj kapağı, çamurluk, tampon, m tampon, ızgara, spoiler, panjur, braket, çeki kapağı, park sensörü"},
+					{"@type": "OfferCatalog", "name": "Soğutma Sistemi", "description": "Radyatör, intercooler, termostat"}
+				]
+			},
+			"brand": [
+				{"@type": "Brand", "name": "BMW"},
+				{"@type": "Brand", "name": "Mercedes-Benz"},
+				{"@type": "Brand", "name": "Audi"},
+				{"@type": "Brand", "name": "Volkswagen"},
+				{"@type": "Brand", "name": "Seat"},
+				{"@type": "Brand", "name": "Skoda"},
+				{"@type": "Brand", "name": "Opel"},
+				{"@type": "Brand", "name": "Ford"},
+				{"@type": "Brand", "name": "Peugeot"},
+				{"@type": "Brand", "name": "Citroen"},
+				{"@type": "Brand", "name": "Chevrolet"},
+				{"@type": "Brand", "name": "Tesla"}
+			],
+			"sameAs": [
+				"https://www.instagram.com/firatotoyedekparca/"
+			]
 		}
 		</script>
 	</body>

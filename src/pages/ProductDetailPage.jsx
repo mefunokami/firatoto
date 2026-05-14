@@ -216,6 +216,7 @@ export default function ProductDetailPage() {
         <Helmet>
           <title>{seoTitle}</title>
           <meta name="description" content={seoDesc} />
+          <meta name="keywords" content={`${product.brand} yedek parça, ${product.name}, ${product.brand} ${product.category || ''}, ${product.partNumber || ''}, ${product.model || ''}, Adana ${product.brand} yedek parça, orijinal yedek parça, OEM yedek parça, BMW yedek parça, Mercedes yedek parça, Audi yedek parça, Volkswagen yedek parça, VW yedek parça, Alman araç yedek parça, turbo hortumu, intercooler, triger seti, yağ filtresi, hava filtresi, far, stop lambası, fren balatası, fren diski, amortisör, tampon, ızgara, spoiler, panjur, radyatör`} />
           <link rel="canonical" href={`https://firatotoyedekparca.com/${slugify(product.brand)}/${slugify(product.name)}`} />
           {/* Open Graph (Facebook, WhatsApp, LinkedIn vs) */}
           <meta property="og:type" content="product" />
@@ -229,6 +230,39 @@ export default function ProductDetailPage() {
           <meta name="twitter:description" content={seoDesc} />
           <meta name="twitter:image" content={product.imageUrl} />
           <meta name="twitter:url" content={`https://firatotoyedekparca.com/${slugify(product.brand)}/${slugify(product.name)}`} />
+          {/* Schema.org Product JSON-LD */}
+          <script type="application/ld+json">{JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": product.name,
+            "description": product.description || `${product.brand} ${product.name} yedek parça - orijinal ve uygun fiyatlı`,
+            "brand": { "@type": "Brand", "name": product.brand },
+            "sku": product.partNumber || '',
+            "mpn": product.partNumber || '',
+            "category": product.category || 'Oto Yedek Parça',
+            "image": [product.imageUrl, product.imageUrl1, product.imageUrl2].filter(Boolean),
+            "url": `https://firatotoyedekparca.com/${slugify(product.brand)}/${slugify(product.name)}`,
+            ...(product.price && parseFloat(product.price) > 0 ? {
+              "offers": {
+                "@type": "Offer",
+                "price": parseFloat(product.price),
+                "priceCurrency": "TRY",
+                "availability": "https://schema.org/InStock",
+                "seller": { "@type": "Organization", "name": "Fırat Oto Yedek Parça" },
+                "url": `https://firatotoyedekparca.com/${slugify(product.brand)}/${slugify(product.name)}`
+              }
+            } : {}),
+            ...(comments.length > 0 ? {
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": averageRating.toFixed(1),
+                "reviewCount": comments.length,
+                "bestRating": "5",
+                "worstRating": "1"
+              }
+            } : {}),
+            "keywords": `${product.brand} yedek parça, ${product.name}, ${product.category || ''}, Adana ${product.brand} parça, orijinal yedek parça, OEM yedek parça`
+          })}</script>
         </Helmet>
       )}
       
@@ -709,11 +743,36 @@ export default function ProductDetailPage() {
         </div>
       )}
       
-      {/* SEO İçeriği */}
-      <div style={{display:'none'}}>
-        BMW yedek parça, Mercedes yedek parça, Volkswagen yedek parça, Audi yedek parça, Skoda yedek parça, Seat yedek parça, Mini Cooper parça, orijinal yedek parça, çıkma parça, motor parçası, oto elektrik, oto mekanik, uygun fiyatlı yedek parça.
-        Adana, Ankara, İstanbul, İzmir, Bursa, Antalya, Konya, Gaziantep, Mersin, Kayseri, Diyarbakır, Samsun, Eskişehir, Denizli, Şanlıurfa, Kocaeli, Trabzon, Sakarya, Malatya, Erzurum, Hatay, Balıkesir, Aydın, Manisa, Tekirdağ, Afyon, Van, Ordu, Batman, Elazığ, Çorum, Sivas, Isparta, Muğla, Uşak, Kütahya, Kırşehir, Osmaniye, Adıyaman, Tokat, Rize, Karabük, Giresun, Yozgat, Kars, Siirt, Bitlis, Bilecik, Düzce, Artvin, Nevşehir, Zonguldak, Niğde, Ağrı, Kilis, Tunceli, Bartın, Hakkari, Bayburt, Ardahan, Iğdır, Karaman, Aksaray, Çankırı, Kırıkkale, Bolu, Bingöl, Muş, Gümüşhane, Edirne.
-      </div>
+      {/* SEO İçeriği - Dinamik */}
+      {product && (
+        <section className="max-w-7xl mx-auto px-4 pb-8" aria-label="İlgili Aramalar">
+          <div className="bg-white rounded-xl border border-gray-100 p-6">
+            <h2 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">İlgili Aramalar</h2>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                `${product.brand} yedek parça`,
+                `${product.brand} ${product.category || 'parça'}`,
+                product.model ? `${product.brand} ${product.model} yedek parça` : null,
+                product.partNumber ? `${product.partNumber} parça numarası` : null,
+                `Adana ${product.brand} yedek parça`,
+                `orijinal ${product.brand} parça`,
+                `${product.brand} OEM parça`,
+                'BMW yedek parça', 'Mercedes yedek parça', 'Audi yedek parça',
+                'Volkswagen yedek parça', 'VW yedek parça',
+                'orijinal yedek parça', 'OEM yedek parça',
+                'Adana oto yedek parça', 'Alman araç yedek parça',
+                'turbo hortumu', 'intercooler', 'triger seti',
+                'yağ filtresi', 'hava filtresi', 'far', 'stop lambası',
+                'fren balatası', 'fren diski', 'amortisör',
+                'tampon', 'ızgara', 'spoiler', 'radyatör', 'panjur',
+                'buji', 'bobin', 'manifold', 'karter', 'piston'
+              ].filter(Boolean).map((kw, i) => (
+                <span key={i} className="text-[11px] text-gray-400 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-full">{kw}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 } 

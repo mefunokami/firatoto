@@ -5,15 +5,20 @@ import * as XLSX from 'xlsx';
 import {
   Upload, FileText, CheckCircle, XCircle, AlertCircle,
   Loader2, ChevronRight, Table2, FileSpreadsheet,
-  Package, Plus, Settings, Wrench, ArrowLeft, Users
+  Package, Plus, Settings, Wrench, ArrowLeft, Users, Download
 } from 'lucide-react';
 
 const COLUMN_MAP = {
+  // Şablon sütun isimleri (birincil)
   'ürün adı': 'name', 'ürün adi': 'name', 'urun adi': 'name', 'urun adı': 'name',
   'marka': 'brand',
   'parça numarası': 'partNumber', 'parca numarasi': 'partNumber',
   'parça açıklaması': 'description', 'parca aciklamasi': 'description',
   'parça aciklamasi': 'description', 'parça açiklamasi': 'description',
+  'resim url1': 'imageUrl', 'resim url 1': 'imageUrl',
+  'resim url 2': 'imageUrl1', 'resim url2': 'imageUrl1',
+  'resim url 3': 'imageUrl2', 'resim url3': 'imageUrl2',
+  // Alternatif isimler
   'name': 'name', 'urun_adi': 'name', 'urunadi': 'name',
   'ad': 'name', 'baslik': 'name', 'başlık': 'name', 'title': 'name',
   'brand': 'brand',
@@ -33,6 +38,26 @@ const COLUMN_MAP = {
   'trendyolurl': 'trendyolUrl', 'trendyol_url': 'trendyolUrl', 'trendyol': 'trendyolUrl',
   'product_brand': 'product_brand', 'urun_markasi': 'product_brand', 'ürün markası': 'product_brand',
 };
+
+// Şablon Excel indirme fonksiyonu
+function downloadTemplate() {
+  const templateHeaders = ['ÜRÜN ADI', 'MARKA', 'PARÇA NUMARASI', 'PARÇA AÇIKLAMASI', 'RESİM URL1', 'RESİM URL 2', 'RESİM URL 3'];
+  const sampleRow = {
+    'ÜRÜN ADI': 'Örnek Ürün Adı',
+    'MARKA': 'BMW',
+    'PARÇA NUMARASI': '11427953129',
+    'PARÇA AÇIKLAMASI': 'Yağ filtresi',
+    'RESİM URL1': 'https://ornek.com/resim1.jpg',
+    'RESİM URL 2': 'https://ornek.com/resim2.jpg',
+    'RESİM URL 3': 'https://ornek.com/resim3.jpg',
+  };
+  const ws = XLSX.utils.json_to_sheet([sampleRow], { header: templateHeaders });
+  // Sütun genişlikleri
+  ws['!cols'] = templateHeaders.map(h => ({ wch: Math.max(h.length + 4, 20) }));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Ürünler');
+  XLSX.writeFile(wb, 'firatoto_urun_sablonu.xlsx');
+}
 
 function normalizeKey(key) {
   return key
@@ -301,28 +326,62 @@ export default function AdminXmlImportPage() {
               </div>
 
               <div className="bg-muted/30 border rounded-xl p-5 mb-6">
-                <p className="text-sm font-semibold mb-3 text-foreground flex items-center gap-2">
-                  <AlertCircle size={16} className="text-primary" /> Sütun İsimleri
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <AlertCircle size={16} className="text-primary" /> Şablon Sütun İsimleri
+                  </p>
+                  <button
+                    onClick={downloadTemplate}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-colors shadow-sm"
+                  >
+                    <Download size={14} />
+                    Şablon İndir (.xlsx)
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto rounded-xl border bg-background mb-3">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b bg-primary/5">
+                        {['ÜRÜN ADI', 'MARKA', 'PARÇA NUMARASI', 'PARÇA AÇIKLAMASI', 'RESİM URL1', 'RESİM URL 2', 'RESİM URL 3'].map(h => (
+                          <th key={h} className="px-3 py-2.5 text-left font-bold text-primary whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="text-muted-foreground">
+                        <td className="px-3 py-2 border-t">Örnek Ürün Adı</td>
+                        <td className="px-3 py-2 border-t">BMW</td>
+                        <td className="px-3 py-2 border-t">11427953129</td>
+                        <td className="px-3 py-2 border-t">Yağ filtresi</td>
+                        <td className="px-3 py-2 border-t text-blue-500">https://...</td>
+                        <td className="px-3 py-2 border-t text-blue-500">https://...</td>
+                        <td className="px-3 py-2 border-t text-blue-500">https://...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                   {[
-                    ['name', 'Ürün Adı', true],
-                    ['brand', 'Marka', true],
-                    ['model', 'Model', false],
-                    ['partNumber', 'Parça No', false],
-                    ['price', 'Fiyat', false],
-                    ['stock', 'Stok', false],
-                    ['imageUrl', 'Resim URL', true],
-                    ['description', 'Açıklama', false],
-                  ].map(([key, label, required]) => (
-                    <div key={key} className={`flex items-center gap-1.5 rounded-lg px-2.5 py-2 border ${required ? 'bg-primary/5 border-primary/20' : 'bg-background'}`}>
-                      <code className="text-primary font-mono font-medium">{key}</code>
-                      {required && <span className="text-red-500 text-xs font-bold">*</span>}
-                      <span className="text-muted-foreground ml-auto hidden sm:inline">{label}</span>
+                    ['ÜRÜN ADI', 'name', true],
+                    ['MARKA', 'brand', true],
+                    ['PARÇA NUMARASI', 'partNumber', true],
+                    ['PARÇA AÇIKLAMASI', 'description', false],
+                    ['RESİM URL1', 'imageUrl (Ana)', true],
+                    ['RESİM URL 2', 'imageUrl1', false],
+                    ['RESİM URL 3', 'imageUrl2', false],
+                  ].map(([header, field, required]) => (
+                    <div key={header} className={`flex flex-col rounded-lg px-2.5 py-2 border ${required ? 'bg-primary/5 border-primary/20' : 'bg-background'}`}>
+                      <div className="flex items-center gap-1">
+                        <code className="text-primary font-mono font-bold text-[11px]">{header}</code>
+                        {required && <span className="text-red-500 text-xs font-bold">*</span>}
+                      </div>
+                      <span className="text-muted-foreground text-[10px] mt-0.5">→ {field}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-muted-foreground text-xs mt-3">💡 Türkçe başlıklar da tanınır (Örn: "Ürün Adı", "Parça Numarası", "Açıklama").</p>
+                <p className="text-muted-foreground text-xs mt-3">💡 Ek sütunlar: <code className="bg-muted px-1 rounded">MODEL</code>, <code className="bg-muted px-1 rounded">FİYAT</code>, <code className="bg-muted px-1 rounded">STOK</code>, <code className="bg-muted px-1 rounded">KATEGORİ</code> de desteklenir.</p>
               </div>
 
               <div

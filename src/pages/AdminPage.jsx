@@ -28,6 +28,7 @@ function AdminPage() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [searchTerm, setSearchTerm]     = useState('');
   const [filterCategory, setFilterCategory] = useState('');
+  const [filterNoImage, setFilterNoImage] = useState(false);
   const [sortField, setSortField]       = useState('createdAt');
   const [sortOrder, setSortOrder]       = useState('desc');
 
@@ -47,7 +48,7 @@ function AdminPage() {
   const [usersError, setUsersError]     = useState('');
 
   // ─── Ürünleri API'den çek (server-side sayfalama) ───
-  const fetchProducts = useCallback((page = 1, search = searchTerm, category = filterCategory) => {
+  const fetchProducts = useCallback((page = 1, search = searchTerm, category = filterCategory, noImage = filterNoImage) => {
     setLoading(true);
     const params = new URLSearchParams({
       page:  String(page),
@@ -55,6 +56,7 @@ function AdminPage() {
     });
     if (search)   params.append('search',   search);
     if (category) params.append('category', category);
+    if (noImage)  params.append('no_image', '1');
 
     fetch(`${API_URL}?${params.toString()}`)
       .then(res => res.json())
@@ -73,7 +75,7 @@ function AdminPage() {
       })
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
-  }, [searchTerm, filterCategory]);
+  }, [searchTerm, filterCategory, filterNoImage]);
 
   // Kategorileri çek
   useEffect(() => {
@@ -106,18 +108,23 @@ function AdminPage() {
 
   // ─── Sayfalama callback'leri ───
   const handlePageChange = (page) => {
-    fetchProducts(page, searchTerm, filterCategory);
+    fetchProducts(page, searchTerm, filterCategory, filterNoImage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSearchChange = (val) => {
     setSearchTerm(val);
-    fetchProducts(1, val, filterCategory);
+    fetchProducts(1, val, filterCategory, filterNoImage);
   };
 
   const handleCategoryChange = (val) => {
     setFilterCategory(val);
-    fetchProducts(1, searchTerm, val);
+    fetchProducts(1, searchTerm, val, filterNoImage);
+  };
+
+  const handleNoImageChange = (val) => {
+    setFilterNoImage(val);
+    fetchProducts(1, searchTerm, filterCategory, val);
   };
 
   const handleSortChange = (field, order) => {
@@ -373,6 +380,8 @@ function AdminPage() {
                 onSortChange={handleSortChange}
                 filterCategory={filterCategory}
                 externalSearch={searchTerm}
+                filterNoImage={filterNoImage}
+                onNoImageChange={handleNoImageChange}
               />
             )}
           </motion.div>
