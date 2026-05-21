@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $imgUrl = $row['image_url'];
         // Sadece kendi sunucumuza yüklenmiş dosyaları sil
         if (str_starts_with($imgUrl, '/slider-images/')) {
-            $filePath = __DIR__ . '/../public' . $imgUrl;
+            $filePath = __DIR__ . '/..' . $imgUrl;
             if (file_exists($filePath)) {
                 @unlink($filePath);
             }

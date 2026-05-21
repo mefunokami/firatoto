@@ -43,7 +43,7 @@ if ($file['size'] > 10 * 1024 * 1024) {
     exit;
 }
 
-$uploadDir = __DIR__ . '/../slider-images/';
+$uploadDir = __DIR__ . '/../cargo-images/';
 if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
@@ -56,7 +56,7 @@ $ext = match($mime) {
     default      => 'jpg'
 };
 
-$filename = 'slider_' . uniqid('', true) . '.' . $ext;
+$filename = 'cargo_' . uniqid('', true) . '.' . $ext;
 $dest     = $uploadDir . $filename;
 
 if (!move_uploaded_file($file['tmp_name'], $dest)) {
@@ -65,4 +65,4 @@ if (!move_uploaded_file($file['tmp_name'], $dest)) {
     exit;
 }
 
-echo json_encode(['success' => true, 'url' => '/slider-images/' . $filename]);
+echo json_encode(['success' => true, 'url' => '/cargo-images/' . $filename]);

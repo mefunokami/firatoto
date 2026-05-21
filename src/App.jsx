@@ -37,6 +37,7 @@ import AdminFaqPage from './pages/AdminFaqPage';
 import AdminXmlImportPage from './pages/AdminXmlImportPage';
 import AdminShippedCargosPage from './pages/AdminShippedCargosPage';
 import AdminGoogleMapsPage from './pages/AdminGoogleMapsPage';
+import AdminAboutImagesPage from './pages/AdminAboutImagesPage';
 
 function App() {
   const [loginOpen, setLoginOpen] = React.useState(false);
@@ -121,6 +122,11 @@ function App() {
         <Route path="/admin/google-maps" element={
           <ProtectedRoute>
             <AdminGoogleMapsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/about-images" element={
+          <ProtectedRoute>
+            <AdminAboutImagesPage />
           </ProtectedRoute>
         } />
       </Routes>

@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import AdminLayout from '@/components/AdminLayout';
 
-const API = '/api/shipped_cargos.php';
+const API = '/api/about_images.php';
 
-export default function AdminShippedCargosPage() {
+export default function AdminAboutImagesPage() {
   const [items, setItems] = useState([]);
-  const [form, setForm] = useState({ image_url: '', title: '', display_order: 0 });
+  const [form, setForm] = useState({ image_url: '', display_order: 0 });
   const [file, setFile] = useState(null);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ export default function AdminShippedCargosPage() {
       const formData = new FormData();
       formData.append('image', file);
       try {
-        const res = await fetch('/api/upload_cargo_image.php', { method: 'POST', body: formData });
+        const res = await fetch('/api/upload_about_image.php', { method: 'POST', body: formData });
         const data = await res.json();
         if (data.success) {
           finalImageUrl = data.url;
@@ -65,7 +65,7 @@ export default function AdminShippedCargosPage() {
     });
     if (res.ok) {
       toast({ description: editId ? 'Güncellendi' : 'Eklendi', duration: 2000 });
-      setForm({ image_url: '', title: '', display_order: 0 });
+      setForm({ image_url: '', display_order: 0 });
       setEditId(null);
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -84,7 +84,7 @@ export default function AdminShippedCargosPage() {
   };
 
   const handleEdit = (item) => {
-    setForm({ image_url: item.image_url, title: item.title || '', display_order: item.display_order || 0 });
+    setForm({ image_url: item.image_url, display_order: item.display_order || 0 });
     setEditId(item.id);
     setFile(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -92,10 +92,10 @@ export default function AdminShippedCargosPage() {
   };
 
   return (
-    <AdminLayout title="Gönderilen Kargolar">
+    <AdminLayout title="Hakkımızda Fotoğrafları">
     <div className="max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-2 text-foreground">Gönderilen Kargolar</h2>
-      <p className="text-gray-500 mb-6 text-sm">Bu bölüme eklediğiniz görseller anasayfada "Gönderilen Kargolar" bölümünde görünecektir.</p>
+      <h2 className="text-2xl font-bold mb-2 text-foreground">Hakkımızda Fotoğrafları</h2>
+      <p className="text-gray-500 mb-6 text-sm">Bu bölüme eklediğiniz görseller anasayfada "Hakkımızda" bölümünde görünecektir.</p>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-6 mb-8 space-y-4 border border-gray-100">
         <h3 className="font-bold text-lg mb-2">{editId ? '✏️ Düzenle' : '➕ Yeni Ekle'}</h3>
@@ -125,13 +125,6 @@ export default function AdminShippedCargosPage() {
           )}
         </div>
         <input
-          type="text"
-          placeholder="Başlık (isteğe bağlı, örn: Ocak 2026 Kargoları)"
-          value={form.title}
-          onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
-          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
-        />
-        <input
           type="number"
           placeholder="Sıralama (küçük sayı önce görünür)"
           value={form.display_order}
@@ -152,7 +145,7 @@ export default function AdminShippedCargosPage() {
               className="text-gray-500 hover:text-gray-700 underline text-sm"
               onClick={() => {
                 setEditId(null);
-                setForm({ image_url: '', title: '', display_order: 0 });
+                setForm({ image_url: '', display_order: 0 });
                 setFile(null);
                 if (fileInputRef.current) fileInputRef.current.value = '';
               }}
@@ -164,11 +157,11 @@ export default function AdminShippedCargosPage() {
       </form>
 
       <div className="bg-white rounded-xl shadow p-6 border border-gray-100">
-        <h3 className="font-bold text-lg mb-4">Mevcut Kargo Fotoğrafları ({items.length})</h3>
+        <h3 className="font-bold text-lg mb-4">Mevcut Fotoğraflar ({items.length})</h3>
         {items.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
-            <div className="text-4xl mb-2">📭</div>
-            <p>Henüz kargo fotoğrafı eklenmemiş.</p>
+            <div className="text-4xl mb-2">📸</div>
+            <p>Henüz fotoğraf eklenmemiş.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -177,12 +170,11 @@ export default function AdminShippedCargosPage() {
                 <div className="aspect-video bg-gray-100 overflow-hidden">
                   <img
                     src={item.image_url}
-                    alt={item.title || 'Kargo'}
+                    alt="Hakkımızda"
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="p-3">
-                  {item.title && <div className="font-semibold text-sm mb-1">{item.title}</div>}
                   <div className="text-xs text-gray-400 mb-3">Sıra: {item.display_order} | #{item.id}</div>
                   <div className="flex gap-2">
                     <button

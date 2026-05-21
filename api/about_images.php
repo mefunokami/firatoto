@@ -26,18 +26,35 @@ header('Content-Type: application/json');
 require_once 'db.php';
 
 // Tabloyu oluştur (yoksa)
-$pdo->exec("CREATE TABLE IF NOT EXISTS shipped_cargos (
+$pdo->exec("CREATE TABLE IF NOT EXISTS about_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     image_url VARCHAR(1000) NOT NULL,
-    title VARCHAR(255),
     display_order INT DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )");
 
 // GET: Listele
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $stmt = $pdo->query('SELECT * FROM shipped_cargos ORDER BY display_order ASC, id DESC');
-    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+    $stmt = $pdo->query('SELECT * FROM about_images ORDER BY display_order ASC, id DESC');
+    $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Eğer tablo boşsa, varsayılan resimleri seed et (kullanıcının sitesindeki eski resimler)
+    if (count($images) === 0) {
+        $defaults = [
+            '/isyeri1.webp',
+            '/isyeri2.webp',
+            '/isyeri3.jpeg',
+            '/isyeri4.jpeg'
+        ];
+        foreach ($defaults as $i => $url) {
+            $stmt = $pdo->prepare('INSERT INTO about_images (image_url, display_order) VALUES (?, ?)');
+            $stmt->execute([$url, $i]);
+        }
+        $stmt = $pdo->query('SELECT * FROM about_images ORDER BY display_order ASC, id DESC');
+        $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    echo json_encode($images);
     exit;
 }
 
@@ -45,15 +62,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $image_url = trim($data['image_url'] ?? '');
-    $title = trim($data['title'] ?? '');
     $display_order = isset($data['display_order']) ? intval($data['display_order']) : 0;
     if (!$image_url) {
         http_response_code(400);
         echo json_encode(['error' => 'Görsel gerekli']);
         exit;
     }
-    $stmt = $pdo->prepare('INSERT INTO shipped_cargos (image_url, title, display_order) VALUES (?, ?, ?)');
-    $ok = $stmt->execute([$image_url, $title, $display_order]);
+    $stmt = $pdo->prepare('INSERT INTO about_images (image_url, display_order) VALUES (?, ?)');
+    $ok = $stmt->execute([$image_url, $display_order]);
     echo json_encode(['success' => $ok, 'id' => $pdo->lastInsertId()]);
     exit;
 }
@@ -65,12 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     if (!$id) { http_response_code(400); echo json_encode(['error' => 'ID gerekli']); exit; }
     
     // Dosya yolunu çek
-    $stmt = $pdo->prepare('SELECT image_url FROM shipped_cargos WHERE id=?');
+    $stmt = $pdo->prepare('SELECT image_url FROM about_images WHERE id=?');
     $stmt->execute([$id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($row) {
         $imgUrl = $row['image_url'];
-        if (str_starts_with($imgUrl, '/slider-images/') || str_starts_with($imgUrl, '/cargo-images/')) {
+        if (str_starts_with($imgUrl, '/about-images/')) {
             $filePath = __DIR__ . '/..' . $imgUrl;
             if (file_exists($filePath)) {
                 @unlink($filePath);
@@ -78,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         }
     }
     
-    $stmt = $pdo->prepare('DELETE FROM shipped_cargos WHERE id=?');
+    $stmt = $pdo->prepare('DELETE FROM about_images WHERE id=?');
     $ok = $stmt->execute([$id]);
     echo json_encode(['success' => $ok]);
     exit;
@@ -89,10 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     $data = json_decode(file_get_contents('php://input'), true);
     $id = intval($data['id'] ?? 0);
     if (!$id) { http_response_code(400); echo json_encode(['error' => 'ID gerekli']); exit; }
-    $stmt = $pdo->prepare('UPDATE shipped_cargos SET image_url=?, title=?, display_order=? WHERE id=?');
+    $stmt = $pdo->prepare('UPDATE about_images SET image_url=?, display_order=? WHERE id=?');
     $ok = $stmt->execute([
         trim($data['image_url'] ?? ''),
-        trim($data['title'] ?? ''),
         intval($data['display_order'] ?? 0),
         $id
     ]);

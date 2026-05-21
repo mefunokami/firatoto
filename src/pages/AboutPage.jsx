@@ -1,9 +1,15 @@
-import React from 'react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 
 const AboutPage = () => {
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/about_images.php')
+      .then(res => res.json())
+      .then(data => setImages(data))
+      .catch(err => console.error('Hakkımızda resimleri çekilemedi:', err));
+  }, []);
   return (
     <div className="max-w-2xl mx-auto py-10 px-4">
       <Helmet>
@@ -34,30 +40,15 @@ const AboutPage = () => {
         BMW yedek parça, Mercedes yedek parça, Volkswagen yedek parça, Audi yedek parça, Skoda yedek parça, Seat yedek parça, Mini Cooper parça, orijinal yedek parça, çıkma parça, motor parçası, oto elektrik, oto mekanik, uygun fiyatlı yedek parça.
         Adana, Ankara, İstanbul, İzmir, Bursa, Antalya, Konya, Gaziantep, Mersin, Kayseri, Diyarbakır, Samsun, Eskişehir, Denizli, Şanlıurfa, Kocaeli, Trabzon, Sakarya, Malatya, Erzurum, Hatay, Balıkesir, Aydın, Manisa, Tekirdağ, Afyon, Van, Ordu, Batman, Elazığ, Çorum, Sivas, Isparta, Muğla, Uşak, Kütahya, Kırşehir, Osmaniye, Adıyaman, Tokat, Rize, Karabük, Giresun, Yozgat, Kars, Siirt, Bitlis, Bilecik, Düzce, Artvin, Nevşehir, Zonguldak, Niğde, Ağrı, Kilis, Tunceli, Bartın, Hakkari, Bayburt, Ardahan, Iğdır, Karaman, Aksaray, Çankırı, Kırıkkale, Bolu, Bingöl, Muş, Gümüşhane, Edirne.
       </div>
-      <img
-        src="/isyeri1.webp"
-        alt="İşyeri 1"
-        className="w-full mb-6 rounded shadow"
-        loading="lazy"
-      />
-      <img
-        src="/isyeri2.webp"
-        alt="İşyeri 2"
-        className="w-full mb-6 rounded shadow"
-        loading="lazy"
-      />
-      <img
-        src="/isyeri3.jpeg"
-        alt="İşyeri 3"
-        className="w-full mb-6 rounded shadow"
-        loading="lazy"
-      />
-      <img
-        src="/isyeri4.jpeg"
-        alt="İşyeri 4"
-        className="w-full rounded shadow"
-        loading="lazy"
-      />
+      {images.map(img => (
+        <img
+          key={img.id}
+          src={img.image_url}
+          alt="Hakkımızda"
+          className="w-full mb-6 rounded shadow"
+          loading="lazy"
+        />
+      ))}
     </div>
   );
 };

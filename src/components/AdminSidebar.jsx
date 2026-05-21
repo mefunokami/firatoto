@@ -149,6 +149,9 @@ export default function AdminSidebar({ open, onClose, activeTab, showForm, onNew
           <NavItem active={path === '/admin/shipped-cargos'} onClick={() => go('/admin/shipped-cargos')} icon={Truck}>
             Gönderilen Kargolar
           </NavItem>
+          <NavItem active={path === '/admin/about-images'} onClick={() => go('/admin/about-images')} icon={Image}>
+            Hakkımızda Fotoğrafları
+          </NavItem>
           <NavItem active={path === '/admin/google-maps'} onClick={() => go('/admin/google-maps')} icon={Star}>
             Google Maps
           </NavItem>

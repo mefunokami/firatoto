@@ -25,26 +25,12 @@ export default function AdminSliderPage() {
       .then(setSliders);
   }, []);
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const f = e.target.files[0];
     setFile(f);
     if (f) {
-      setLoading(true);
-      try {
-        const formData = new FormData();
-        formData.append('image', f);
-        const res = await fetch('/api/upload_slider_image.php', { method: 'POST', body: formData });
-        const data = await res.json();
-        if (data.success) {
-          setForm({ ...form, image_url: data.url });
-        } else {
-          alert('Yükleme hatası: ' + (data.error || 'Bilinmeyen hata'));
-        }
-      } catch (err) {
-        alert('Sunucu bağlantı hatası oluştu.');
-      } finally {
-        setLoading(false);
-      }
+      // Sadece önizleme için local URL oluştur, asıl yüklemeyi Ekle'ye basınca yap
+      setForm({ ...form, image_url: URL.createObjectURL(f) });
     }
   };
 
@@ -52,8 +38,33 @@ export default function AdminSliderPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    
+    let finalImageUrl = form.image_url;
+
+    // Eğer yeni bir dosya seçilmişse, önce onu yükle
+    if (file) {
+      const formData = new FormData();
+      formData.append('image', file);
+      try {
+        const res = await fetch('/api/upload_slider_image.php', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          finalImageUrl = data.url;
+        } else {
+          alert('Yükleme hatası: ' + (data.error || 'Bilinmeyen hata'));
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        alert('Sunucu bağlantı hatası oluştu.');
+        setLoading(false);
+        return;
+      }
+    }
+
     const method = editId ? 'PUT' : 'POST';
-    const body = editId ? { ...form, id: editId } : form;
+    const body = editId ? { ...form, image_url: finalImageUrl, id: editId } : { ...form, image_url: finalImageUrl };
+    
     await fetch(SLIDER_API, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -62,7 +73,7 @@ export default function AdminSliderPage() {
     setForm({ image_url: '', title: '', description: '', link: '', slider_order: 0 });
     setEditId(null);
     setFile(null);
-    fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = '';
     // Yeniden çek
     fetch(SLIDER_API)
       .then(res => res.json())
@@ -98,16 +109,22 @@ export default function AdminSliderPage() {
       <p className="text-gray-500 text-sm mb-6">Anasayfadaki büyük banner görsellerini buradan ekleyip güncelleyebilirsiniz. Sık değişecek fotoğraflar için idealdir.</p>
       <form onSubmit={handleSubmit} className="bg-white rounded shadow p-6 mb-8 space-y-4">
         <div>
-          <label className="block font-semibold mb-1">Görsel (Dosya yükle veya link gir)</label>
-          <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="mb-2" />
-          <input
-            type="text"
-            placeholder="Veya görsel linki"
-            value={form.image_url}
-            onChange={e => setForm({ ...form, image_url: e.target.value })}
-            className="w-full border rounded px-3 py-2"
-          />
-          {form.image_url && <img src={form.image_url} alt="Önizleme" className="mt-2 h-24" />}
+          <label className="block font-semibold mb-1">Görsel Yükle</label>
+          <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="mb-2 w-full" />
+          
+          {!file && (
+            <div className="mt-2">
+              <label className="block text-xs text-gray-500 mb-1">Veya harici bir resim linki girin:</label>
+              <input
+                type="text"
+                placeholder="Görsel linki (örn: https://...)"
+                value={form.image_url}
+                onChange={e => setForm({ ...form, image_url: e.target.value })}
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
+          )}
+          {form.image_url && <img src={form.image_url} alt="Önizleme" className="mt-3 h-32 object-contain bg-gray-50 rounded border p-1" />}
         </div>
         <input
           type="text"
