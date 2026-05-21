@@ -55,6 +55,34 @@ const Header = ({ searchTerm, setSearchTerm, onSearch, onLoginClick, user, setUs
 
   return (
     <header className="w-full bg-[#232428] md:bg-white border-b-[2px] border-yellow-400 sticky top-0 z-50" style={{borderTop: 'none'}}>
+      {/* Hareketli Bilgi Bandı */}
+      <div className="w-full bg-[#232428] overflow-hidden" style={{height: '32px'}}>
+        <style>{`
+          @keyframes marquee-scroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .marquee-track {
+            display: flex;
+            width: max-content;
+            animation: marquee-scroll 50s linear infinite;
+          }
+        `}</style>
+        <div className="marquee-track h-[32px] items-center flex">
+          {[...Array(2)].map((_, gi) => (
+            <div key={gi} className="flex items-center">
+              {[...Array(8)].flatMap((_, ri) =>
+                ['Aynı Gün Kargo', 'Güvenli Alışveriş', 'Şase ile Doğru Parça', 'Türkiye Geneli Gönderim'].map((text, i) => (
+                  <React.Fragment key={`${ri}-${i}`}>
+                    <span className="px-5 text-sm text-gray-300 whitespace-nowrap tracking-wide">{text}</span>
+                    <span className="text-yellow-400 select-none text-xs px-1">|</span>
+                  </React.Fragment>
+                ))
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
       {/* Üst Satır */}
       <div className="flex items-center w-full" style={{minHeight:'36px'}}>
         {/* Sol: Siyah alan (clip-path ile) */}

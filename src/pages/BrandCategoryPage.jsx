@@ -30,7 +30,7 @@ export default function BrandCategoryPage() {
     // Özel durum: genel_markalar
     if (slug.toLowerCase() === 'genel_markalar') return 'GENEL MARKALAR';
     // Özel durum: mercedes-benz
-    if (slug.toLowerCase() === 'mercedes-benz') return 'MERCEDES-BENZ';
+    if (slug.toLowerCase() === 'mercedes-benz' || slug.toLowerCase() === 'mercedesbenz') return 'MERCEDES-BENZ';
     // Diğer markalar için alt çizgi yerine boşluk, tireyi koru, büyük harf
     return slug.replace(/_/g, ' ').toUpperCase();
   }
@@ -54,6 +54,7 @@ export default function BrandCategoryPage() {
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [brandTotalCount, setBrandTotalCount] = useState(0);
 
   // Modelleri API'den çek
   useEffect(() => {
@@ -75,8 +76,8 @@ export default function BrandCategoryPage() {
   useEffect(() => {
     if (!realBrand) return;
     
-    // Eğer model varsa hem marka hem model ile filtrele
-    if (realModel) {
+    // 'tumu' veya boş model: tüm marka ürünlerini getir
+    if (realModel && realModel !== 'TUMU') {
       const url = `/api/products.php?brand=${encodeURIComponent(realBrand)}&model=${encodeURIComponent(realModel)}`;
       fetch(url)
         .then(res => res.json())
@@ -92,7 +93,7 @@ export default function BrandCategoryPage() {
       return;
     }
     
-    // Eğer sadece marka varsa, o markaya ait tüm ürünleri getir
+    // Sadece marka varsa veya 'tumu' seçildiyse, o markaya ait tüm ürünleri getir
     const url = `/api/products.php?brand=${encodeURIComponent(realBrand)}`;
     fetch(url)
       .then(res => res.json())
@@ -107,6 +108,18 @@ export default function BrandCategoryPage() {
     setSelectedModel(null);
   }, [realBrand, realModel]);
 
+  // Markanın toplam ürün sayısı (Tümü etiketi için)
+  useEffect(() => {
+    if (!realBrand) return;
+    fetch(`/api/products.php?brand=${encodeURIComponent(realBrand)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setBrandTotalCount(data.length);
+        else setBrandTotalCount(0);
+      })
+      .catch(() => setBrandTotalCount(0));
+  }, [realBrand]);
+
   useEffect(() => {
     fetch('/api/productbrands.php')
       .then(res => res.json())
@@ -120,15 +133,28 @@ export default function BrandCategoryPage() {
       .catch(() => setAllBrands([]));
   }, []);
 
-  // Sıralama fonksiyonu
+  // Filtre + sıralama
   const sortedProducts = React.useMemo(() => {
-    if (sortOption === 'price_desc') {
-      return [...products].sort((a, b) => (b.price || 0) - (a.price || 0));
-    } else if (sortOption === 'price_asc') {
-      return [...products].sort((a, b) => (a.price || 0) - (b.price || 0));
+    let list = [...products];
+    if (selectedCategory) {
+      list = list.filter(p => p.category === selectedCategory);
     }
-    return products;
-  }, [products, sortOption]);
+    if (selectedBrands.length > 0) {
+      list = list.filter(p =>
+        selectedBrands.some(b =>
+          normalizeBrand(p.product_brand || '') === normalizeBrand(b) ||
+          normalizeBrand(p.brand) === normalizeBrand(b)
+        )
+      );
+    }
+    if (sortOption === 'price_desc') {
+      return list.sort((a, b) => (b.price || 0) - (a.price || 0));
+    }
+    if (sortOption === 'price_asc') {
+      return list.sort((a, b) => (a.price || 0) - (b.price || 0));
+    }
+    return list;
+  }, [products, sortOption, selectedCategory, selectedBrands]);
 
 
 
@@ -165,7 +191,10 @@ export default function BrandCategoryPage() {
   ];
   const isSabitMarka = SABIT_MARKALAR.includes(realBrand);
   const seoBrand = realBrand.charAt(0).toUpperCase() + realBrand.slice(1).toLowerCase();
-  const seoTitle = isSabitMarka ? `${seoBrand} Yedek Parça | Fırat Oto Yedek Parça` : 'Fırat Oto Yedek Parça';
+  const isAllModels = !selectedModel && (!realModel || realModel === 'TUMU');
+  const seoTitle = isSabitMarka
+    ? (isAllModels ? `${seoBrand} Yedek Parça | Tüm ${seoBrand} Parçaları` : `${seoBrand} ${selectedModel || realModel} Yedek Parça`)
+    : 'Fırat Oto Yedek Parça';
   const seoDesc = isSabitMarka
     ? `${seoBrand} yedek parça, orijinal ve uygun fiyatlı ${seoBrand} yedek parçaları burada. Hızlı kargo, güvenli alışveriş, geniş ürün yelpazesi.`
     : 'Aracınız için orijinal ve uygun fiyatlı yedek parçalar. Hızlı kargo, güvenli alışveriş.';
@@ -183,7 +212,13 @@ export default function BrandCategoryPage() {
             <Link to="/" className="hover:underline">Anasayfa</Link> &gt; <span className="font-semibold text-gray-700">{deslugifyBrand(brand)}</span>
           </nav>
           {isSabitMarka && (
-            <h1 className="text-3xl font-extrabold text-center mb-6">{seoBrand} Yedek Parça</h1>
+            <h1 className="text-3xl font-extrabold text-center mb-2">{seoBrand} Yedek Parça</h1>
+          )}
+          {isSabitMarka && isAllModels && (
+            <p className="text-center text-gray-600 mb-6">Tüm {seoBrand} modellerine ait yedek parçalar — toplam {brandTotalCount} ürün</p>
+          )}
+          {isSabitMarka && selectedModel && (
+            <p className="text-center text-gray-600 mb-6">{selectedModel} modeli — {sortedProducts.length} ürün</p>
           )}
           {/* Mobil Hamburger Menü Butonu */}
           <div className="md:hidden mb-4">
@@ -244,6 +279,20 @@ export default function BrandCategoryPage() {
                       {modelsOpen && (
                         <>
                           <ul className="space-y-1 text-sm">
+                            {/* Tümü Seçeneği */}
+                            <li>
+                              <button
+                                className={`block w-full text-left px-2 py-1.5 rounded font-semibold hover:bg-yellow-100 transition-colors ${!selectedModel ? 'bg-yellow-100 text-yellow-700 font-bold' : 'text-gray-700'}`}
+                                onClick={() => {
+                                  setSelectedModel(null);
+                                  setSelectedCategory('');
+                                  setMobileMenuOpen(false);
+                                  navigate(`/kategori/${slugify(realBrand)}/tumu`);
+                                }}
+                              >
+                                🔖 Tümü ({brandTotalCount || products.length} ürün)
+                              </button>
+                            </li>
                             {models.map((model, i) => (
                               <li key={model}>
                                 <button
@@ -355,6 +404,19 @@ export default function BrandCategoryPage() {
                     {modelsOpen && (
                       <>
                         <ul className="space-y-1 text-sm">
+                          {/* Tümü Seçeneği */}
+                          <li>
+                            <button
+                              className={`block w-full text-left px-2 py-1.5 rounded font-semibold hover:bg-yellow-100 transition-colors ${!selectedModel ? 'bg-yellow-100 text-yellow-700 font-bold' : 'text-gray-700'}`}
+                              onClick={() => {
+                                setSelectedModel(null);
+                                setSelectedCategory('');
+                                navigate(`/kategori/${slugify(realBrand)}/tumu`);
+                              }}
+                            >
+                              🔖 Tümü ({brandTotalCount || products.length} ürün)
+                            </button>
+                          </li>
                           {models.map((model, i) => (
                             <li key={model}>
                               <button

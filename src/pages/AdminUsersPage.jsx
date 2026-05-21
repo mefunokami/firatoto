@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import AdminLayout from '@/components/AdminLayout';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -18,14 +19,9 @@ export default function AdminUsersPage() {
   }, []);
 
   return (
-    <div className="container mx-auto py-8 max-w-3xl">
-      <div className="flex items-center mb-8">
-        <button onClick={() => window.history.back()} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-semibold px-3 py-2 rounded bg-gray-100 hover:bg-yellow-100 transition">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-          Panele Dön
-        </button>
-        <h2 className="text-2xl font-bold ml-6 border-b-2 border-yellow-400 pb-1">Kullanıcılar</h2>
-      </div>
+    <AdminLayout title="Kullanıcılar">
+    <div className="max-w-3xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-foreground border-b-2 border-yellow-400 pb-2 inline-block">Kullanıcılar</h2>
       <div className="bg-white rounded shadow p-6">
         {loading ? (
           <div>Yükleniyor...</div>
@@ -55,5 +51,6 @@ export default function AdminUsersPage() {
         )}
       </div>
     </div>
+    </AdminLayout>
   );
 } 

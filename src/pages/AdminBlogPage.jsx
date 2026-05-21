@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import AdminLayout from '@/components/AdminLayout';
 
 export default function AdminBlogPage() {
   const [blogs, setBlogs] = useState([]);
@@ -8,8 +8,6 @@ export default function AdminBlogPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
-
   // Blogları çek
   const fetchBlogs = () => {
     setLoading(true);
@@ -104,14 +102,9 @@ export default function AdminBlogPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4">
-      <div className="flex items-center mb-6">
-        <button onClick={() => navigate('/admin')} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-semibold px-3 py-2 rounded bg-gray-100 hover:bg-yellow-100 transition">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-          Yönetim Paneline Dön
-        </button>
-        <h1 className="text-2xl font-bold ml-6">Blog Yönetimi</h1>
-      </div>
+    <AdminLayout title="Blog">
+    <div className="max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-foreground">Blog Yönetimi</h1>
       <form onSubmit={handleSubmit} className="bg-white rounded shadow p-6 mb-8 flex flex-col gap-4">
         <input
           name="title"
@@ -164,5 +157,6 @@ export default function AdminBlogPage() {
         ))}
       </div>
     </div>
+    </AdminLayout>
   );
 } 

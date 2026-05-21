@@ -1,8 +1,30 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Mail, MapPin, Phone, User2, Building2 } from "lucide-react";
 import { Helmet } from 'react-helmet';
+import GoogleMapsRating from '@/components/GoogleMapsRating';
 
 const ContactInfoPage = () => {
+  const [googleMaps, setGoogleMaps] = useState({
+    rating: 0,
+    review_count: 0,
+    maps_url: 'https://share.google/Sq5zO5TC6BcGLN7v6',
+  });
+
+  useEffect(() => {
+    fetch('/api/google_maps_rating.php')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setGoogleMaps({
+            rating: data.rating ?? 0,
+            review_count: data.review_count ?? 0,
+            maps_url: data.maps_url || 'https://share.google/Sq5zO5TC6BcGLN7v6',
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="max-w-4xl mx-auto py-12 px-4">
       <Helmet>
@@ -62,7 +84,14 @@ const ContactInfoPage = () => {
             <span className="font-semibold w-40">Adres:</span>
             <div className="flex flex-col gap-1">
               <span className="text-lg">Fevzipaşa, 48046 sokak No: 29/A, 01190 Seyhan/Adana</span>
-              <a href="https://share.google/Xbd8gaVyvr5t7W9Kf" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline text-sm">Konumu Görüntüle</a>
+              <a href={googleMaps.maps_url} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline text-sm">Konumu Görüntüle</a>
+              <GoogleMapsRating
+                rating={googleMaps.rating}
+                reviewCount={googleMaps.review_count}
+                mapsUrl={googleMaps.maps_url}
+                size="sm"
+                className="mt-1"
+              />
             </div>
           </div>
         </div>

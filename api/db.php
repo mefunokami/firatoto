@@ -1,9 +1,9 @@
 <?php
 // Veritabanı bağlantı ayarları
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'u926623781_firatoto');
-define('DB_USER', 'u926623781_firatotoyedek');
-define('DB_PASS', 'b4T]5fObI7');
+define('DB_NAME', 'firatoto');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
 try {
     $pdo = new PDO(

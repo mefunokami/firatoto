@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import AdminLayout from '@/components/AdminLayout';
 
 // API endpointleri örnek olarak verilmiştir
 const SLIDER_API = '/api/homepage_sliders.php';
@@ -24,14 +25,26 @@ export default function AdminSliderPage() {
       .then(setSliders);
   }, []);
 
-  // Dosya yükleme (örnek, gerçek upload için backendde ayrı endpoint gerekir)
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const f = e.target.files[0];
     setFile(f);
     if (f) {
-      const reader = new FileReader();
-      reader.onload = (ev) => setForm({ ...form, image_url: ev.target.result });
-      reader.readAsDataURL(f);
+      setLoading(true);
+      try {
+        const formData = new FormData();
+        formData.append('image', f);
+        const res = await fetch('/api/upload_slider_image.php', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          setForm({ ...form, image_url: data.url });
+        } else {
+          alert('Yükleme hatası: ' + (data.error || 'Bilinmeyen hata'));
+        }
+      } catch (err) {
+        alert('Sunucu bağlantı hatası oluştu.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -79,8 +92,10 @@ export default function AdminSliderPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-8">
-      <h2 className="text-2xl font-bold mb-6">Slider Yönetimi</h2>
+    <AdminLayout title="Hero Slider">
+    <div className="max-w-3xl mx-auto">
+      <h2 className="text-2xl font-bold mb-2 text-foreground">Hero Slider Yönetimi</h2>
+      <p className="text-gray-500 text-sm mb-6">Anasayfadaki büyük banner görsellerini buradan ekleyip güncelleyebilirsiniz. Sık değişecek fotoğraflar için idealdir.</p>
       <form onSubmit={handleSubmit} className="bg-white rounded shadow p-6 mb-8 space-y-4">
         <div>
           <label className="block font-semibold mb-1">Görsel (Dosya yükle veya link gir)</label>
@@ -153,5 +168,6 @@ export default function AdminSliderPage() {
         </div>
       </div>
     </div>
+    </AdminLayout>
   );
 } 

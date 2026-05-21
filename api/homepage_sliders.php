@@ -44,20 +44,6 @@ if (!isset($_SESSION['rate_limit'][$ip])) {
 header('Content-Type: application/json');
 require_once 'db.php';
 
-// CSRF koruması (POST, PUT, DELETE)
-// if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'DELETE'])) {
-//     $csrf_token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-//     if (empty($_SESSION['csrf_token'])) {
-//         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-//     }
-//     if ($csrf_token !== $_SESSION['csrf_token']) {
-//         error_log('CSRF token hatası: ' . $ip);
-//         http_response_code(403);
-//         echo json_encode(['error' => 'Geçersiz CSRF token']);
-//         exit;
-//     }
-// }
-
 // GET: Sliderları listele
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $stmt = $pdo->query('SELECT * FROM homepage_sliders ORDER BY slider_order ASC, id DESC');
@@ -100,6 +86,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         echo json_encode(["error" => "ID gerekli"]);
         exit;
     }
+    // Önce dosya yolunu çek
+    $stmt = $pdo->prepare('SELECT image_url FROM homepage_sliders WHERE id=?');
+    $stmt->execute([$id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row) {
+        $imgUrl = $row['image_url'];
+        // Sadece kendi sunucumuza yüklenmiş dosyaları sil
+        if (str_starts_with($imgUrl, '/slider-images/')) {
+            $filePath = __DIR__ . '/../public' . $imgUrl;
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+        }
+    }
     $stmt = $pdo->prepare('DELETE FROM homepage_sliders WHERE id=?');
     $ok = $stmt->execute([$id]);
     if ($ok) {
@@ -141,4 +141,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 }
 
 http_response_code(405);
-echo json_encode(["error" => "Geçersiz istek"]); 
+echo json_encode(["error" => "Geçersiz istek"]);

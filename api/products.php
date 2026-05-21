@@ -343,6 +343,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['id']) && !isset($_GET[
         exit;
     }
 
+    // --- Limit ile liste (benzer ürünler vb., sayfalama yok) ---
+    if (isset($_GET['limit']) && !$usePagination) {
+        $simpleLimit = min(50, max(1, intval($_GET['limit'])));
+        $sql = "SELECT * FROM products $where ORDER BY createdAt DESC LIMIT ?";
+        $lParams = array_merge($params, [$simpleLimit]);
+        $lTypes = $types . 'i';
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param($lTypes, ...$lParams);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $products = [];
+        while ($row = $result->fetch_assoc()) {
+            $row['slug_brand'] = slugify($row['brand']);
+            $row['slug_name'] = slugify($row['name']);
+            $products[] = $row;
+        }
+        echo json_encode($products);
+        exit;
+    }
+
     // --- Geriye dönük uyumlu mod (public site, brand/model filtreli) ---
     $sql = "SELECT * FROM products $where ORDER BY createdAt DESC";
     if ($types) {

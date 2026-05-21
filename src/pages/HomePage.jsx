@@ -56,10 +56,13 @@ const HomePage = () => {
   const [yearOptions, setYearOptions] = useState([]);
   const [visibleCount, setVisibleCount] = useState(8);
   const [randomVisibleCount, setRandomVisibleCount] = useState(8);
+  const [cargosVisibleCount, setCargosVisibleCount] = useState(5);
   const [faqs, setFaqs] = useState([]);
   const [openFaq, setOpenFaq] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const [randomProducts, setRandomProducts] = useState([]);
+  const [shippedCargos, setShippedCargos] = useState([]);
+  const [selectedCargo, setSelectedCargo] = useState(null);
 
   useEffect(() => {
     fetch(API_URL)
@@ -112,6 +115,16 @@ const HomePage = () => {
         else setBlogs([]);
       })
       .catch(() => setBlogs([]));
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/shipped_cargos.php')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setShippedCargos(data);
+        else setShippedCargos([]);
+      })
+      .catch(() => setShippedCargos([]));
   }, []);
 
   const finalSearchTerm = useMemo(() => headerSearchTerm || popularSearchTerm, [headerSearchTerm, popularSearchTerm]);
@@ -327,6 +340,42 @@ const HomePage = () => {
                 </Button>
               </div>
             )}
+            {/* Gönderilen Kargolar */}
+            {shippedCargos.length > 0 && (
+              <div className="container mx-auto px-0 sm:px-6 lg:px-8 py-12 mt-8 border-t border-gray-100">
+                <h2 className="text-2xl font-bold mb-2 text-center">Gönderilen Kargolar</h2>
+                <p className="text-center text-gray-500 text-sm mb-6">Müşterilerimize gönderdiğimiz kargolardan kareler.</p>
+                <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                  {shippedCargos.slice(0, cargosVisibleCount).map(cargo => (
+                    <div
+                      key={cargo.id}
+                      className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer group relative"
+                      onClick={() => setSelectedCargo(cargo)}
+                    >
+                      <div className="aspect-square bg-gray-100 overflow-hidden">
+                        <img
+                          src={cargo.image_url}
+                          alt={cargo.title || 'Kargo'}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      {cargo.title && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                          <div className="text-white text-xs font-semibold line-clamp-1">{cargo.title}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {cargosVisibleCount < shippedCargos.length && (
+                  <div className="flex justify-center mt-8">
+                    <Button size="lg" className="px-8 py-3 text-base font-bold" onClick={() => setCargosVisibleCount(v => v + 5)}>
+                      Daha fazla görüntüle
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
             {/* SSS kutusu */}
             <div className="max-w-4xl mx-auto mt-16 mb-10">
               <h2 className="text-2xl font-bold mb-4 text-center">Sık Sorulan Sorular</h2>
@@ -437,7 +486,34 @@ const HomePage = () => {
             </motion.div>
         )}
       </div>
+
       {selectedProduct && <ProductDetailModal product={selectedProduct} isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} />}
+      {/* Kargo Foto\u011f Lightbox */}
+      {selectedCargo && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setSelectedCargo(null)}
+        >
+          <div className="relative max-w-3xl w-full" onClick={e => e.stopPropagation()}>
+            <button
+              className="absolute -top-10 right-0 text-white hover:text-yellow-400 transition-colors font-bold text-lg flex items-center gap-2"
+              onClick={() => setSelectedCargo(null)}
+            >
+              ✕ Kapat
+            </button>
+            <img
+              src={selectedCargo.image_url}
+              alt={selectedCargo.title || 'Kargo'}
+              className="w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
+            />
+            {selectedCargo.title && (
+              <div className="bg-white/90 text-gray-800 font-semibold text-center py-2 px-4 rounded-b-xl">
+                {selectedCargo.title}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <div style={{display:'none'}}>
         BMW yedek parça, Mercedes yedek parça, Volkswagen yedek parça, Audi yedek parça, Skoda yedek parça, Seat yedek parça, Mini Cooper parça, orijinal yedek parça, çıkma parça, motor parçası, oto elektrik, oto mekanik, uygun fiyatlı yedek parça.
         Adana, Ankara, İstanbul, İzmir, Bursa, Antalya, Konya, Gaziantep, Mersin, Kayseri, Diyarbakır, Samsun, Eskişehir, Denizli, Şanlıurfa, Kocaeli, Trabzon, Sakarya, Malatya, Erzurum, Hatay, Balıkesir, Aydın, Manisa, Tekirdağ, Afyon, Van, Ordu, Batman, Elazığ, Çorum, Sivas, Isparta, Muğla, Uşak, Kütahya, Kırşehir, Osmaniye, Adıyaman, Tokat, Rize, Karabük, Giresun, Yozgat, Kars, Siirt, Bitlis, Bilecik, Düzce, Artvin, Nevşehir, Zonguldak, Niğde, Ağrı, Kilis, Tunceli, Bartın, Hakkari, Bayburt, Ardahan, Iğdır, Karaman, Aksaray, Çankırı, Kırıkkale, Bolu, Bingöl, Muş, Gümüşhane, Edirne.

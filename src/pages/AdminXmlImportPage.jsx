@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import AdminLayout from '@/components/AdminLayout';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import {
   Upload, FileText, CheckCircle, XCircle, AlertCircle,
   Loader2, ChevronRight, Table2, FileSpreadsheet,
-  Package, Plus, Settings, Wrench, ArrowLeft, Users, Download
+  Download
 } from 'lucide-react';
 
 const COLUMN_MAP = {
@@ -224,59 +225,7 @@ export default function AdminXmlImportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-secondary">
-      {/* Admin Panel Ortak Header */}
-      <header className="bg-neutral-900 shadow-lg sticky top-0 z-40">
-        <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between h-auto md:h-20 gap-4 md:gap-0 py-4 md:py-0">
-            <div className="flex items-center gap-4 min-w-[320px]">
-              <Link to="/" className="flex items-center gap-2 text-white hover:text-yellow-400 transition-colors text-sm md:text-base">
-                <ArrowLeft className="h-5 w-5" />
-                <span>Siteye Dön</span>
-              </Link>
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-400 rounded-md flex items-center justify-center ml-2 md:ml-4">
-                <Wrench className="h-6 w-6 md:h-7 md:w-7 text-neutral-800" />
-              </div>
-              <div>
-                <h1 className="text-lg md:text-2xl font-bold text-white leading-tight">Fırat Oto Yönetim</h1>
-                <p className="text-xs md:text-sm text-gray-400 leading-tight">Yönetim Paneli</p>
-              </div>
-            </div>
-            <nav className="flex gap-0 md:gap-0 w-full md:w-auto items-center border-t-0 pt-0 mt-0 overflow-x-visible justify-center">
-              <button onClick={() => navigate('/admin')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                <Package className="h-4 w-4" />Ürün Listesi
-              </button>
-              <div className="h-8 w-px bg-gray-700 mx-1" />
-              <button onClick={() => navigate('/admin')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                <Plus className="h-4 w-4" />Yeni Ürün Ekle
-              </button>
-              <div className="h-8 w-px bg-gray-700 mx-1" />
-              <button className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-yellow-400 text-black shadow">
-                <FileSpreadsheet className="h-4 w-4" />Toplu İçe Aktar
-              </button>
-              <div className="h-8 w-px bg-gray-700 mx-1" />
-              <button onClick={() => navigate('/admin/categories')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                <Settings className="h-4 w-4" />Kategoriler
-              </button>
-              <div className="h-8 w-px bg-gray-700 mx-1" />
-              <button onClick={() => navigate('/admin/models')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                <Wrench className="h-4 w-4" />Model Ekle
-              </button>
-              <div className="h-8 w-px bg-gray-700 mx-1" />
-              <button onClick={() => navigate('/admin/brands')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                <Plus className="h-4 w-4" />Markalar
-              </button>
-              <div className="h-8 w-px bg-gray-700 mx-1" />
-              <button onClick={() => navigate('/admin/users')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                <Users className="h-4 w-4" />Kullanıcılar
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Ana İçerik */}
-      <main className="container mx-auto p-4 md:p-6 lg:p-8">
+    <AdminLayout title="Toplu İçe Aktar">
         <div className="max-w-4xl mx-auto bg-card border shadow-sm rounded-xl p-6 md:p-8">
           
           <div className="mb-8">
@@ -608,7 +557,6 @@ export default function AdminXmlImportPage() {
           )}
 
         </div>
-      </main>
-    </div>
+    </AdminLayout>
   );
 }

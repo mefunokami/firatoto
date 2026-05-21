@@ -6,6 +6,12 @@ RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+
+  # WhatsApp / Facebook / Telegram vb. ürün paylaşımında ürün fotoğrafı (logo değil)
+  RewriteCond %{HTTP_USER_AGENT} (facebookexternalhit|Facebot|Twitterbot|WhatsApp|LinkedInBot|Slackbot|TelegramBot|Discordbot|Pinterest) [NC]
+  RewriteCond %{REQUEST_URI} !^/(api|admin|kategori|product|blog|cart|register|favorites|order|account|addresses|iletisim|login|forgot-password|reset-password|icons|src|assets|node_modules) [NC]
+  RewriteRule ^([a-z0-9_\-]+)/([a-z0-9_\-]+)/?$ api/og_product.php?brand=$1&product=$2 [L,QSA]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule ^ index.html [L]

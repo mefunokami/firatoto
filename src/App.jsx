@@ -35,6 +35,8 @@ import AdminBlogPage from './pages/AdminBlogPage';
 import BlogDetailPage from './pages/BlogDetailPage';
 import AdminFaqPage from './pages/AdminFaqPage';
 import AdminXmlImportPage from './pages/AdminXmlImportPage';
+import AdminShippedCargosPage from './pages/AdminShippedCargosPage';
+import AdminGoogleMapsPage from './pages/AdminGoogleMapsPage';
 
 function App() {
   const [loginOpen, setLoginOpen] = React.useState(false);
@@ -89,7 +91,11 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/admin-login" element={<AdminLoginPage />} />
-        <Route path="/admin/sliders" element={<AdminSliderPage />} />
+        <Route path="/admin/sliders" element={
+          <ProtectedRoute>
+            <AdminSliderPage />
+          </ProtectedRoute>
+        } />
         <Route path="/admin/brands" element={<AdminBrandsPage />} />
         <Route path="/admin/orders" element={<AdminOrdersPage />} />
         <Route path="/admin/bank-accounts" element={<AdminBankAccountsPage />} />
@@ -107,6 +113,16 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/admin/xml-import" element={<AdminXmlImportPage />} />
+        <Route path="/admin/shipped-cargos" element={
+          <ProtectedRoute>
+            <AdminShippedCargosPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/google-maps" element={
+          <ProtectedRoute>
+            <AdminGoogleMapsPage />
+          </ProtectedRoute>
+        } />
       </Routes>
       <Toaster />
     </CartProvider>

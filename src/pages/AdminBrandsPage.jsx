@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
+import AdminLayout from '@/components/AdminLayout';
 
 export default function AdminBrandsPage() {
   const [brands, setBrands] = useState([]);
   const [newBrand, setNewBrand] = useState('');
-  const navigate = useNavigate();
-
   useEffect(() => {
     fetch('/api/productbrands.php')
       .then(res => res.json())
@@ -32,14 +30,9 @@ export default function AdminBrandsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 max-w-2xl">
-      <div className="flex items-center mb-8">
-        <button onClick={() => navigate('/admin')} className="flex items-center gap-2 text-gray-700 hover:text-yellow-500 font-semibold px-3 py-2 rounded bg-gray-100 hover:bg-yellow-100 transition">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-          Panele Dön
-        </button>
-        <h2 className="text-2xl font-bold ml-6 border-b-2 border-yellow-400 pb-1">Ürün Markalarını Yönet</h2>
-      </div>
+    <AdminLayout title="Markalar">
+    <div className="max-w-2xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-foreground border-b-2 border-yellow-400 pb-2 inline-block">Ürün Markalarını Yönet</h2>
       <form onSubmit={handleAddBrand} className="flex gap-2 mb-8">
         <input
           type="text"
@@ -71,5 +64,6 @@ export default function AdminBrandsPage() {
         </table>
       </div>
     </div>
+    </AdminLayout>
   );
 } 

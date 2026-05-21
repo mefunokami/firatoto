@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Plus, Package, TrendingUp, AlertCircle, Settings, Wrench, ArrowLeft, Car, Users, Loader2, FileSpreadsheet } from 'lucide-react';
+import { Plus, Package, AlertCircle, Settings, Wrench, Car, Loader2 } from 'lucide-react';
+import AdminLayout from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
@@ -40,13 +40,11 @@ function AdminPage() {
   const [selectedBrand, setSelectedBrand]   = useState('');
   const [newModel, setNewModel]         = useState('');
   const [isAdding, setIsAdding]         = useState(false);
-  const navigate                        = useNavigate();
   const [categories, setCategories]     = useState([]);
   const [newCategory, setNewCategory]   = useState('');
   const [users, setUsers]               = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError]     = useState('');
-
   // ─── Ürünleri API'den çek (server-side sayfalama) ───
   const fetchProducts = useCallback((page = 1, search = searchTerm, category = filterCategory, noImage = filterNoImage) => {
     setLoading(true);
@@ -259,54 +257,17 @@ function AdminPage() {
         <meta name="description" content="Fırat Oto Yedek Parça için ürün yönetim sistemi." />
       </Helmet>
 
-      <div className="min-h-screen bg-secondary">
-        <header className="bg-neutral-900 shadow-lg sticky top-0 z-40">
-          <div className="container mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between h-auto md:h-20 gap-4 md:gap-0 py-4 md:py-0">
-              <div className="flex items-center gap-4 min-w-[320px]">
-                <Link to="/" className="flex items-center gap-2 text-white hover:text-yellow-400 transition-colors text-sm md:text-base">
-                  <ArrowLeft className="h-5 w-5" />
-                  <span>Siteye Dön</span>
-                </Link>
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-400 rounded-md flex items-center justify-center ml-2 md:ml-4">
-                  <Wrench className="h-6 w-6 md:h-7 md:w-7 text-neutral-800" />
-                </div>
-                <div>
-                  <h1 className="text-lg md:text-2xl font-bold text-white leading-tight">Fırat Oto Yönetim</h1>
-                  <p className="text-xs md:text-sm text-gray-400 leading-tight">Yönetim Paneli</p>
-                </div>
-              </div>
-              <nav className="flex gap-0 md:gap-0 w-full md:w-auto items-center border-t-0 pt-0 mt-0 overflow-x-visible justify-center">
-                <button onClick={() => { setActiveTab('list'); setShowForm(false); }} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${activeTab === 'list' && !showForm ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Package className="h-4 w-4" />Ürün Listesi</button>
-                <div className="h-8 w-px bg-gray-700 mx-1" />
-                <button onClick={handleNewProduct} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${activeTab === 'add' || showForm ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Plus className="h-4 w-4" />{editingProduct ? "Ürün Düzenle" : "Yeni Ürün Ekle"}</button>
-                <div className="h-8 w-px bg-gray-700 mx-1" />
-                <button onClick={() => navigate('/admin/xml-import')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                  <FileSpreadsheet className="h-4 w-4" />
-                  <span>Toplu İçe Aktar</span>
-                </button>
-                <div className="h-8 w-px bg-gray-700 mx-1" />
-                <button onClick={() => { navigate('/admin/categories'); }} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${activeTab === 'categories' ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Settings className="h-4 w-4" />Kategoriler</button>
-                <div className="h-8 w-px bg-gray-700 mx-1" />
-                <button onClick={() => navigate('/admin/models')} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${window.location.pathname === '/admin/models' ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Wrench className="h-4 w-4" />Model Ekle</button>
-                <div className="h-8 w-px bg-gray-700 mx-1" />
-                <button onClick={() => { navigate('/admin/brands'); }} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${activeTab === 'brands' ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Plus className="h-4 w-4" />Markalar</button>
-                <div className="h-8 w-px bg-gray-700 mx-1" />
-                <button onClick={() => { navigate('/admin/users'); setActiveTab('users'); setShowForm(false); }} className={`px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 ${window.location.pathname === '/admin/users' ? 'bg-yellow-400 text-black shadow' : 'bg-neutral-800 text-white hover:bg-neutral-700'} `}><Users className="h-4 w-4" />Kullanıcılar</button>
-                <div className="h-8 w-px bg-gray-700 mx-1" />
-                <button onClick={() => navigate('/admin/blog')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                  <span>Blog Düzenle</span>
-                </button>
-                <div className="h-8 w-px bg-gray-700 mx-1" />
-                <button onClick={() => navigate('/admin/faq')} className="px-4 py-2 font-semibold flex items-center gap-2 h-12 border-0 rounded-t-md transition-all duration-150 bg-neutral-800 text-white hover:bg-neutral-700">
-                  <span>SSS Düzenle</span>
-                </button>
-              </nav>
-            </div>
-          </div>
-        </header>
-
-        <main className="container mx-auto p-2 sm:p-4 md:p-6 lg:p-8">
+      <AdminLayout
+        title="Ürün Yönetimi"
+        activeTab={activeTab}
+        showForm={showForm}
+        onNewProduct={handleNewProduct}
+        onProductList={() => {
+          setActiveTab('list');
+          setShowForm(false);
+          setEditingProduct(null);
+        }}
+      >
           {/* İstatistik Kartları */}
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
@@ -446,8 +407,7 @@ function AdminPage() {
           )}
 
           {/* Kullanıcılar sekmesi kaldırıldı, yönlendirme ile ayrı sayfada açılıyor */}
-        </main>
-      </div>
+      </AdminLayout>
     </CartProvider>
   );
 }

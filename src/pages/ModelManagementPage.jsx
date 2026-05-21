@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Plus, Trash2 } from 'lucide-react';
+import AdminLayout from '@/components/AdminLayout';
 
 const SABIT_MARKALAR = [
   "OPEL", "CHEVROLET", "BMW", "MERCEDES-BENZ", "VOLKSWAGEN", "AUDİ", "TESLA", "SEAT", "SKODA", "PEUGEOT", "CİTROEN", "FORD",
@@ -20,8 +20,6 @@ const ModelManagementPage = () => {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (selectedBrand) {
       setLoading(true);
@@ -82,17 +80,11 @@ const ModelManagementPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-secondary">
+    <AdminLayout title="Modeller">
       <Helmet>
         <title>Model Yönetimi - Fırat Oto</title>
       </Helmet>
-      <div className="container mx-auto py-8">
-        <div className="mb-6 flex justify-start">
-          <Button variant="outline" onClick={() => navigate('/admin')} className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Yönetim Paneline Dön
-          </Button>
-        </div>
+      <div className="max-w-2xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Card className="bg-card shadow-lg border max-w-2xl mx-auto">
             <CardHeader>
@@ -161,7 +153,7 @@ const ModelManagementPage = () => {
           </Card>
         </motion.div>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

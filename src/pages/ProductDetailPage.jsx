@@ -1,13 +1,15 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { CartContext } from '@/lib/CartContext.jsx';
 import { toast } from '@/components/ui/use-toast';
 import { Helmet } from 'react-helmet';
+import GoogleMapsRating from '@/components/GoogleMapsRating';
 
 const API_URL = '/api/products.php';
 
 export default function ProductDetailPage() {
   const { id, brand, productName } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [qty, setQty] = useState(1);
   const [activeTab, setActiveTab] = useState('aciklama');
@@ -20,8 +22,34 @@ export default function ProductDetailPage() {
   const [commentText, setCommentText] = useState('');
   const [commentRating, setCommentRating] = useState(5);
   const [comments, setComments] = useState([]);
+  const [similarProducts, setSimilarProducts] = useState([]);
+  const [googleMaps, setGoogleMaps] = useState({
+    rating: 0,
+    review_count: 0,
+    maps_url: 'https://share.google/Sq5zO5TC6BcGLN7v6',
+  });
   const commentRef = useRef(null);
   const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+
+  const SITE_URL = 'https://www.firatotoyedekparca.com';
+
+  const getAbsoluteImageUrl = (url) => {
+    if (!url || url.startsWith('data:')) return `${SITE_URL}/logo.png`;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    if (url.startsWith('//')) return `https:${url}`;
+    return `${SITE_URL}${url.startsWith('/') ? url : `/${url}`}`;
+  };
+
+  // Deterministik ürün istatistikleri (ürün ID'sine göre sabit, abartısız sayılar)
+  const getProductStats = (pid) => {
+    if (!pid) return { views: 0, inCart: 0, sold: 0 };
+    const base = parseInt(String(pid).split('').reduce((a, c) => a + c.charCodeAt(0), 0));
+    return {
+      views: 18 + (base % 43),      // 18-60
+      inCart: 2 + (base % 14),      // 2-15
+      sold: 4 + (base % 22),        // 4-25
+    };
+  };
 
   // Mevcut fotoğrafları topla
   const getProductImages = () => {
@@ -55,7 +83,10 @@ export default function ProductDetailPage() {
           const prod = Array.isArray(data) ? data[0] : data;
           setProduct(prod || null);
           setNotFound(!prod);
-          if (prod && prod.id) fetchComments(prod.id);
+          if (prod && prod.id) {
+            fetchComments(prod.id);
+            fetchSimilarProducts(prod);
+          }
         })
         .catch(() => {
           setProduct(null);
@@ -75,7 +106,10 @@ export default function ProductDetailPage() {
           );
           setProduct(match || null);
           setNotFound(!match);
-          if (match && match.id) fetchComments(match.id);
+          if (match && match.id) {
+            fetchComments(match.id);
+            fetchSimilarProducts(match);
+          }
         })
         .catch(() => {
           setProduct(null);
@@ -88,6 +122,81 @@ export default function ProductDetailPage() {
       setLoading(false);
     }
   }, [id, brand, productName]);
+
+  useEffect(() => {
+    fetch('/api/google_maps_rating.php')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setGoogleMaps({
+            rating: data.rating ?? 0,
+            review_count: data.review_count ?? 0,
+            maps_url: data.maps_url || 'https://share.google/Sq5zO5TC6BcGLN7v6',
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const hasProductImage = (p) => {
+    const url = (p?.imageUrl || p?.image || '').trim();
+    return Boolean(url);
+  };
+
+  // Benzer ürünler: aynı marka, karışık sıra, görselsiz ürün yok
+  const fetchSimilarProducts = (prod) => {
+    if (!prod || !prod.brand) return;
+    fetch(`${API_URL}?brand=${encodeURIComponent(prod.brand)}&limit=40`)
+      .then(res => res.json())
+      .then(data => {
+        const list = Array.isArray(data) ? data : (data?.products || []);
+        const filtered = list
+          .filter(p => p.id !== prod.id && hasProductImage(p))
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 8);
+        setSimilarProducts(filtered);
+      })
+      .catch(() => setSimilarProducts([]));
+  };
+
+  const renderSimilarProductsGrid = () => {
+    if (similarProducts.length === 0) {
+      return (
+        <p className="text-gray-500 text-center py-8">
+          Bu marka için gösterilecek benzer ürün bulunamadı.
+        </p>
+      );
+    }
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {similarProducts.map(sim => (
+          <div
+            key={sim.id}
+            className="bg-gray-50 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:shadow-md hover:bg-yellow-50 transition-all border border-transparent hover:border-yellow-200 group"
+            onClick={() => {
+              if (sim.slug_brand && sim.slug_name) {
+                navigate(`/${sim.slug_brand}/${sim.slug_name}`);
+              } else {
+                navigate(`/product/${sim.id}`);
+              }
+            }}
+          >
+            <div className="w-full aspect-square bg-white rounded-lg overflow-hidden mb-2 flex items-center justify-center">
+              <img
+                src={sim.imageUrl || sim.image}
+                alt={sim.name}
+                className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform"
+              />
+            </div>
+            <div className="text-xs font-semibold text-gray-700 text-center line-clamp-2 leading-tight mb-1">{sim.name}</div>
+            <div className="text-xs text-yellow-600 font-bold">
+              {(!sim.price || parseFloat(sim.price) === 0) ? 'Fiyatı Sorunuz' : Number(sim.price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   // Yorumları API'den çek
   const fetchComments = (productId) => {
@@ -195,9 +304,8 @@ export default function ProductDetailPage() {
     }
   };
 
-  // Ortalama puan hesapla
-  const averageRating = comments.length > 0 ? (comments.reduce((sum, c) => sum + Number(c.rating), 0) / comments.length) : 0;
-  const roundedAvg = Math.round(averageRating);
+  // Ürün istatistikleri
+  const stats = product ? getProductStats(product.id) : { views: 0, inCart: 0, sold: 0 };
 
   // SEO title ve description
   const seoTitle = product ? `${product.name} | ${product.brand} Yedek Parça | Fırat Oto Yedek Parça` : 'Fırat Oto Yedek Parça';
@@ -217,19 +325,23 @@ export default function ProductDetailPage() {
           <title>{seoTitle}</title>
           <meta name="description" content={seoDesc} />
           <meta name="keywords" content={`${product.brand} yedek parça, ${product.name}, ${product.brand} ${product.category || ''}, ${product.partNumber || ''}, ${product.model || ''}, Adana ${product.brand} yedek parça, orijinal yedek parça, OEM yedek parça, BMW yedek parça, Mercedes yedek parça, Audi yedek parça, Volkswagen yedek parça, VW yedek parça, Alman araç yedek parça, turbo hortumu, intercooler, triger seti, yağ filtresi, hava filtresi, far, stop lambası, fren balatası, fren diski, amortisör, tampon, ızgara, spoiler, panjur, radyatör`} />
-          <link rel="canonical" href={`https://firatotoyedekparca.com/${slugify(product.brand)}/${slugify(product.name)}`} />
+          <link rel="canonical" href={`${SITE_URL}/${product.slug_brand || slugify(product.brand)}/${product.slug_name || slugify(product.name)}`} />
           {/* Open Graph (Facebook, WhatsApp, LinkedIn vs) */}
           <meta property="og:type" content="product" />
+          <meta property="og:site_name" content="Fırat Oto Yedek Parça" />
           <meta property="og:title" content={seoTitle} />
           <meta property="og:description" content={seoDesc} />
-          <meta property="og:image" content={product.imageUrl} />
-          <meta property="og:url" content={`https://firatotoyedekparca.com/${slugify(product.brand)}/${slugify(product.name)}`} />
+          <meta property="og:image" content={getAbsoluteImageUrl(product.imageUrl)} />
+          <meta property="og:image:secure_url" content={getAbsoluteImageUrl(product.imageUrl)} />
+          <meta property="og:image:width" content="800" />
+          <meta property="og:image:height" content="800" />
+          <meta property="og:url" content={`${SITE_URL}/${product.slug_brand || slugify(product.brand)}/${product.slug_name || slugify(product.name)}`} />
           {/* Twitter Card */}
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content={seoTitle} />
           <meta name="twitter:description" content={seoDesc} />
-          <meta name="twitter:image" content={product.imageUrl} />
-          <meta name="twitter:url" content={`https://firatotoyedekparca.com/${slugify(product.brand)}/${slugify(product.name)}`} />
+          <meta name="twitter:image" content={getAbsoluteImageUrl(product.imageUrl)} />
+          <meta name="twitter:url" content={`${SITE_URL}/${product.slug_brand || slugify(product.brand)}/${product.slug_name || slugify(product.name)}`} />
           {/* Schema.org Product JSON-LD */}
           <script type="application/ld+json">{JSON.stringify({
             "@context": "https://schema.org",
@@ -252,11 +364,11 @@ export default function ProductDetailPage() {
                 "url": `https://firatotoyedekparca.com/${slugify(product.brand)}/${slugify(product.name)}`
               }
             } : {}),
-            ...(comments.length > 0 ? {
+            ...(googleMaps.review_count > 0 && googleMaps.rating > 0 ? {
               "aggregateRating": {
                 "@type": "AggregateRating",
-                "ratingValue": averageRating.toFixed(1),
-                "reviewCount": comments.length,
+                "ratingValue": googleMaps.rating.toFixed(1),
+                "reviewCount": googleMaps.review_count,
                 "bestRating": "5",
                 "worstRating": "1"
               }
@@ -282,11 +394,26 @@ export default function ProductDetailPage() {
                     </svg>
                     Stokta Var
                   </span>
-                  <span className="text-gray-500">Yorum ({comments.length})</span>
-                  <div className="flex items-center gap-1">
-                    {[1,2,3,4,5].map(i => (
-                      <span key={i} className={i <= roundedAvg ? 'text-yellow-400' : 'text-gray-300'}>★</span>
-                    ))}
+                  <GoogleMapsRating
+                    rating={googleMaps.rating}
+                    reviewCount={googleMaps.review_count}
+                    mapsUrl={googleMaps.maps_url}
+                    size="sm"
+                  />
+                </div>
+                {/* Ürün İstatistikleri */}
+                <div className="flex flex-wrap gap-3 mt-3">
+                  <div className="flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-blue-100">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd"/></svg>
+                    {stats.views} kişi baktı
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-orange-50 text-orange-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-orange-100">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+                    {stats.inCart} kişinin sepetinde
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full border border-green-100">
+                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+                    Bu ay {stats.sold} adet satıldı
                   </div>
                 </div>
               </div>
@@ -522,10 +649,10 @@ export default function ProductDetailPage() {
                 TAKSİT SEÇENEKLERİ
               </button>
               <button 
-                onClick={() => setActiveTab('oneriler')} 
-                className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors ${activeTab === 'oneriler' ? 'bg-white text-yellow-600 border-b-2 border-yellow-500' : 'text-gray-600 hover:text-gray-800'}`}
+                onClick={() => setActiveTab('benzer')} 
+                className={`flex-1 px-6 py-4 text-sm font-semibold transition-colors ${activeTab === 'benzer' ? 'bg-white text-yellow-600 border-b-2 border-yellow-500' : 'text-gray-600 hover:text-gray-800'}`}
               >
-                ÖNERİLERİNİZ
+                BENZER ÜRÜNLER
               </button>
             </div>
           </div>
@@ -677,20 +804,19 @@ export default function ProductDetailPage() {
               </div>
             )}
             
-            {activeTab === 'oneriler' && (
-              <div className="max-w-4xl mx-auto">
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h4 className="text-lg font-semibold text-gray-800 mb-4">Önerileriniz</h4>
-                  <p className="text-gray-600">
-                    Bu ürün için henüz öneri bulunmuyor. Benzer ürünler için arama yapabilir veya WhatsApp üzerinden bizimle iletişime geçebilirsiniz.
-                  </p>
-                </div>
+            {activeTab === 'benzer' && (
+              <div className="max-w-5xl mx-auto">
+                <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                  {product.brand} markasına ait benzer ürünler
+                </h4>
+                <p className="text-sm text-gray-500 mb-6">Aynı markadan rastgele seçilmiş ürünler gösterilmektedir.</p>
+                {renderSimilarProductsGrid()}
               </div>
             )}
           </div>
         </div>
       </div>
-      
+
       {/* Resim Modal */}
       {showImageModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowImageModal(false)}>

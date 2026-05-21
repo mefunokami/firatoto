@@ -61,25 +61,37 @@ const BrandMenu = () => {
       });
   };
 
+  const getBrandSlug = (brand) => {
+    const normalizedBrand = brand.trim().toUpperCase();
+    if (normalizedBrand === 'MERCEDES-BENZ') return 'mercedes-benz';
+    if (normalizedBrand === 'GENEL MARKALAR') return 'genel_markalar';
+    return slugify(normalizedBrand);
+  };
+
+  const getBrandLabel = (brand) => {
+    if (brand === 'MERCEDES-BENZ') return 'Mercedes';
+    if (brand === 'VOLKSWAGEN') return 'Volkswagen';
+    if (brand === 'AUDİ') return 'Audi';
+    if (brand === 'GENEL MARKALAR') return 'Genel Markalar';
+    return brand.charAt(0) + brand.slice(1).toLowerCase();
+  };
+
+  // Markanın tüm parçalarını göster (BMW Yedek Parça - Tümü vb.)
+  const handleViewAllBrand = (brand) => {
+    setOpenBrand(null);
+    setModels([]);
+    setMobileOpen(false);
+    navigate(`/kategori/${getBrandSlug(brand)}/tumu`);
+  };
+
   // Model seçilince yönlendirme
   const handleModelSelect = (brand, model) => {
     if (brand && model) {
-      const normalizedBrand = brand.trim().toUpperCase();
       const normalizedModel = model.trim().toUpperCase();
       setOpenBrand(null);
       setModels([]);
-      
-      // MERCEDES-BENZ için özel URL oluştur
-      let brandSlug;
-      if (normalizedBrand === 'MERCEDES-BENZ') {
-        brandSlug = 'mercedes-benz';
-      } else if (normalizedBrand === 'GENEL MARKALAR') {
-        brandSlug = 'genel_markalar';
-      } else {
-        brandSlug = slugify(normalizedBrand);
-      }
-      
-      navigate(`/kategori/${brandSlug}/${slugify(normalizedModel)}`);
+      setMobileOpen(false);
+      navigate(`/kategori/${getBrandSlug(brand)}/${slugify(normalizedModel)}`);
     }
   };
 
@@ -109,6 +121,13 @@ const BrandMenu = () => {
             </div>
             {openBrand && (
               <div className="bg-gray-50 border-t border-yellow-100 px-4 py-2">
+                <button
+                  type="button"
+                  className="w-full mb-3 py-2.5 px-3 rounded-lg bg-black text-[#ffc107] font-bold text-sm text-left hover:bg-gray-900 transition"
+                  onClick={() => handleViewAllBrand(openBrand)}
+                >
+                  {getBrandLabel(openBrand)} Yedek Parça — Tümü
+                </button>
                 {loading ? (
                   <span className="text-gray-500">Yükleniyor...</span>
                 ) : error ? (
@@ -161,7 +180,16 @@ const BrandMenu = () => {
       </div>
       {openBrand && (
         <div className="w-full bg-white border-t border-yellow-200 shadow-inner md:block hidden">
-          <div className="max-w-7xl mx-auto px-2 py-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 justify-center">
+          <div className="max-w-7xl mx-auto px-2 py-3 flex justify-center">
+            <button
+              type="button"
+              className="px-6 py-2.5 rounded-lg bg-black text-[#ffc107] font-bold text-sm hover:bg-gray-900 transition shadow"
+              onClick={() => handleViewAllBrand(openBrand)}
+            >
+              {getBrandLabel(openBrand)} Yedek Parça — Tümünü Gör
+            </button>
+          </div>
+          <div className="max-w-7xl mx-auto px-2 pb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 justify-center">
             {loading ? (
               <span className="col-span-full text-gray-500">Yükleniyor...</span>
             ) : error ? (
