@@ -14,6 +14,7 @@ import {
   Star,
   ArrowLeft,
   X,
+  Zap,
 } from 'lucide-react';
 
 function NavItem({ active, onClick, icon: Icon, children, className = '' }) {
@@ -53,7 +54,7 @@ function NavSection({ title, children }) {
  * @param {() => void} [props.onNewProduct]
  * @param {() => void} [props.onProductList]
  */
-export default function AdminSidebar({ open, onClose, activeTab, showForm, onNewProduct, onProductList }) {
+export default function AdminSidebar({ open, onClose, activeTab, showForm, onNewProduct, onProductList, className = '' }) {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
@@ -155,6 +156,9 @@ export default function AdminSidebar({ open, onClose, activeTab, showForm, onNew
           <NavItem active={path === '/admin/google-maps'} onClick={() => go('/admin/google-maps')} icon={Star}>
             Google Maps
           </NavItem>
+          <NavItem active={path === '/admin/weekly-deal'} onClick={() => go('/admin/weekly-deal')} icon={Zap}>
+            Haftanın Fırsatı
+          </NavItem>
         </NavSection>
       </nav>
 
@@ -189,6 +193,7 @@ export default function AdminSidebar({ open, onClose, activeTab, showForm, onNew
           flex flex-col
           transition-transform duration-200 ease-out
           ${open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          ${className}
         `}
       >
         {sidebarContent}

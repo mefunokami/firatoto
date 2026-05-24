@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useOutletContext, useLocation } from 'react-router-dom';
 import Hero from '@/components/Hero';
@@ -6,7 +6,7 @@ import PublicProductCard from '@/components/PublicProductCard';
 import ProductDetailModal from '@/components/ProductDetailModal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Select from 'react-select';
 import HomeSlider from '@/components/HomeSlider';
@@ -42,6 +42,117 @@ const shuffleArray = (array) => {
   return shuffled;
 };
 
+/* ─── Gönderilen Kargolar Slider ─────────────────────────────────────────── */
+const CARGO_ITEM_W = 200; // px
+const CARGO_GAP    = 12;  // px (gap-3)
+
+function CargoSlider({ cargos, onSelect }) {
+  const trackRef = useRef(null);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
+
+  const checkBounds = useCallback(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    setCanPrev(el.scrollLeft > 2);
+    setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    checkBounds();
+    el.addEventListener('scroll', checkBounds, { passive: true });
+    window.addEventListener('resize', checkBounds);
+    return () => {
+      el.removeEventListener('scroll', checkBounds);
+      window.removeEventListener('resize', checkBounds);
+    };
+  }, [cargos, checkBounds]);
+
+  const scroll = (dir) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * (CARGO_ITEM_W + CARGO_GAP) * 3, behavior: 'smooth' });
+  };
+
+  return (
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-8 border-t border-gray-100">
+      <h2 className="text-2xl font-bold mb-2 text-center">Gönderilen Kargolar</h2>
+      <p className="text-center text-gray-500 text-sm mb-6">Müşterilerimize gönderdiğimiz kargolardan kareler.</p>
+
+      <div className="relative max-w-6xl mx-auto">
+        {/* Sol Ok */}
+        <button
+          onClick={() => scroll(-1)}
+          disabled={!canPrev}
+          className={`
+            absolute left-0 top-1/2 -translate-y-1/2 z-10 -translate-x-3
+            w-10 h-10 rounded-full flex items-center justify-center shadow-lg
+            bg-white border border-gray-200 text-gray-600
+            hover:bg-yellow-400 hover:border-yellow-400 hover:text-white
+            transition-all duration-200
+            disabled:opacity-0 disabled:pointer-events-none
+          `}
+          aria-label="Geri"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+
+        {/* Kaydırma Çubuğu Gizli Track */}
+        <div
+          ref={trackRef}
+          className="cargo-track flex gap-3 overflow-x-auto"
+          style={{
+            scrollSnapType: 'x mandatory',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+        >
+          {cargos.map(cargo => (
+            <div
+              key={cargo.id}
+              className="rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer group relative flex-shrink-0"
+              style={{ width: CARGO_ITEM_W, scrollSnapAlign: 'start' }}
+              onClick={() => onSelect(cargo)}
+            >
+              <div className="overflow-hidden" style={{ width: CARGO_ITEM_W, height: CARGO_ITEM_W }}>
+                <img
+                  src={cargo.image_url}
+                  alt={cargo.title || 'Kargo'}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-400"
+                />
+              </div>
+              {cargo.title && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-2 pt-6 pb-2">
+                  <div className="text-white text-xs font-semibold line-clamp-1">{cargo.title}</div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Sağ Ok */}
+        <button
+          onClick={() => scroll(1)}
+          disabled={!canNext}
+          className={`
+            absolute right-0 top-1/2 -translate-y-1/2 z-10 translate-x-3
+            w-10 h-10 rounded-full flex items-center justify-center shadow-lg
+            bg-white border border-gray-200 text-gray-600
+            hover:bg-yellow-400 hover:border-yellow-400 hover:text-white
+            transition-all duration-200
+            disabled:opacity-0 disabled:pointer-events-none
+          `}
+          aria-label="İleri"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const HomePage = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [displayedProducts, setDisplayedProducts] = useState([]);
@@ -56,7 +167,6 @@ const HomePage = () => {
   const [yearOptions, setYearOptions] = useState([]);
   const [visibleCount, setVisibleCount] = useState(8);
   const [randomVisibleCount, setRandomVisibleCount] = useState(8);
-  const [cargosVisibleCount, setCargosVisibleCount] = useState(5);
   const [faqs, setFaqs] = useState([]);
   const [openFaq, setOpenFaq] = useState(null);
   const [blogs, setBlogs] = useState([]);
@@ -342,40 +452,9 @@ const HomePage = () => {
             )}
             {/* Gönderilen Kargolar */}
             {shippedCargos.length > 0 && (
-              <div className="container mx-auto px-0 sm:px-6 lg:px-8 py-12 mt-8 border-t border-gray-100">
-                <h2 className="text-2xl font-bold mb-2 text-center">Gönderilen Kargolar</h2>
-                <p className="text-center text-gray-500 text-sm mb-6">Müşterilerimize gönderdiğimiz kargolardan kareler.</p>
-                <div className="max-w-6xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                  {shippedCargos.slice(0, cargosVisibleCount).map(cargo => (
-                    <div
-                      key={cargo.id}
-                      className="rounded-xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer group relative"
-                      onClick={() => setSelectedCargo(cargo)}
-                    >
-                      <div className="aspect-square bg-gray-100 overflow-hidden">
-                        <img
-                          src={cargo.image_url}
-                          alt={cargo.title || 'Kargo'}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      {cargo.title && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                          <div className="text-white text-xs font-semibold line-clamp-1">{cargo.title}</div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                {cargosVisibleCount < shippedCargos.length && (
-                  <div className="flex justify-center mt-8">
-                    <Button size="lg" className="px-8 py-3 text-base font-bold" onClick={() => setCargosVisibleCount(v => v + 5)}>
-                      Daha fazla görüntüle
-                    </Button>
-                  </div>
-                )}
-              </div>
+              <CargoSlider cargos={shippedCargos} onSelect={setSelectedCargo} />
             )}
+
             {/* SSS kutusu */}
             <div className="max-w-4xl mx-auto mt-16 mb-10">
               <h2 className="text-2xl font-bold mb-4 text-center">Sık Sorulan Sorular</h2>

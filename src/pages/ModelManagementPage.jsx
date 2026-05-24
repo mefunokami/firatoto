@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
-import { motion } from 'framer-motion';
-import { Plus, Trash2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Trash2, GripVertical, Pencil, X, Image as ImageIcon, Tag } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 
 const SABIT_MARKALAR = [
@@ -13,6 +13,165 @@ const SABIT_MARKALAR = [
   "GENEL MARKALAR"
 ];
 
+/* ─── Düzenleme Modalı ─────────────────────────────────────────────────────── */
+function EditModal({ model, onClose, onSave }) {
+  const [name, setName] = useState(model.model || '');
+  const [imageUrl, setImageUrl] = useState(model.image_url || '');
+  const [saving, setSaving] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  // İlk inputa otomatik focus
+  const nameRef = useRef(null);
+  useEffect(() => { nameRef.current?.focus(); }, []);
+
+  // ESC ile kapat
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  const handleSave = async () => {
+    if (!name.trim()) {
+      toast({ title: 'Hata', description: 'Model adı boş olamaz.', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch('/api/brand_models.php', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: model.id, model: name.trim(), image_url: imageUrl })
+      });
+      if (res.ok) {
+        toast({ title: 'Model Güncellendi' });
+        onSave({ ...model, model: name.trim(), image_url: imageUrl });
+        onClose();
+      } else {
+        const d = await res.json();
+        toast({ title: 'Hata', description: d.error || 'Güncellenemedi.', variant: 'destructive' });
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    /* Backdrop */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92, y: 24 }}
+        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-yellow-400/20 flex items-center justify-center">
+              <Pencil className="h-4 w-4 text-yellow-600" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900">Modeli Düzenle</h2>
+              <p className="text-xs text-gray-400">Ad ve resim güncellenebilir</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5 space-y-5">
+          {/* Model Adı */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5 flex items-center gap-1">
+              <Tag className="h-3 w-3" /> Model Adı
+            </label>
+            <Input
+              ref={nameRef}
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Örn: ASTRA J"
+              className="w-full h-10"
+              onKeyDown={e => { if (e.key === 'Enter') handleSave(); }}
+            />
+          </div>
+
+          {/* Resim URL */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1.5 flex items-center gap-1">
+              <ImageIcon className="h-3 w-3" /> Resim URL'si
+            </label>
+            <Input
+              value={imageUrl}
+              onChange={e => { setImageUrl(e.target.value); setImgError(false); }}
+              placeholder="https://..."
+              type="url"
+              className="w-full h-10"
+            />
+          </div>
+
+          {/* Resim Önizlemesi */}
+          <div className="rounded-xl border-2 border-dashed border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden"
+            style={{ minHeight: 110 }}>
+            {imageUrl && !imgError ? (
+              <img
+                src={imageUrl}
+                alt="Önizleme"
+                className="max-h-28 max-w-full object-contain p-2"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-1 py-6 text-gray-300">
+                <ImageIcon className="h-8 w-8" />
+                <span className="text-xs">{imgError ? 'Resim yüklenemedi' : 'Resim önizlemesi'}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex gap-3 px-6 pb-5">
+          <Button
+            variant="outline"
+            className="flex-1 h-10"
+            onClick={onClose}
+            disabled={saving}
+          >
+            İptal
+          </Button>
+          <Button
+            className="flex-1 h-10 bg-yellow-500 hover:bg-yellow-600 text-white font-bold"
+            onClick={handleSave}
+            disabled={saving || !name.trim()}
+          >
+            {saving ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3V4a8 8 0 00-8 8h4z" />
+                </svg>
+                Kaydediliyor...
+              </span>
+            ) : 'Kaydet'}
+          </Button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ─── Ana Sayfa ─────────────────────────────────────────────────────────────── */
 const ModelManagementPage = () => {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [models, setModels] = useState([]);
@@ -20,12 +179,19 @@ const ModelManagementPage = () => {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [editingModel, setEditingModel] = useState(null); // popup için
+  const dragItem = useRef(null);
+  const dragOverItem = useRef(null);
+
   useEffect(() => {
     if (selectedBrand) {
       setLoading(true);
       fetch(`/api/brand_models.php?brand=${encodeURIComponent(selectedBrand)}`)
         .then(res => res.json())
-        .then(data => setModels(data.map(m => ({ id: m.id, model: m.model, image_url: m.image_url }))))
+        .then(data => {
+          const sorted = [...data].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+          setModels(sorted.map(m => ({ id: m.id, model: m.model, image_url: m.image_url, display_order: m.display_order ?? 0 })));
+        })
         .catch(() => setModels([]))
         .finally(() => setLoading(false));
     } else {
@@ -33,26 +199,31 @@ const ModelManagementPage = () => {
     }
   }, [selectedBrand]);
 
+  const reloadModels = async () => {
+    const data = await fetch(`/api/brand_models.php?brand=${encodeURIComponent(selectedBrand)}`).then(r => r.json());
+    const sorted = [...data].sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+    setModels(sorted.map(m => ({ id: m.id, model: m.model, image_url: m.image_url, display_order: m.display_order ?? 0 })));
+  };
+
   const handleAddModel = async (e) => {
     e.preventDefault();
     if (!selectedBrand || !newModel) {
-      toast({ title: 'Hata', description: 'Marka ve model seçmelisiniz.', variant: 'destructive' });
+      toast({ title: 'Hata', description: 'Marka ve model adı gereklidir.', variant: 'destructive' });
       return;
     }
     setIsAdding(true);
     try {
+      const maxOrder = models.length > 0 ? Math.max(...models.map(m => m.display_order ?? 0)) + 1 : 0;
       const res = await fetch('/api/brand_models.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brand: selectedBrand, model: newModel, image_url: newImageUrl })
+        body: JSON.stringify({ brand: selectedBrand, model: newModel, image_url: newImageUrl, display_order: maxOrder })
       });
       if (res.ok) {
-        toast({ title: 'Model Eklendi', description: `${selectedBrand} markasına ${newModel} modeli eklendi.` });
+        toast({ title: 'Model Eklendi', description: `${selectedBrand} markasına "${newModel}" modeli eklendi.` });
         setNewModel('');
         setNewImageUrl('');
-        // Yeniden yükle
-        const data = await fetch(`/api/brand_models.php?brand=${encodeURIComponent(selectedBrand)}`).then(r => r.json());
-        setModels(data.map(m => ({ id: m.id, model: m.model, image_url: m.image_url })));
+        await reloadModels();
       } else {
         const data = await res.json();
         toast({ title: 'Hata', description: data.error || 'Model eklenemedi.', variant: 'destructive' });
@@ -69,7 +240,7 @@ const ModelManagementPage = () => {
       const res = await fetch(`/api/brand_models.php?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
         toast({ title: 'Model Silindi' });
-        setModels(models.filter(m => m.id !== id));
+        setModels(prev => prev.filter(m => m.id !== id));
       } else {
         const data = await res.json();
         toast({ title: 'Hata', description: data.error || 'Model silinemedi.', variant: 'destructive' });
@@ -79,19 +250,70 @@ const ModelManagementPage = () => {
     }
   };
 
+  // Modal kaydet: local state'i güncelle
+  const handleModalSave = (updated) => {
+    setModels(prev => prev.map(m => m.id === updated.id ? { ...m, model: updated.model, image_url: updated.image_url } : m));
+  };
+
+  // Drag-and-drop
+  const handleDragStart = (index) => { dragItem.current = index; };
+
+  const handleDragEnter = (index) => {
+    dragOverItem.current = index;
+    const newModels = [...models];
+    const dragged = newModels[dragItem.current];
+    newModels.splice(dragItem.current, 1);
+    newModels.splice(dragOverItem.current, 0, dragged);
+    dragItem.current = dragOverItem.current;
+    dragOverItem.current = null;
+    setModels(newModels);
+  };
+
+  const handleDragEnd = async () => {
+    const orders = models.map((m, i) => ({ id: m.id, display_order: i }));
+    try {
+      await fetch('/api/brand_models.php', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 0, orders })
+      });
+      setModels(prev => prev.map((m, i) => ({ ...m, display_order: i })));
+      toast({ title: 'Sıralama kaydedildi', duration: 1500 });
+    } catch {
+      toast({ title: 'Hata', description: 'Sıralama kaydedilemedi.', variant: 'destructive' });
+    }
+    dragItem.current = null;
+    dragOverItem.current = null;
+  };
+
   return (
     <AdminLayout title="Modeller">
       <Helmet>
         <title>Model Yönetimi - Fırat Oto</title>
       </Helmet>
+
+      {/* Edit Modal */}
+      <AnimatePresence>
+        {editingModel && (
+          <EditModal
+            model={editingModel}
+            onClose={() => setEditingModel(null)}
+            onSave={handleModalSave}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="max-w-2xl mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Card className="bg-card shadow-lg border max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-foreground">Model Yönetimi</CardTitle>
-              <CardDescription>Yeni bir model ekleyin veya mevcut modelleri yönetin.</CardDescription>
+              <CardDescription>
+                Yeni model ekleyin, ✏️ ikonuna tıklayarak ad &amp; resim düzenleyin, ya da sürükleyerek sıralayın.
+              </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Marka Seçimi */}
               <div className="flex flex-wrap gap-2 mb-6 justify-center">
                 {SABIT_MARKALAR.map(brand => (
                   <Button
@@ -104,47 +326,94 @@ const ModelManagementPage = () => {
                   </Button>
                 ))}
               </div>
+
               {selectedBrand && (
                 <>
-                  <form onSubmit={handleAddModel} className="flex gap-2 mb-6 justify-center">
-                    <Input
-                      value={newModel}
-                      onChange={e => setNewModel(e.target.value)}
-                      placeholder="Yeni model adı"
-                      disabled={isAdding}
-                      className="w-64"
-                    />
+                  {/* Yeni Model Ekle Formu */}
+                  <form onSubmit={handleAddModel} className="flex flex-col gap-2 mb-6">
+                    <div className="flex gap-2">
+                      <Input
+                        value={newModel}
+                        onChange={e => setNewModel(e.target.value)}
+                        placeholder="Yeni model adı (örn: ASTRA J)"
+                        disabled={isAdding}
+                        className="flex-1"
+                      />
+                      <Button type="submit" size="icon" disabled={!newModel || isAdding} className="shrink-0">
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </div>
                     <Input
                       value={newImageUrl}
                       onChange={e => setNewImageUrl(e.target.value)}
                       placeholder="Resim URL'si (opsiyonel)"
                       disabled={isAdding}
-                      className="w-64"
                       type="url"
                     />
-                    <Button type="submit" size="icon" disabled={!newModel || isAdding}>
-                      <Plus className="h-5 w-5" />
-                    </Button>
+                    {newImageUrl && (
+                      <img src={newImageUrl} alt="Önizleme" className="h-14 w-auto object-contain rounded border mt-1" />
+                    )}
                   </form>
-                  <div className="space-y-2">
+
+                  {/* Sıralama ipucu */}
+                  {models.length > 1 && (
+                    <p className="text-xs text-gray-400 mb-3 text-center flex items-center justify-center gap-1">
+                      <GripVertical className="h-3 w-3" /> Satırı sürükleyerek sıralayabilirsiniz
+                    </p>
+                  )}
+
+                  {/* Model Listesi */}
+                  <div className="space-y-1.5">
                     {loading ? (
-                      <div className="text-center text-muted-foreground">Yükleniyor...</div>
+                      <div className="text-center text-muted-foreground py-6">Yükleniyor...</div>
                     ) : models.length > 0 ? (
-                      models.map(m => (
-                        <div key={m.id} className="flex justify-between items-center p-2 rounded-md bg-white shadow-sm">
-                          <div className="flex items-center gap-2">
-                            {m.image_url && (
-                              <img src={m.image_url} alt={m.model} className="w-12 h-8 object-contain rounded border" style={{maxWidth:'48px',maxHeight:'32px'}} />
-                            )}
-                            <span className="font-medium text-foreground">{m.model}</span>
+                      models.map((m, index) => (
+                        <div
+                          key={m.id}
+                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-white shadow-sm border border-gray-100 hover:border-yellow-200 hover:bg-yellow-50/30 transition-colors cursor-grab active:cursor-grabbing select-none group"
+                          draggable
+                          onDragStart={() => handleDragStart(index)}
+                          onDragEnter={() => handleDragEnter(index)}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={e => e.preventDefault()}
+                        >
+                          {/* Sürükleme tutamağı */}
+                          <GripVertical className="h-4 w-4 text-gray-200 group-hover:text-gray-400 shrink-0 transition-colors" />
+
+                          {/* Resim */}
+                          <div className="w-12 h-9 shrink-0 flex items-center justify-center">
+                            {m.image_url
+                              ? <img src={m.image_url} alt={m.model} className="w-12 h-9 object-contain rounded" />
+                              : <div className="w-12 h-9 bg-gray-100 rounded flex items-center justify-center">
+                                  <ImageIcon className="h-4 w-4 text-gray-300" />
+                                </div>
+                            }
                           </div>
-                          <Button variant="ghost" size="icon" className="text-destructive/70 hover:text-destructive" onClick={() => handleDeleteModel(m.id)}>
-                            <Trash2 className="h-5 w-5" />
-                          </Button>
+
+                          {/* Model Adı */}
+                          <span className="font-medium text-sm text-gray-800 flex-1 truncate">{m.model}</span>
+
+                          {/* Düzenle Butonu */}
+                          <button
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-yellow-100 text-yellow-600 shrink-0"
+                            title="Düzenle"
+                            onClick={() => setEditingModel(m)}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+
+                          {/* Sil Butonu */}
+                          <button
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-lg hover:bg-red-50 text-red-400 shrink-0"
+                            title="Sil"
+                            onClick={() => handleDeleteModel(m.id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                       ))
                     ) : (
-                      <div className="text-center text-muted-foreground">Bu markaya ait model yok.</div>
+                      <div className="text-center text-muted-foreground py-6">Bu markaya ait model yok.</div>
                     )}
                   </div>
                 </>
@@ -157,4 +426,4 @@ const ModelManagementPage = () => {
   );
 };
 
-export default ModelManagementPage; 
+export default ModelManagementPage;

@@ -171,10 +171,10 @@ export default function AdminShippedCargosPage() {
             <p>Henüz kargo fotoğrafı eklenmemiş.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollSnapType: 'x mandatory' }}>
             {items.map(item => (
-              <div key={item.id} className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition">
-                <div className="aspect-video bg-gray-100 overflow-hidden">
+              <div key={item.id} className="border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition flex-shrink-0 w-48" style={{ scrollSnapAlign: 'start' }}>
+                <div className="w-48 h-36 bg-gray-100 overflow-hidden">
                   <img
                     src={item.image_url}
                     alt={item.title || 'Kargo'}
@@ -182,7 +182,7 @@ export default function AdminShippedCargosPage() {
                   />
                 </div>
                 <div className="p-3">
-                  {item.title && <div className="font-semibold text-sm mb-1">{item.title}</div>}
+                  {item.title && <div className="font-semibold text-sm mb-1 truncate">{item.title}</div>}
                   <div className="text-xs text-gray-400 mb-3">Sıra: {item.display_order} | #{item.id}</div>
                   <div className="flex gap-2">
                     <button
@@ -204,6 +204,7 @@ export default function AdminShippedCargosPage() {
           </div>
         )}
       </div>
+
     </div>
     </AdminLayout>
   );

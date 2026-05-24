@@ -94,3 +94,8 @@ html {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #facc15;
 }
+
+/* Kargo Slider — scrollbar tamamen gizle */
+.cargo-track::-webkit-scrollbar {
+  display: none;
+}

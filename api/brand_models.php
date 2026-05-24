@@ -5,8 +5,13 @@ $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (in_array($origin, $allowed_origins)) {
     header('Access-Control-Allow-Origin: ' . $origin);
 }
-header('Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 // Rate limiting (IP başına saniyede 10 istek)
 session_start();
@@ -91,7 +96,7 @@ if (isset($_GET['add_mercedes_models']) && $_GET['add_mercedes_models'] == 1) {
         'AMG GT SERİSİ C190 2014-',
         'AMG GT SERİSİ R190 2021-'
     ];
-    
+
     $count = 0;
     foreach ($mercedesModels as $model) {
         $stmt = $pdo->prepare("INSERT IGNORE INTO brand_models (brand, model) VALUES (?, ?)");
@@ -99,39 +104,25 @@ if (isset($_GET['add_mercedes_models']) && $_GET['add_mercedes_models'] == 1) {
             $count++;
         }
     }
-    
+
     echo json_encode(["success" => true, "message" => "MERCEDES-BENZ modelleri eklendi.", "added" => $count]);
     exit;
 }
 
-// CSRF koruması (POST, DELETE)
-// if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'DELETE'])) {
-//     $csrf_token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
-//     if (empty($_SESSION['csrf_token'])) {
-//         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-//     }
-//     if ($csrf_token !== $_SESSION['csrf_token']) {
-//         error_log('CSRF token hatası: ' . $ip);
-//         http_response_code(403);
-//         echo json_encode(['error' => 'Geçersiz CSRF token']);
-//         exit;
-//     }
-// }
-
 // GET: Belirli markanın modellerini listele
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $brand = $_GET['brand'] ?? null;
-    
+
     if (!$brand || !preg_match('/^[\p{L}0-9\s-]{2,50}$/u', $brand)) {
         http_response_code(400);
         echo json_encode(["error" => "Marka gerekli ve geçerli olmalı"]);
         exit;
     }
-    
-    $stmt = $pdo->prepare("SELECT * FROM brand_models WHERE brand = ?");
+
+    $stmt = $pdo->prepare("SELECT * FROM brand_models WHERE brand = ? ORDER BY display_order ASC, id ASC");
     $stmt->execute([$brand]);
     $models = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     echo json_encode($models);
     exit;
 }
@@ -142,19 +133,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $brand = trim($data['brand'] ?? '');
     $model = trim($data['model'] ?? '');
     $image_url = $data['image_url'] ?? null;
+    $display_order = isset($data['display_order']) ? intval($data['display_order']) : 0;
     if (!$brand || !$model || !preg_match('/^[\p{L}0-9\s-]{2,50}$/u', $brand) || !preg_match('/^[\p{L}0-9\s-]{1,50}$/u', $model)) {
         http_response_code(400);
         echo json_encode(["error" => "Marka ve model gerekli ve geçerli olmalı"]);
         exit;
     }
-    $stmt = $pdo->prepare("INSERT INTO brand_models (brand, model, image_url) VALUES (?, ?, ?)");
-    $ok = $stmt->execute([$brand, $model, $image_url]);
+    $stmt = $pdo->prepare("INSERT INTO brand_models (brand, model, image_url, display_order) VALUES (?, ?, ?, ?)");
+    $ok = $stmt->execute([$brand, $model, $image_url, $display_order]);
     if ($ok) {
         echo json_encode(["success" => true, "id" => $pdo->lastInsertId()]);
     } else {
         error_log('Model eklenemedi: ' . $brand . ' - ' . $model);
         http_response_code(500);
         echo json_encode(["error" => "Model eklenemedi"]);
+    }
+    exit;
+}
+
+// PUT: Model güncelle (resim ve sıralama)
+if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    // Toplu sıralama güncelleme (orders dizisi varsa)
+    if (isset($data['orders']) && is_array($data['orders'])) {
+        foreach ($data['orders'] as $item) {
+            $itemId = intval($item['id']);
+            $order = intval($item['display_order']);
+            $stmt = $pdo->prepare("UPDATE brand_models SET display_order=? WHERE id=?");
+            $stmt->execute([$order, $itemId]);
+        }
+        echo json_encode(["success" => true]);
+        exit;
+    }
+
+    $id = isset($data['id']) ? intval($data['id']) : null;
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(["error" => "ID gerekli"]);
+        exit;
+    }
+    $image_url = array_key_exists('image_url', $data) ? $data['image_url'] : null;
+    $display_order = isset($data['display_order']) ? intval($data['display_order']) : null;
+    $model_name = isset($data['model']) ? trim($data['model']) : null;
+
+    $fields = [];
+    $params = [];
+    if ($model_name !== null && $model_name !== '') { $fields[] = "model=?"; $params[] = $model_name; }
+    if ($image_url !== null) { $fields[] = "image_url=?"; $params[] = $image_url; }
+    if ($display_order !== null) { $fields[] = "display_order=?"; $params[] = $display_order; }
+    if (empty($fields)) {
+        http_response_code(400);
+        echo json_encode(["error" => "Güncellenecek alan yok"]);
+        exit;
+    }
+    $params[] = $id;
+    $stmt = $pdo->prepare("UPDATE brand_models SET " . implode(', ', $fields) . " WHERE id=?");
+    $ok = $stmt->execute($params);
+    if ($ok) {
+        echo json_encode(["success" => true]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Model güncellenemedi"]);
     }
     exit;
 }
@@ -181,4 +221,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 }
 
 http_response_code(405);
-echo json_encode(["error" => "Geçersiz istek"]); 
+echo json_encode(["error" => "Geçersiz istek"]);

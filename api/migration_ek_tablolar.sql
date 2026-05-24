@@ -29,3 +29,8 @@ CREATE TABLE IF NOT EXISTS shipped_cargos (
 -- İsteğe bağlı: örnek kargo kaydı (test için — kullanmayacaksanız silin)
 -- INSERT INTO shipped_cargos (image_url, title, display_order)
 -- VALUES ('/uploads/ornek-kargo.jpg', 'Örnek kargo', 0);
+
+-- brand_models tablosuna display_order sütunu ekle (model sıralama için)
+-- Zaten varsa hata vermez.
+ALTER TABLE brand_models ADD COLUMN IF NOT EXISTS display_order INT DEFAULT 0;
+

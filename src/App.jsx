@@ -38,6 +38,7 @@ import AdminXmlImportPage from './pages/AdminXmlImportPage';
 import AdminShippedCargosPage from './pages/AdminShippedCargosPage';
 import AdminGoogleMapsPage from './pages/AdminGoogleMapsPage';
 import AdminAboutImagesPage from './pages/AdminAboutImagesPage';
+import AdminWeeklyDealPage from './pages/AdminWeeklyDealPage';
 
 function App() {
   const [loginOpen, setLoginOpen] = React.useState(false);
@@ -127,6 +128,11 @@ function App() {
         <Route path="/admin/about-images" element={
           <ProtectedRoute>
             <AdminAboutImagesPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/weekly-deal" element={
+          <ProtectedRoute>
+            <AdminWeeklyDealPage />
           </ProtectedRoute>
         } />
       </Routes>

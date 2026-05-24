@@ -9,7 +9,7 @@ export default function AdminLayout({ children, activeTab, showForm, onNewProduc
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-secondary flex overflow-x-hidden">
+    <div className="min-h-screen bg-secondary flex" style={{ overflowX: 'clip' }}>
       <AdminSidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -17,6 +17,7 @@ export default function AdminLayout({ children, activeTab, showForm, onNewProduc
         showForm={showForm}
         onNewProduct={onNewProduct}
         onProductList={onProductList}
+        className="self-stretch"
       />
 
       <div className="flex-1 flex flex-col min-w-0 w-full">
