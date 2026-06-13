@@ -55,6 +55,12 @@ export default function BrandCategoryPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [brandTotalCount, setBrandTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Pagination sıfırlama
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortOption, selectedCategory, selectedBrands, realBrand, realModel]);
 
   // Modelleri API'den çek
   useEffect(() => {
@@ -156,7 +162,9 @@ export default function BrandCategoryPage() {
     return list;
   }, [products, sortOption, selectedCategory, selectedBrands]);
 
-
+  const itemsPerPage = 20;
+  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
+  const paginatedProducts = sortedProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Model seçilince o modele ait kategorileri bul
   const modelCategories = React.useMemo(() => {
@@ -506,10 +514,10 @@ export default function BrandCategoryPage() {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {sortedProducts.length === 0 ? (
+                {paginatedProducts.length === 0 ? (
                   <div className="col-span-full text-center text-gray-400 text-lg py-8">Ürün Bulunamadı.</div>
                                   ) : (
-                    sortedProducts.map(product => (
+                    paginatedProducts.map(product => (
                     <div
                       key={product.id}
                       className="bg-white rounded shadow p-4 flex flex-col items-center relative cursor-pointer hover:shadow-lg transition"
@@ -563,6 +571,55 @@ export default function BrandCategoryPage() {
                   ))
                 )}
               </div>
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-8 gap-2 flex-wrap">
+                  <button
+                    onClick={() => {
+                      setCurrentPage(p => Math.max(1, p - 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 border rounded-lg bg-white text-gray-700 disabled:opacity-50 hover:bg-gray-50 transition-colors font-medium shadow-sm"
+                  >
+                    Önceki
+                  </button>
+                  <div className="flex items-center gap-1 hidden sm:flex">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                      if (page === 1 || page === totalPages || (page >= currentPage - 2 && page <= currentPage + 2)) {
+                        return (
+                          <button
+                            key={page}
+                            onClick={() => {
+                              setCurrentPage(page);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className={`w-10 h-10 border rounded-lg flex items-center justify-center transition-colors shadow-sm ${currentPage === page ? 'bg-yellow-400 text-white font-bold border-yellow-400' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      }
+                      if (page === currentPage - 3 || page === currentPage + 3) {
+                        return <span key={page} className="px-2 text-gray-400">...</span>;
+                      }
+                      return null;
+                    })}
+                  </div>
+                  <div className="flex items-center sm:hidden px-4 text-sm font-medium text-gray-600">
+                    Sayfa {currentPage} / {totalPages}
+                  </div>
+                  <button
+                    onClick={() => {
+                      setCurrentPage(p => Math.min(totalPages, p + 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 border rounded-lg bg-white text-gray-700 disabled:opacity-50 hover:bg-gray-50 transition-colors font-medium shadow-sm"
+                  >
+                    Sonraki
+                  </button>
+                </div>
+              )}
             </main>
           </div>
         </div>

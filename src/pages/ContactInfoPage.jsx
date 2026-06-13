@@ -41,11 +41,14 @@ const ContactInfoPage = () => {
         <meta name="twitter:description" content="Fırat Oto Yedek Parça iletişim ve hesap bilgileri. Telefon, e-posta ve adres detayları burada." />
         <meta name="twitter:image" content="https://firatotoyedekparca.com/logo.png" />
         <link rel="canonical" href="https://firatotoyedekparca.com/iletisim" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "İletişim ve Hesap Numaraları",
+          "url": "https://firatotoyedekparca.com/iletisim",
+          "description": "Fırat Oto Yedek Parça iletişim ve hesap bilgileri. Telefon, e-posta ve adres detayları burada."
+        })}</script>
       </Helmet>
-      <div style={{display:'none'}}>
-        BMW yedek parça, Mercedes yedek parça, Volkswagen yedek parça, Audi yedek parça, Skoda yedek parça, Seat yedek parça, Mini Cooper parça, orijinal yedek parça, çıkma parça, motor parçası, oto elektrik, oto mekanik, uygun fiyatlı yedek parça.
-        Adana, Ankara, İstanbul, İzmir, Bursa, Antalya, Konya, Gaziantep, Mersin, Kayseri, Diyarbakır, Samsun, Eskişehir, Denizli, Şanlıurfa, Kocaeli, Trabzon, Sakarya, Malatya, Erzurum, Hatay, Balıkesir, Aydın, Manisa, Tekirdağ, Afyon, Van, Ordu, Batman, Elazığ, Çorum, Sivas, Isparta, Muğla, Uşak, Kütahya, Kırşehir, Osmaniye, Adıyaman, Tokat, Rize, Karabük, Giresun, Yozgat, Kars, Siirt, Bitlis, Bilecik, Düzce, Artvin, Nevşehir, Zonguldak, Niğde, Ağrı, Kilis, Tunceli, Bartın, Hakkari, Bayburt, Ardahan, Iğdır, Karaman, Aksaray, Çankırı, Kırıkkale, Bolu, Bingöl, Muş, Gümüşhane, Edirne.
-      </div>
       <div className="bg-white rounded-2xl shadow-2xl p-12 border-t-4 border-yellow-400">
         <h2 className="text-3xl font-bold mb-10 text-gray-900 tracking-tight text-center">İLETİŞİM VE HESAP BİLGİLERİ</h2>
         <div className="flex flex-col gap-6 mb-12">

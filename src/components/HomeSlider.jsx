@@ -51,7 +51,7 @@ export default function HomeSlider() {
               )}
             </div>
             <div className="flex-1 flex justify-center items-center h-full">
-              <img src={slide.image_url} alt={slide.title} className="object-contain h-60 md:h-80 w-auto" />
+              <img src={slide.image_url} alt={slide.title} className="object-contain h-60 md:h-80 w-auto" width="400" height="320" loading={i === 0 ? "eager" : "lazy"} fetchpriority={i === 0 ? "high" : "auto"} />
             </div>
           </div>
         </div>

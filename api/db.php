@@ -3,11 +3,11 @@
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'firatoto');
 define('DB_USER', 'root');
-define('DB_PASS', ''); 
+define('DB_PASS', '');
 //define('DB_HOST', 'localhost');
-//define('DB_NAME', 'u926623781_firatoto');
-//define('DB_USER', 'u926623781_firatotoyedek');
-//define('DB_PASS', 'I/~RWCmsU7y');
+//define('DB_NAME', 'u882012653_firatoto');
+//define('DB_USER', 'u882012653_firatotoyedek');
+//define('DB_PASS', 'Xi;YpC::0');
 
 try {
     $pdo = new PDO(

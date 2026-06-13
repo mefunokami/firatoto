@@ -39,6 +39,8 @@ const ProductCard = ({ product, onEdit, onDelete }) => {
               src={product.imageUrl}
               alt={`${product.brand} ${product.name} ${product.model ? product.model : ''} yedek parça`}
               className="w-full h-48 object-contain mb-2 bg-white rounded shadow"
+              width="400"
+              height="300"
               loading="lazy"
             />
           </div>

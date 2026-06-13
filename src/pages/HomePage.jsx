@@ -121,6 +121,9 @@ function CargoSlider({ cargos, onSelect }) {
                   src={cargo.image_url}
                   alt={cargo.title || 'Kargo'}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-400"
+                  width="200"
+                  height="200"
+                  loading="lazy"
                 />
               </div>
               {cargo.title && (
@@ -483,7 +486,7 @@ const HomePage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {blogs.slice(0, 3).map(blog => (
                   <div key={blog.id} className="bg-white rounded-lg shadow border p-3 flex flex-col items-center hover:shadow-lg transition cursor-pointer" onClick={() => window.location.href = `/blog/${blog.slug}` }>
-                    {blog.image_url && <img src={blog.image_url} alt={blog.title} className="w-full h-28 object-cover rounded mb-2" />}
+                    {blog.image_url && <img src={blog.image_url} alt={blog.title} className="w-full h-28 object-cover rounded mb-2" width="300" height="112" loading="lazy" />}
                     <div className="font-semibold text-base text-gray-900 text-center line-clamp-2 mb-1">{blog.title}</div>
                   </div>
                 ))}
@@ -496,28 +499,28 @@ const HomePage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
                   <div>
                     <div className="flex justify-center mb-2">
-                      <img src="/icons/free-shipping.png" alt="Aynı Gün Kargo" className="h-12" />
+                      <img src="/icons/free-shipping.png" alt="Aynı Gün Kargo" className="h-12" width="48" height="48" loading="lazy" />
                     </div>
                     <div className="font-bold text-lg">Aynı Gün Kargo</div>
                     <div className="text-muted-foreground text-sm">81 İl'e Aynı Gün Kargo</div>
                   </div>
                   <div>
                     <div className="flex justify-center mb-2">
-                      <img src="/icons/support.png" alt="7/24 Destek" className="h-12" />
+                      <img src="/icons/support.png" alt="7/24 Destek" className="h-12" width="48" height="48" loading="lazy" />
                     </div>
                     <div className="font-bold text-lg">7/24 Destek</div>
                     <div className="text-muted-foreground text-sm">Sormaktan çekinmeyin</div>
                   </div>
                   <div>
                     <div className="flex justify-center mb-2">
-                      <img src="/icons/secure.png" alt="Güvenli Alışveriş" className="h-12" />
+                      <img src="/icons/secure.png" alt="Güvenli Alışveriş" className="h-12" width="48" height="48" loading="lazy" />
                     </div>
                     <div className="font-bold text-lg">Güvenli Alışveriş</div>
                     <div className="text-muted-foreground text-sm">256Bit SSL Sertifikası</div>
                   </div>
                   <div>
                     <div className="flex justify-center mb-2">
-                      <img src="/icons/price.png" alt="Uygun Fiyatlar" className="h-12" />
+                      <img src="/icons/price.png" alt="Uygun Fiyatlar" className="h-12" width="48" height="48" loading="lazy" />
                     </div>
                     <div className="font-bold text-lg">Uygun Fiyatlar</div>
                     <div className="text-muted-foreground text-sm">En iyi Fiyat avantajı</div>
@@ -538,13 +541,13 @@ const HomePage = () => {
                   >
                     {images.map((img, i) => (
                       <div key={img} className="bg-gray-100 rounded-lg flex flex-col items-center py-6 min-w-[140px] max-w-[140px]">
-                        <img src={img} alt="" className="h-10 mb-2 object-contain" />
+                        <img src={img} alt="" className="h-10 mb-2 object-contain" width="100" height="40" loading="lazy" />
                       </div>
                     ))}
                     {/* Sonsuz döngü için bir kopya daha */}
                     {images.map((img, i) => (
                       <div key={img + '-copy'} className="bg-gray-100 rounded-lg flex flex-col items-center py-6 min-w-[140px] max-w-[140px]">
-                        <img src={img} alt="" className="h-10 mb-2 object-contain" />
+                        <img src={img} alt="" className="h-10 mb-2 object-contain" width="100" height="40" loading="lazy" />
                       </div>
                     ))}
                   </div>

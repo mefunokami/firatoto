@@ -324,7 +324,7 @@ export default function ProductDetailPage() {
         <Helmet>
           <title>{seoTitle}</title>
           <meta name="description" content={seoDesc} />
-          <meta name="keywords" content={`${product.brand} yedek parça, ${product.name}, ${product.brand} ${product.category || ''}, ${product.partNumber || ''}, ${product.model || ''}, Adana ${product.brand} yedek parça, orijinal yedek parça, OEM yedek parça, BMW yedek parça, Mercedes yedek parça, Audi yedek parça, Volkswagen yedek parça, VW yedek parça, Alman araç yedek parça, turbo hortumu, intercooler, triger seti, yağ filtresi, hava filtresi, far, stop lambası, fren balatası, fren diski, amortisör, tampon, ızgara, spoiler, panjur, radyatör`} />
+          <meta name="keywords" content={`${product.brand} yedek parça, ${product.name}, ${product.brand} ${product.category || ''}, ${product.partNumber || ''}, ${product.model || ''}, orijinal yedek parça, OEM yedek parça`} />
           <link rel="canonical" href={`${SITE_URL}/${product.slug_brand || slugify(product.brand)}/${product.slug_name || slugify(product.name)}`} />
           {/* Open Graph (Facebook, WhatsApp, LinkedIn vs) */}
           <meta property="og:type" content="product" />
@@ -373,7 +373,7 @@ export default function ProductDetailPage() {
                 "worstRating": "1"
               }
             } : {}),
-            "keywords": `${product.brand} yedek parça, ${product.name}, ${product.category || ''}, Adana ${product.brand} parça, orijinal yedek parça, OEM yedek parça`
+            "keywords": `${product.brand} yedek parça, ${product.name}, ${product.category || ''}, orijinal yedek parça, OEM yedek parça`
           })}</script>
         </Helmet>
       )}

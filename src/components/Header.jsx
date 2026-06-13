@@ -104,13 +104,13 @@ const Header = ({ searchTerm, setSearchTerm, onSearch, onLoginClick, user, setUs
         {/* Sol: Logo ve siyah alan */}
         <div className="flex items-center justify-center bg-[#232428] min-w-[420px] h-[90px] px-10 hidden md:flex" style={{clipPath:'polygon(0 0, 92% 0, 85% 100%, 0% 100%)'}}>
           <a href="https://firatotoyedekparca.com" target="_self" className="flex items-center">
-            <img src={logo} alt="Logo" className="h-20" />
+            <img src={logo} alt="Logo" className="h-20" width="160" height="80" />
           </a>
         </div>
         {/* Mobilde Logo */}
         <div className="flex items-center justify-between w-full md:hidden px-4 py-2">
           <button onClick={() => setMobileMenuOpen(true)} className="md:hidden p-2"><svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="#ffc107" strokeWidth="2" strokeLinecap="round"/></svg></button>
-          <a href="https://firatotoyedekparca.com" target="_self" className="flex items-center mx-auto"><img src={logo} alt="Logo" className="h-12" /></a>
+          <a href="https://firatotoyedekparca.com" target="_self" className="flex items-center mx-auto"><img src={logo} alt="Logo" className="h-12" width="96" height="48" /></a>
           <div className="w-8"></div>
         </div>
         {/* Orta: Arama Kutusu */}

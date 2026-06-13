@@ -26,6 +26,13 @@ const AboutPage = () => {
         <meta name="twitter:description" content="Fırat Oto Yedek Parça'nın kuruluşu, vizyonu ve müşteri odaklı hizmet anlayışı hakkında detaylı bilgi alın." />
         <meta name="twitter:image" content="https://firatotoyedekparca.com/logo.png" />
         <link rel="canonical" href="https://firatotoyedekparca.com/hakkımızda" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Hakkımızda",
+          "url": "https://firatotoyedekparca.com/hakkımızda",
+          "description": "Fırat Oto Yedek Parça'nın kuruluşu, vizyonu ve müşteri odaklı hizmet anlayışı hakkında detaylı bilgi alın."
+        })}</script>
       </Helmet>
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold mb-2 text-gray-900">HAKKIMIZDA</h1>
@@ -35,10 +42,6 @@ const AboutPage = () => {
         <p className="text-gray-700 text-base">
           <b>Fırat Oto Yedek Parça</b> olarak Adana merkezli firmamızla, BMW, Mercedes, Audi, Volkswagen başta olmak üzere birçok marka için çıkma ve sıfır yedek parça temini sağlıyoruz. Tüm Türkiye'ye hızlı kargo imkanıyla hizmet verirken, ürünlerimize <a href="https://www.firatotoyedekparca.com" className="text-blue-600 hover:text-blue-800 underline">www.firatotoyedekparca.com</a> sitemizden, ayrıca <b>Oto Çıkma</b> ve <b>Çıkma Parça Market</b> mağazalarımız üzerinden ulaşabilirsiniz. <b>Trendyol</b> ve <b>Hepsiburada</b> platformlarında ise <b>Eksa E-Ticaret</b> adıyla faaliyet göstermekteyiz. Kaliteli parça, uygun fiyat ve güvenilir alışveriş ilkeleriyle, online yedek parça sektöründe sizlere en iyi hizmeti sunmayı hedefliyoruz.
         </p>
-      </div>
-      <div style={{display:'none'}}>
-        BMW yedek parça, Mercedes yedek parça, Volkswagen yedek parça, Audi yedek parça, Skoda yedek parça, Seat yedek parça, Mini Cooper parça, orijinal yedek parça, çıkma parça, motor parçası, oto elektrik, oto mekanik, uygun fiyatlı yedek parça.
-        Adana, Ankara, İstanbul, İzmir, Bursa, Antalya, Konya, Gaziantep, Mersin, Kayseri, Diyarbakır, Samsun, Eskişehir, Denizli, Şanlıurfa, Kocaeli, Trabzon, Sakarya, Malatya, Erzurum, Hatay, Balıkesir, Aydın, Manisa, Tekirdağ, Afyon, Van, Ordu, Batman, Elazığ, Çorum, Sivas, Isparta, Muğla, Uşak, Kütahya, Kırşehir, Osmaniye, Adıyaman, Tokat, Rize, Karabük, Giresun, Yozgat, Kars, Siirt, Bitlis, Bilecik, Düzce, Artvin, Nevşehir, Zonguldak, Niğde, Ağrı, Kilis, Tunceli, Bartın, Hakkari, Bayburt, Ardahan, Iğdır, Karaman, Aksaray, Çankırı, Kırıkkale, Bolu, Bingöl, Muş, Gümüşhane, Edirne.
       </div>
       {images.map(img => (
         <img

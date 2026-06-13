@@ -15,7 +15,7 @@ const Footer = () => {
           <div>
             <div className="mb-4">
               <a href="https://firatotoyedekparca.com" target="_self">
-                <img src={logo} alt="Fırat Oto Logo" className="h-20 w-auto" />
+                <img src={logo} alt="Fırat Oto Logo" className="h-20 w-auto" width="160" height="80" loading="lazy" />
               </a>
             </div>
             <div className="flex gap-4 mt-6">               
@@ -84,33 +84,6 @@ const Footer = () => {
             <span className="block text-xs text-gray-400">Diğer Tüm Parça ve Markalar İçin Telefon Numaramız: <span className="font-semibold">+90 543 974 01 21</span></span>
           </div>
 
-          {/* SEO Anahtar Kelimeler */}
-          <div className="border-t border-gray-700 pt-4 md:pt-6 mb-4">
-            <p className="text-center text-gray-500 text-[10px] uppercase tracking-wider font-semibold mb-3">Popüler Aramalar</p>
-            <div className="flex flex-wrap justify-center gap-1.5 max-w-4xl mx-auto">
-              {[
-                'BMW yedek parça', 'Mercedes yedek parça', 'Audi yedek parça',
-                'Volkswagen yedek parça', 'VW yedek parça', 'Orijinal yedek parça',
-                'Alman araç yedek parça', 'OEM yedek parça', 'Online yedek parça',
-                'Adana BMW yedek parça', 'Adana Mercedes yedek parça',
-                'Adana Audi yedek parça', 'Adana VW yedek parça',
-                'Seyhan BMW parça', 'Çukurova Mercedes parça',
-                'Adana Alman oto parça', 'Adana oto yedek parça',
-                'turbo hortumu', 'intercooler', 'triger seti',
-                'yağ filtresi', 'hava filtresi', 'far', 'stop lambası',
-                'z rot', 'rotil', 'rot', 'fren balatası', 'fren diski',
-                'amortisör', 'buji', 'bobin', 'kaput amortisörü',
-                'şanzıman kulağı', 'salıncak', 'sinyal', 'radyatör',
-                'karbüratör', 'yakıt pompası', 'manifold',
-                'motor kaputu', 'bagaj kapağı', 'çamurluk',
-                'tampon', 'm tampon', 'ızgara', 'spoiler',
-                'karter', 'piston', 'braket', 'sis farı',
-                'sis far çerçevesi', 'çeki kapağı', 'park sensörü', 'panjur'
-              ].map((kw, i) => (
-                <span key={i} className="text-[10px] text-gray-500 bg-neutral-700/50 px-2 py-0.5 rounded-full hover:text-yellow-400 hover:bg-neutral-600/50 transition-colors cursor-default">{kw}</span>
-              ))}
-            </div>
-          </div>
 
           <div className="border-t border-gray-700 pt-4 md:pt-6 text-center text-gray-500 text-xs md:text-sm">
             <p>&copy; {new Date().getFullYear()} Fırat Oto Yedek Parça. Tüm hakları saklıdır. Designed by <a href="https://www.mefunet.com" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-primary">MefuNet</a></p>

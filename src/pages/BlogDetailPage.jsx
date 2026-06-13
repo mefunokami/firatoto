@@ -79,7 +79,7 @@ export default function BlogDetailPage() {
         Tüm Bloglar
       </button>
       {blog.image_url && (
-        <img src={blog.image_url} alt="Blog görseli" className="w-full h-64 object-cover rounded-2xl mb-6" />
+        <img src={blog.image_url} alt={blog.title} className="w-full h-64 object-cover rounded-2xl mb-6" />
       )}
       <div className="text-xs text-gray-500 mb-2">{new Date(blog.created_at).toLocaleDateString('tr-TR')}</div>
       <h1 className="text-2xl font-bold mb-4 text-gray-900">{blog.title}</h1>
