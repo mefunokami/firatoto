@@ -40,7 +40,7 @@ function generateSitemap($pdo) {
     // 1. Ana sayfalar
     $mainPages = [
         ['url' => '/', 'priority' => '1.0'],
-        ['url' => '/hakkımızda', 'priority' => '0.8'],
+        ['url' => '/hakk%C4%B1m%C4%B1zda', 'priority' => '0.8'],
         ['url' => '/iletisim', 'priority' => '0.8'],
         ['url' => '/cart', 'priority' => '0.6'],
         ['url' => '/favorites', 'priority' => '0.6'],
@@ -98,6 +98,17 @@ function generateSitemap($pdo) {
         }
     }
     
+    // Tekrarlayan URL'leri kaldır
+    $seen = [];
+    $uniqueUrls = [];
+    foreach ($allUrls as $u) {
+        if (!isset($seen[$u['loc']])) {
+            $seen[$u['loc']] = true;
+            $uniqueUrls[] = $u;
+        }
+    }
+    $allUrls = $uniqueUrls;
+    
     // Parçalama işlemi (Maks 40,000 URL per sitemap)
     $chunkSize = 40000;
     $chunks = array_chunk($allUrls, $chunkSize);
@@ -118,10 +129,11 @@ function generateSitemap($pdo) {
     foreach ($chunks as $index => $chunk) {
         $partNumber = $index + 1;
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
         foreach ($chunk as $u) {
+            $escapedLoc = htmlspecialchars($u['loc'], ENT_XML1, 'UTF-8');
             $xml .= "  <url>\n";
-            $xml .= "    <loc>{$u['loc']}</loc>\n";
+            $xml .= "    <loc>{$escapedLoc}</loc>\n";
             $xml .= "    <priority>{$u['priority']}</priority>\n";
             $xml .= "  </url>\n";
         }
@@ -137,8 +149,8 @@ function generateSitemap($pdo) {
     
     // Ana Sitemap Index'i oluştur
     $indexXml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-    $indexXml .= '<sitemapindex xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-    $today = date('c');
+    $indexXml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+    $today = date('Y-m-d');
     foreach ($sitemapFiles as $file) {
         $indexXml .= "  <sitemap>\n";
         $indexXml .= "    <loc>{$baseUrl}/{$file}</loc>\n";
