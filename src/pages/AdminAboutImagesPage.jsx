@@ -10,13 +10,24 @@ export default function AdminAboutImagesPage() {
   const [file, setFile] = useState(null);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [aboutText, setAboutText] = useState('');
+  const [textLoading, setTextLoading] = useState(false);
   const fileInputRef = useRef();
 
   const fetchItems = () => {
     fetch(API).then(r => r.json()).then(setItems).catch(() => setItems([]));
   };
 
-  useEffect(() => { fetchItems(); }, []);
+  const fetchText = () => {
+    fetch('/api/about_text.php').then(r => r.json()).then(data => {
+      if (data.success) setAboutText(data.text);
+    }).catch(console.error);
+  };
+
+  useEffect(() => { 
+    fetchItems(); 
+    fetchText();
+  }, []);
 
   const handleFileChange = (e) => {
     const f = e.target.files[0];
@@ -91,13 +102,60 @@ export default function AdminAboutImagesPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  return (
-    <AdminLayout title="Hakkımızda Fotoğrafları">
-    <div className="max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold mb-2 text-foreground">Hakkımızda Fotoğrafları</h2>
-      <p className="text-gray-500 mb-6 text-sm">Bu bölüme eklediğiniz görseller anasayfada "Hakkımızda" bölümünde görünecektir.</p>
+  const handleTextSubmit = async (e) => {
+    e.preventDefault();
+    setTextLoading(true);
+    try {
+      const res = await fetch('/api/about_text.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: aboutText }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast({ description: 'Hakkımızda yazısı başarıyla güncellendi.', duration: 2000 });
+      } else {
+        toast({ description: 'Hata: ' + data.error, variant: 'destructive' });
+      }
+    } catch (err) {
+      toast({ description: 'Bağlantı hatası.', variant: 'destructive' });
+    }
+    setTextLoading(false);
+  };
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-6 mb-8 space-y-4 border border-gray-100">
+  return (
+    <AdminLayout title="Hakkımızda Fotoğrafları ve Yazısı">
+    <div className="max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-2 text-foreground">Hakkımızda Bölümü Yönetimi</h2>
+      <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">Bu sayfadan "Hakkımızda" metnini ve yanında görünecek kayan fotoğrafları düzenleyebilirsiniz.</p>
+
+      {/* Yazı Düzenleme Formu */}
+      <form onSubmit={handleTextSubmit} className="bg-card rounded-xl shadow p-6 mb-8 space-y-4 border border-gray-100 dark:border-border">
+        <h3 className="font-bold text-lg mb-2 flex items-center gap-2">📝 Hakkımızda Yazısı</h3>
+        <div>
+          <label className="block text-sm text-gray-500 dark:text-gray-400 mb-2">
+            Müşterilerinizin anasayfada göreceği metni buraya yazabilirsiniz. Satır atlamak için Enter'ı kullanabilirsiniz.
+          </label>
+          <textarea
+            rows="6"
+            className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 dark:bg-background dark:border-border dark:text-foreground resize-y"
+            placeholder="Hakkımızda metni..."
+            value={aboutText}
+            onChange={e => setAboutText(e.target.value)}
+          ></textarea>
+        </div>
+        <div>
+          <button
+            type="submit"
+            className="bg-[#18181b] hover:bg-black dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black font-bold py-2 px-6 rounded-lg transition-colors disabled:opacity-50"
+            disabled={textLoading}
+          >
+            {textLoading ? 'Kaydediliyor...' : 'Yazıyı Kaydet'}
+          </button>
+        </div>
+      </form>
+
+      <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow p-6 mb-8 space-y-4 border border-gray-100 dark:border-border">
         <h3 className="font-bold text-lg mb-2">{editId ? '✏️ Düzenle' : '➕ Yeni Ekle'}</h3>
         <div>
           <label className="block font-semibold mb-1 text-sm">Görsel Yükle</label>
@@ -106,11 +164,11 @@ export default function AdminAboutImagesPage() {
             accept="image/*"
             ref={fileInputRef}
             onChange={handleFileChange}
-            className="mb-2 block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+            className="mb-2 block w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
           />
           {!file && (
             <div className="mt-2">
-              <label className="block text-xs text-gray-500 mb-1">Veya görsel URL linki girin:</label>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Veya görsel URL linki girin:</label>
               <input
                 type="text"
                 placeholder="Görsel linki (örn: https://...)"
@@ -142,7 +200,7 @@ export default function AdminAboutImagesPage() {
           {editId && (
             <button
               type="button"
-              className="text-gray-500 hover:text-gray-700 underline text-sm"
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 underline text-sm"
               onClick={() => {
                 setEditId(null);
                 setForm({ image_url: '', display_order: 0 });
@@ -156,7 +214,7 @@ export default function AdminAboutImagesPage() {
         </div>
       </form>
 
-      <div className="bg-white rounded-xl shadow p-6 border border-gray-100">
+      <div className="bg-card rounded-xl shadow p-6 border border-gray-100 dark:border-border">
         <h3 className="font-bold text-lg mb-4">Mevcut Fotoğraflar ({items.length})</h3>
         {items.length === 0 ? (
           <div className="text-center py-8 text-gray-400">

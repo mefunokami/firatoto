@@ -67,19 +67,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $name = trim($data['name'] ?? '');
+    $image_url = $data['image_url'] ?? null;
+    $is_general = isset($data['is_general']) ? (int)filter_var($data['is_general'], FILTER_VALIDATE_BOOLEAN) : 0;
+    
     if (!$name || !preg_match('/^[\p{L}0-9\s-]{2,50}$/u', $name)) {
         http_response_code(400);
         echo json_encode(['error' => 'Marka adı zorunlu ve geçerli olmalı.']);
         exit;
     }
-    $stmt = $pdo->prepare('INSERT INTO productbrands (name) VALUES (?)');
-    $ok = $stmt->execute([$name]);
+    $stmt = $pdo->prepare('INSERT INTO productbrands (name, image_url, is_general) VALUES (?, ?, ?)');
+    $ok = $stmt->execute([$name, $image_url, $is_general]);
     if ($ok) {
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
     } else {
         error_log('Marka eklenemedi: ' . $name);
         http_response_code(500);
         echo json_encode(['error' => 'Marka eklenemedi.']);
+    }
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $id = isset($data['id']) ? intval($data['id']) : null;
+    
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(["error" => "ID gerekli"]);
+        exit;
+    }
+
+    $name = isset($data['name']) ? trim($data['name']) : null;
+    $image_url = array_key_exists('image_url', $data) ? $data['image_url'] : null;
+    $is_general = isset($data['is_general']) ? (int)filter_var($data['is_general'], FILTER_VALIDATE_BOOLEAN) : null;
+    
+    $fields = [];
+    $params = [];
+    if ($name !== null && $name !== '') { $fields[] = "name=?"; $params[] = $name; }
+    if (array_key_exists('image_url', $data)) { $fields[] = "image_url=?"; $params[] = $image_url; }
+    if ($is_general !== null) { $fields[] = "is_general=?"; $params[] = $is_general; }
+    
+    if (empty($fields)) {
+        http_response_code(400);
+        echo json_encode(["error" => "Güncellenecek alan yok"]);
+        exit;
+    }
+    
+    $params[] = $id;
+    $stmt = $pdo->prepare("UPDATE productbrands SET " . implode(', ', $fields) . " WHERE id=?");
+    $ok = $stmt->execute($params);
+    if ($ok) {
+        echo json_encode(["success" => true]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Marka güncellenemedi"]);
+    }
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    parse_str($_SERVER['QUERY_STRING'], $params);
+    $id = isset($params['id']) ? intval($params['id']) : null;
+    if (!$id) {
+        http_response_code(400);
+        echo json_encode(["error" => "ID gerekli"]);
+        exit;
+    }
+    $stmt = $pdo->prepare("DELETE FROM productbrands WHERE id=?");
+    $ok = $stmt->execute([$id]);
+    if ($ok) {
+        echo json_encode(["success" => true]);
+    } else {
+        error_log('Marka silinemedi: ' . $id);
+        http_response_code(500);
+        echo json_encode(["error" => "Marka silinemedi"]);
     }
     exit;
 }

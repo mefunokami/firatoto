@@ -40,12 +40,12 @@ export default function ResetPasswordPage() {
   };
 
   if (!token) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-100"><div className="bg-white rounded shadow p-8">Geçersiz bağlantı.</div></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gray-100"><div className="bg-card rounded shadow p-8">Geçersiz bağlantı.</div></div>;
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white rounded shadow p-8 max-w-md w-full">
+      <div className="bg-card rounded shadow p-8 max-w-md w-full">
         <h2 className="text-2xl font-bold mb-4 text-center">Yeni Şifre Belirle</h2>
         {success ? (
           <div className="text-green-600 text-center">Şifreniz başarıyla değiştirildi. Giriş yapabilirsiniz.</div>

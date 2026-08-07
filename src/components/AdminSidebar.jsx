@@ -22,13 +22,14 @@ function NavItem({ active, onClick, icon: Icon, children, className = '' }) {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors text-left ${
+      className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 text-left relative overflow-hidden group ${
         active
-          ? 'bg-yellow-400 text-neutral-900 shadow-sm'
-          : 'text-gray-300 hover:bg-neutral-800 hover:text-white'
+          ? 'bg-neutral-800 text-white shadow-sm font-bold'
+          : 'text-gray-400 hover:bg-neutral-800/60 hover:text-white'
       } ${className}`}
     >
-      {Icon && <Icon className="h-4 w-4 shrink-0 opacity-90" />}
+      {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400 rounded-r-full" />}
+      {Icon && <Icon className={`h-4 w-4 shrink-0 transition-colors ${active ? 'text-yellow-400' : 'opacity-90 group-hover:text-yellow-400/70'}`} />}
       <span className="truncate">{children}</span>
     </button>
   );
@@ -37,7 +38,7 @@ function NavItem({ active, onClick, icon: Icon, children, className = '' }) {
 function NavSection({ title, children }) {
   return (
     <div className="mb-5">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 px-3 mb-2">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 px-3 mb-2">
         {title}
       </p>
       <div className="space-y-1 px-2">{children}</div>
@@ -53,8 +54,9 @@ function NavSection({ title, children }) {
  * @param {boolean} [props.showForm]
  * @param {() => void} [props.onNewProduct]
  * @param {() => void} [props.onProductList]
+ * @param {() => void} [props.onMediaLibrary]
  */
-export default function AdminSidebar({ open, onClose, activeTab, showForm, onNewProduct, onProductList, className = '' }) {
+export default function AdminSidebar({ open, onClose, activeTab, showForm, onNewProduct, onProductList, onMediaLibrary, className = '' }) {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
@@ -122,6 +124,12 @@ export default function AdminSidebar({ open, onClose, activeTab, showForm, onNew
           </NavItem>
         </NavSection>
 
+        <NavSection title="Satış Yönetimi">
+          <NavItem active={path === '/admin/orders'} onClick={() => go('/admin/orders')} icon={Package}>
+            Siparişler
+          </NavItem>
+        </NavSection>
+
         <NavSection title="Katalog">
           <NavItem active={path === '/admin/categories'} onClick={() => go('/admin/categories')} icon={Settings}>
             Kategoriler
@@ -134,6 +142,20 @@ export default function AdminSidebar({ open, onClose, activeTab, showForm, onNew
           </NavItem>
           <NavItem active={path === '/admin/users'} onClick={() => go('/admin/users')} icon={Users}>
             Kullanıcılar
+          </NavItem>
+          <NavItem
+            active={isAdminHome && activeTab === 'media'}
+            onClick={() => {
+              if (isAdminHome && onMediaLibrary) {
+                onMediaLibrary();
+                onClose?.();
+              } else {
+                go('/admin');
+              }
+            }}
+            icon={Image}
+          >
+            Medya Kütüphanesi
           </NavItem>
         </NavSection>
 

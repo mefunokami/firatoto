@@ -102,8 +102,8 @@ const AddressesPage = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto bg-white rounded-xl shadow p-8 mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900">Adreslerim</h2>
+    <div className="max-w-3xl mx-auto bg-card rounded-xl shadow p-8 mt-10">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-foreground">Adreslerim</h2>
       {addresses.length > 0 && (
         <div className="mb-8">
           <h3 className="font-bold mb-2">Kayıtlı Adresler</h3>
@@ -113,7 +113,7 @@ const AddressesPage = () => {
                 <div className="font-semibold">{addr.title} - {addr.name} {addr.surname}</div>
                 <div>{addr.address}, {addr.district}, {addr.city}, {addr.country}</div>
                 <div>Tel: {addr.mobile} {addr.phone && `/ ${addr.phone}`}</div>
-                <div className="text-xs text-gray-500">Fatura Tipi: {addr.type} {addr.tc && `| TC: ${addr.tc}`}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Fatura Tipi: {addr.type} {addr.tc && `| TC: ${addr.tc}`}</div>
                 <div className="flex gap-2 mt-2">
                   <button onClick={() => handleEdit(addr)} className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-4 rounded">Düzenle</button>
                   <button onClick={() => handleDelete(addr.id)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-4 rounded">Sil</button>
@@ -159,7 +159,7 @@ const AddressesPage = () => {
         )}
         <div className="col-span-1 md:col-span-3 flex flex-col md:flex-row justify-end mt-2 gap-2">
           <button type="submit" className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded" disabled={loading}>{loading ? (editId ? 'Güncelleniyor...' : 'Kaydediliyor...') : (editId ? 'GÜNCELLE' : 'KAYDET')}</button>
-          {editId && <button type="button" onClick={handleCancelEdit} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-8 rounded">İptal</button>}
+          {editId && <button type="button" onClick={handleCancelEdit} className="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 font-bold py-2 px-8 rounded">İptal</button>}
         </div>
       </form>
       {success && <div className="mb-2 text-green-600 font-semibold">Adres kaydedildi.</div>}

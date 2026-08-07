@@ -1,36 +1,41 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
-import { useOutletContext, useLocation } from 'react-router-dom';
+import { useOutletContext, useLocation, Link, useNavigate } from 'react-router-dom';
 import Hero from '@/components/Hero';
 import PublicProductCard from '@/components/PublicProductCard';
 import ProductDetailModal from '@/components/ProductDetailModal';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Truck, ShieldCheck, Tag, MessageCircle, Droplet, Disc, Settings, Zap, ArrowRight, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Select from 'react-select';
 import HomeSlider from '@/components/HomeSlider';
 import WeeklyDealSlider from '@/components/WeeklyDealSlider';
+import GuessThePartGame from '@/components/GuessThePartGame';
+import Footer from '@/components/Footer';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const API_URL = '/api/products.php';
 
 const SABIT_MARKALAR = [
-  { value: "OPEL", label: "OPEL" },
-  { value: "CHEVROLET", label: "CHEVROLET" },
   { value: "BMW", label: "BMW" },
   { value: "MERCEDES-BENZ", label: "MERCEDES-BENZ" },
   { value: "VOLKSWAGEN", label: "VOLKSWAGEN" },
   { value: "AUDİ", label: "AUDİ" },
   { value: "SEAT", label: "SEAT" },
   { value: "SKODA", label: "SKODA" },
+  { value: "PORSCHE", label: "PORSCHE" },
+  { value: "MİNİ COOPER", label: "MİNİ COOPER" },
+  { value: "TESLA", label: "TESLA" },
   { value: "PEUGEOT", label: "PEUGEOT" },
   { value: "CİTROEN", label: "CİTROEN" },
-  { value: "FORD", label: "FORD" }
+  { value: "FORD", label: "FORD" },
+  { value: "OPEL", label: "OPEL" },
+  { value: "CHEVROLET", label: "CHEVROLET" }
 ];
 
-// Vite ile tüm görselleri otomatik al
-const images = Object.values(import.meta.glob('../img/*.{png,webp,jpg,jpeg,gif,svg}', { eager: true, import: 'default' }));
+// Vite ile tüm görselleri otomatik al (artık partnerler için değil, sadece yedek olarak durabilir)
+const localImages = Object.values(import.meta.glob('../img/*.{png,webp,jpg,jpeg,gif,svg}', { eager: true, import: 'default' }));
 
 // Ürünleri karıştırma fonksiyonu
 const shuffleArray = (array) => {
@@ -43,8 +48,8 @@ const shuffleArray = (array) => {
 };
 
 /* ─── Gönderilen Kargolar Slider ─────────────────────────────────────────── */
-const CARGO_ITEM_W = 200; // px
-const CARGO_GAP    = 12;  // px (gap-3)
+const CARGO_ITEM_W = 280; // px
+const CARGO_GAP    = 16;  // px (gap-4)
 
 function CargoSlider({ cargos, onSelect }) {
   const trackRef = useRef(null);
@@ -77,9 +82,9 @@ function CargoSlider({ cargos, onSelect }) {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-8 border-t border-gray-100">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-8 border-t border-gray-100 dark:border-border">
       <h2 className="text-2xl font-bold mb-2 text-center">Gönderilen Kargolar</h2>
-      <p className="text-center text-gray-500 text-sm mb-6">Müşterilerimize gönderdiğimiz kargolardan kareler.</p>
+      <p className="text-center text-gray-500 dark:text-gray-400 text-sm mb-6">Müşterilerimize gönderdiğimiz kargolardan kareler.</p>
 
       <div className="relative max-w-6xl mx-auto">
         {/* Sol Ok */}
@@ -89,7 +94,7 @@ function CargoSlider({ cargos, onSelect }) {
           className={`
             absolute left-0 top-1/2 -translate-y-1/2 z-10 -translate-x-3
             w-10 h-10 rounded-full flex items-center justify-center shadow-lg
-            bg-white border border-gray-200 text-gray-600
+            bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-gray-400
             hover:bg-yellow-400 hover:border-yellow-400 hover:text-white
             transition-all duration-200
             disabled:opacity-0 disabled:pointer-events-none
@@ -99,10 +104,9 @@ function CargoSlider({ cargos, onSelect }) {
           <ChevronLeft className="h-5 w-5" />
         </button>
 
-        {/* Kaydırma Çubuğu Gizli Track */}
         <div
           ref={trackRef}
-          className="cargo-track flex gap-3 overflow-x-auto"
+          className="cargo-track flex gap-4 overflow-x-auto py-4 px-2"
           style={{
             scrollSnapType: 'x mandatory',
             scrollbarWidth: 'none',
@@ -112,23 +116,23 @@ function CargoSlider({ cargos, onSelect }) {
           {cargos.map(cargo => (
             <div
               key={cargo.id}
-              className="rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-200 cursor-pointer group relative flex-shrink-0"
-              style={{ width: CARGO_ITEM_W, scrollSnapAlign: 'start' }}
+              className="rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 cursor-pointer group relative flex-shrink-0"
+              style={{ width: CARGO_ITEM_W, scrollSnapAlign: 'center' }}
               onClick={() => onSelect(cargo)}
             >
-              <div className="overflow-hidden" style={{ width: CARGO_ITEM_W, height: CARGO_ITEM_W }}>
+              <div className="overflow-hidden bg-gray-100" style={{ width: CARGO_ITEM_W, height: CARGO_ITEM_W }}>
                 <img
                   src={cargo.image_url}
                   alt={cargo.title || 'Kargo'}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-400"
-                  width="200"
-                  height="200"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  width="280"
+                  height="280"
                   loading="lazy"
                 />
               </div>
               {cargo.title && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-2 pt-6 pb-2">
-                  <div className="text-white text-xs font-semibold line-clamp-1">{cargo.title}</div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-4 pt-12 pb-4">
+                  <div className="text-white text-sm font-bold tracking-wide line-clamp-2">{cargo.title}</div>
                 </div>
               )}
             </div>
@@ -142,7 +146,7 @@ function CargoSlider({ cargos, onSelect }) {
           className={`
             absolute right-0 top-1/2 -translate-y-1/2 z-10 translate-x-3
             w-10 h-10 rounded-full flex items-center justify-center shadow-lg
-            bg-white border border-gray-200 text-gray-600
+            bg-card border border-gray-200 dark:border-border text-gray-600 dark:text-gray-400
             hover:bg-yellow-400 hover:border-yellow-400 hover:text-white
             transition-all duration-200
             disabled:opacity-0 disabled:pointer-events-none
@@ -163,6 +167,7 @@ const HomePage = () => {
   
   const { searchTerm: headerSearchTerm, popularProductsRef, brandModelFilter } = useOutletContext();
   const location = useLocation();
+  const navigate = useNavigate();
   
   const [popularSearchTerm, setPopularSearchTerm] = useState('');
   const [partFinderFilters, setPartFinderFilters] = useState({ brand: '', model: '', partNumber: '' });
@@ -175,7 +180,24 @@ const HomePage = () => {
   const [blogs, setBlogs] = useState([]);
   const [randomProducts, setRandomProducts] = useState([]);
   const [shippedCargos, setShippedCargos] = useState([]);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [showAllBrands, setShowAllBrands] = useState(false);
+  const [partnerBrands, setPartnerBrands] = useState([]);
+
+  // Fetch partner brands
+  useEffect(() => {
+    fetch('/api/productbrands.php')
+      .then(r => r.json())
+      .then(data => {
+        const partners = data.filter(b => b.is_general == 1 && b.image_url);
+        setPartnerBrands(partners);
+      })
+      .catch(() => {});
+  }, []);
   const [selectedCargo, setSelectedCargo] = useState(null);
+  const [faqVisibleCount, setFaqVisibleCount] = useState(3);
+  const [blogVisibleCount, setBlogVisibleCount] = useState(3);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
   useEffect(() => {
     fetch(API_URL)
@@ -185,11 +207,14 @@ const HomePage = () => {
         setDisplayedProducts(data);
         // Randomize ürünler oluştur
         setRandomProducts(shuffleArray(data));
+        // TODO: Canlıya alırken setTimeout'u kaldır
+        setTimeout(() => setIsLoadingProducts(false), 2000);
       })
       .catch(() => {
         setAllProducts([]);
         setDisplayedProducts([]);
         setRandomProducts([]);
+        setTimeout(() => setIsLoadingProducts(false), 2000);
       });
   }, []);
 
@@ -251,7 +276,7 @@ const HomePage = () => {
       );
     } else if (finalSearchTerm) {
       filtered = filtered.filter(product => {
-        const searchPool = `${product.name} ${product.brand} ${product.model || ''} ${product.partNumber || ''}`.toLowerCase();
+        const searchPool = `${product.name} ${product.brand} ${product.model || ''} ${product.partNumber || ''} ${product.description || ''} ${product.category || ''}`.toLowerCase();
         return searchPool.includes(finalSearchTerm.toLowerCase());
       });
     }
@@ -317,67 +342,147 @@ const HomePage = () => {
         `}</script>
       </Helmet>
       {/* Hero ve Haftanın Fırsatı yan yana */}
-      <div className="bg-white py-8">
+      <div className="bg-card py-8 pb-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
             {/* Hero (daha geniş ve kısa, dikdörtgen) */}
-            <div className="flex flex-1 items-stretch col-span-1 md:col-span-8">
+            <div className="flex flex-1 items-stretch col-span-1 md:col-span-9 lg:col-span-9">
               <Hero small />
             </div>
-            {/* Haftanın Fırsatı (daha dar, sağda, eski yükseklik) */}
-            <div className="flex items-stretch justify-center col-span-1 md:col-span-4">
-              <WeeklyDealSlider />
+            {/* Sağ Kolon: Haftanın Fırsatı ve Mini Oyun */}
+            <div className="flex flex-col gap-3 col-span-1 md:col-span-3 lg:col-span-3 md:h-[450px]">
+              <div className="flex-1 min-h-0 overflow-hidden rounded-2xl bg-white dark:bg-card shadow-sm border border-gray-100 dark:border-border">
+                <WeeklyDealSlider />
+              </div>
+              <div className="h-36 shrink-0">
+                <GuessThePartGame />
+              </div>
             </div>
           </div>
         </div>
       </div>
-      {/* Avantajlar */}
-      {/* Öne Çıkan Markalar */}
-      {/* Bu iki bölümü en alta taşıyoruz */}
-      <div className="bg-secondary">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-            <h2 className="text-3xl font-extrabold text-foreground mb-2">YEDEK PARÇA BULUCU</h2>
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">İstediğiniz marka ve modeli girerek aracınıza uygun parçaları hemen bulun.</p>
-            <div className="w-full flex flex-col items-center gap-4 px-2">
-                <div className="w-full grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
-                    <Select
-                        name="brand"
-                        options={SABIT_MARKALAR}
-                        value={SABIT_MARKALAR.find(opt => opt.value === partFinderFilters.brand) || null}
-                        onChange={opt => setPartFinderFilters(prev => ({ ...prev, brand: opt ? opt.value : '', model: '' }))}
-                        placeholder="Marka seçin"
-                        isClearable
-                        classNamePrefix="react-select"
-                        className="w-full"
-                    />
-                    <Select
-                        name="model"
-                        options={modelOptions}
-                        value={modelOptions.find(opt => opt.value === partFinderFilters.model) || null}
-                        onChange={opt => setPartFinderFilters(prev => ({ ...prev, model: opt ? opt.value : '' }))}
-                        placeholder={partFinderFilters.brand ? "Model seçin" : "Önce marka seçin"}
-                        isClearable
-                        isDisabled={!partFinderFilters.brand}
-                        classNamePrefix="react-select"
-                        className="w-full"
-                    />
-                    <Select
-                        name="year"
-                        options={yearOptions}
-                        value={yearOptions.find(opt => opt.value === partFinderFilters.year) || null}
-                        onChange={opt => setPartFinderFilters(prev => ({ ...prev, year: opt ? opt.value : '' }))}
-                        placeholder="Yıl seçin"
-                        isClearable
-                        classNamePrefix="react-select"
-                        className="w-full"
-                    />
-                    <Input name="partNumber" value={partFinderFilters.partNumber} onChange={handleFilterChange} placeholder="Parça Numarası (opsiyonel)" className="h-12 text-base w-full"/>
-                </div>
-                <Button size="lg" className="h-12 text-base font-bold mt-4 w-full md:w-60" onClick={handlePartFinderSearch}>Parçaları Bul</Button>
+
+      {/* Modern Güven Rozetleri (İnce ve Kompakt Kartlar) */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 lg:gap-4">
+          
+          <div className="bg-white dark:bg-card rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-3 lg:p-4 flex items-center gap-3 lg:gap-4 border-b-4 border-[#ffc107] group cursor-default transform hover:-translate-y-1">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-yellow-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <Truck className="w-5 h-5 lg:w-6 lg:h-6 text-[#ffc107]" />
             </div>
+            <div className="flex flex-col text-left">
+              <div className="text-gray-900 dark:text-foreground font-extrabold text-xs lg:text-sm tracking-tight leading-none mb-1">Aynı Gün Kargo</div>
+              <div className="text-gray-500 dark:text-gray-400 text-[10px] lg:text-xs font-medium leading-tight">81 İl'e Hızlı Gönderim</div>
+            </div>
+          </div>
+          
+          <div className="bg-white dark:bg-card rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-3 lg:p-4 flex items-center gap-3 lg:gap-4 border-b-4 border-[#ffc107] group cursor-default transform hover:-translate-y-1">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-yellow-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <ShieldCheck className="w-5 h-5 lg:w-6 lg:h-6 text-[#ffc107]" />
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="text-gray-900 dark:text-foreground font-extrabold text-xs lg:text-sm tracking-tight leading-none mb-1">Güvenli Alışveriş</div>
+              <div className="text-gray-500 dark:text-gray-400 text-[10px] lg:text-xs font-medium leading-tight">256 Bit SSL Şifreleme</div>
+            </div>
+          </div>
+          
+          <div className="bg-white dark:bg-card rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-3 lg:p-4 flex items-center gap-3 lg:gap-4 border-b-4 border-[#ffc107] group cursor-default transform hover:-translate-y-1">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-yellow-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <Tag className="w-5 h-5 lg:w-6 lg:h-6 text-[#ffc107]" />
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="text-gray-900 dark:text-foreground font-extrabold text-xs lg:text-sm tracking-tight leading-none mb-1">Uygun Fiyatlar</div>
+              <div className="text-gray-500 dark:text-gray-400 text-[10px] lg:text-xs font-medium leading-tight">En İyi Fiyat Avantajı</div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-card rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-3 lg:p-4 flex items-center gap-3 lg:gap-4 border-b-4 border-[#ffc107] group cursor-default transform hover:-translate-y-1">
+            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-yellow-50 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <MessageCircle className="w-5 h-5 lg:w-6 lg:h-6 text-[#ffc107]" />
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="text-gray-900 dark:text-foreground font-extrabold text-xs lg:text-sm tracking-tight leading-none mb-1">Canlı Destek</div>
+              <div className="text-gray-500 dark:text-gray-400 text-[10px] lg:text-xs font-medium leading-tight">WhatsApp'tan Sorun</div>
+            </div>
+          </div>
+
         </div>
       </div>
-      {/* Ürünler bölümü (Randomize) */}
+
+      {/* KATEGORİ VİTRİNİ */}
+      <div className="relative mt-12 mb-16 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-foreground tracking-tight mb-2">Hızlı Kategori Seçimi</h2>
+          <p className="text-gray-500 dark:text-gray-400 font-medium text-sm md:text-base">Aradığınız parçayı doğrudan kategoriden bularak zamandan tasarruf edin.</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          
+          {/* Category 1 */}
+          <Link to="/kategori/bakim/tumu" className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 p-6 flex flex-col items-center text-center group cursor-pointer hover:-translate-y-1">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#fef3c7] text-[#ffc107] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+              <Droplet className="w-8 h-8 md:w-10 md:h-10" />
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-foreground mb-1 group-hover:text-yellow-600 transition-colors text-sm md:text-base">Periyodik Bakım</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Yağ & Filtre Setleri</p>
+          </Link>
+
+          {/* Category 2 */}
+          <Link to="/kategori/fren/tumu" className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 p-6 flex flex-col items-center text-center group cursor-pointer hover:-translate-y-1">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#fef3c7] text-[#ffc107] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+              <Disc className="w-8 h-8 md:w-10 md:h-10" />
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-foreground mb-1 group-hover:text-yellow-600 transition-colors text-sm md:text-base">Fren Sistemi</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Disk & Balata</p>
+          </Link>
+
+          {/* Category 3 */}
+          <Link to="/kategori/motor/tumu" className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 p-6 flex flex-col items-center text-center group cursor-pointer hover:-translate-y-1">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#fef3c7] text-[#ffc107] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+              <Settings className="w-8 h-8 md:w-10 md:h-10" />
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-foreground mb-1 group-hover:text-yellow-600 transition-colors text-sm md:text-base">Motor Aksamı</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Triger & Conta</p>
+          </Link>
+
+          {/* Category 4 */}
+          <Link to="/kategori/elektrik/tumu" className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-border shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 p-6 flex flex-col items-center text-center group cursor-pointer hover:-translate-y-1">
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#fef3c7] text-[#ffc107] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+              <Zap className="w-8 h-8 md:w-10 md:h-10" />
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-foreground mb-1 group-hover:text-yellow-600 transition-colors text-sm md:text-base">Elektrik Aksamı</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Sensör & Aydınlatma</p>
+          </Link>
+          
+        </div>
+      </div>
+
+
+      {/* Çıkma Parça Banner */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div 
+          onClick={() => navigate('/cikma-parcalar')}
+          className="bg-[#18181b] rounded-3xl overflow-hidden relative shadow-2xl flex flex-col md:flex-row items-center cursor-pointer group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-10"></div>
+          {/* Subtle pattern background */}
+          <div className="absolute inset-0 z-0 opacity-10" style={{ backgroundImage: 'linear-gradient(#374151 1px, transparent 1px), linear-gradient(90deg, #374151 1px, transparent 1px)', backgroundSize: '30px 30px' }}></div>
+          
+          <div className="p-8 md:p-12 z-20 md:w-2/3">
+            <div className="inline-block bg-[#ffc107] text-black text-xs font-extrabold px-3 py-1 rounded-full mb-4 uppercase tracking-wider">Özel Kategori</div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4 group-hover:text-yellow-400 transition-colors">Orijinal Çıkma Parçalar</h2>
+            <p className="text-gray-300 mb-8 max-w-lg leading-relaxed">
+              Sıfır parça kalitesinde, garantili ve uzman kontrolünden geçmiş orijinal çıkma yedek parçalarla aracınızın orijinalliğini ve bütçenizi koruyun.
+            </p>
+            <button className="flex items-center gap-2 bg-white dark:bg-card text-black px-6 py-3 rounded-xl font-bold hover:bg-yellow-400 transition-colors shadow-lg">
+              Çıkma İlanlarını İncele <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+          
+          <div className="z-20 md:w-1/3 hidden md:flex items-center justify-center p-8">
+            <Package className="w-40 h-40 text-white/10 group-hover:scale-110 group-hover:text-yellow-400/20 transition-all duration-700 transform group-hover:rotate-6" />
+          </div>
+        </div>
+      </div>      {/* Ürünler bölümü (Randomize) */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-foreground">Ürünler</h2>
@@ -432,7 +537,13 @@ const HomePage = () => {
                 />
             </div>
         </div>
-        {displayedProducts.length > 0 ? (
+        {isLoadingProducts ? (
+            <div className="flex flex-col items-center justify-center py-24 bg-white/50 backdrop-blur-sm rounded-2xl mb-12 border border-gray-100 dark:border-border shadow-sm">
+                <div className="w-16 h-16 border-4 border-gray-200 dark:border-border border-t-[#ffc107] rounded-full animate-spin mb-6"></div>
+                <h3 className="text-2xl font-extrabold text-gray-900 dark:text-foreground">Katalog Yükleniyor...</h3>
+                <p className="mt-3 text-gray-500 dark:text-gray-400 font-medium">Binlerce yedek parça sizin için hazırlanıyor, lütfen bekleyin.</p>
+            </div>
+        ) : displayedProducts.length > 0 ? (
             <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
                 {displayedProducts.slice(0, visibleCount).map((product, index) => (
@@ -453,111 +564,10 @@ const HomePage = () => {
                 </Button>
               </div>
             )}
-            {/* Gönderilen Kargolar */}
-            {shippedCargos.length > 0 && (
-              <CargoSlider cargos={shippedCargos} onSelect={setSelectedCargo} />
-            )}
-
-            {/* SSS kutusu */}
-            <div className="max-w-4xl mx-auto mt-16 mb-10">
-              <h2 className="text-2xl font-bold mb-4 text-center">Sık Sorulan Sorular</h2>
-              <div className="space-y-4">
-                {faqs.length === 0 && <div className="text-gray-400 text-center">Henüz SSS eklenmemiş.</div>}
-                {faqs.map((faq, idx) => (
-                  <div key={faq.id} className="bg-white rounded-lg shadow border p-4">
-                    <button
-                      className="w-full flex justify-between items-center text-left font-semibold text-lg text-gray-900 focus:outline-none"
-                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                      aria-expanded={openFaq === idx}
-                    >
-                      <span>{faq.question}</span>
-                      {openFaq === idx ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-                    </button>
-                    {openFaq === idx && (
-                      <div className="mt-2 text-gray-700 whitespace-pre-line">{faq.answer}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* Son Eklenen Bloglar kutusu */}
-            <div className="max-w-4xl mx-auto mt-10 mb-10">
-              <h2 className="text-xl font-bold mb-4 text-center">Son Eklenen Bloglar</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {blogs.slice(0, 3).map(blog => (
-                  <div key={blog.id} className="bg-white rounded-lg shadow border p-3 flex flex-col items-center hover:shadow-lg transition cursor-pointer" onClick={() => window.location.href = `/blog/${blog.slug}` }>
-                    {blog.image_url && <img src={blog.image_url} alt={blog.title} className="w-full h-28 object-cover rounded mb-2" width="300" height="112" loading="lazy" />}
-                    <div className="font-semibold text-base text-gray-900 text-center line-clamp-2 mb-1">{blog.title}</div>
-                  </div>
-                ))}
-                {blogs.length === 0 && <div className="col-span-full text-gray-400 text-center">Henüz blog eklenmemiş.</div>}
-              </div>
-            </div>
-            {/* Avantajlar ve Markalar tam burada */}
-            <div className="bg-white py-10 mt-12">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-                  <div>
-                    <div className="flex justify-center mb-2">
-                      <img src="/icons/free-shipping.png" alt="Aynı Gün Kargo" className="h-12" width="48" height="48" loading="lazy" />
-                    </div>
-                    <div className="font-bold text-lg">Aynı Gün Kargo</div>
-                    <div className="text-muted-foreground text-sm">81 İl'e Aynı Gün Kargo</div>
-                  </div>
-                  <div>
-                    <div className="flex justify-center mb-2">
-                      <img src="/icons/support.png" alt="7/24 Destek" className="h-12" width="48" height="48" loading="lazy" />
-                    </div>
-                    <div className="font-bold text-lg">7/24 Destek</div>
-                    <div className="text-muted-foreground text-sm">Sormaktan çekinmeyin</div>
-                  </div>
-                  <div>
-                    <div className="flex justify-center mb-2">
-                      <img src="/icons/secure.png" alt="Güvenli Alışveriş" className="h-12" width="48" height="48" loading="lazy" />
-                    </div>
-                    <div className="font-bold text-lg">Güvenli Alışveriş</div>
-                    <div className="text-muted-foreground text-sm">256Bit SSL Sertifikası</div>
-                  </div>
-                  <div>
-                    <div className="flex justify-center mb-2">
-                      <img src="/icons/price.png" alt="Uygun Fiyatlar" className="h-12" width="48" height="48" loading="lazy" />
-                    </div>
-                    <div className="font-bold text-lg">Uygun Fiyatlar</div>
-                    <div className="text-muted-foreground text-sm">En iyi Fiyat avantajı</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white py-8">
-              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 className="text-2xl font-bold text-center mb-6">Öne Çıkan Markalar</h2>
-                <div className="relative w-full overflow-hidden" style={{height: 110}}>
-                  <div
-                    className="flex gap-6 animate-marquee"
-                    style={{
-                      width: 'max-content',
-                      animation: 'marquee 60s linear infinite',
-                    }}
-                  >
-                    {images.map((img, i) => (
-                      <div key={img} className="bg-gray-100 rounded-lg flex flex-col items-center py-6 min-w-[140px] max-w-[140px]">
-                        <img src={img} alt="" className="h-10 mb-2 object-contain" width="100" height="40" loading="lazy" />
-                      </div>
-                    ))}
-                    {/* Sonsuz döngü için bir kopya daha */}
-                    {images.map((img, i) => (
-                      <div key={img + '-copy'} className="bg-gray-100 rounded-lg flex flex-col items-center py-6 min-w-[140px] max-w-[140px]">
-                        <img src={img} alt="" className="h-10 mb-2 object-contain" width="100" height="40" loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
             </>
         ) : (
             <motion.div 
-                className="text-center py-16 bg-secondary rounded-lg"
+                className="text-center py-16 bg-secondary rounded-lg mb-12"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
@@ -567,6 +577,157 @@ const HomePage = () => {
                 <p className="mt-2 text-muted-foreground">Aradığınız kriterlere uygun ürün bulunamadı veya henüz eklenmedi.</p>
             </motion.div>
         )}
+
+        {/* Gönderilen Kargolar */}
+        {shippedCargos.length > 0 && (
+          <CargoSlider cargos={shippedCargos} onSelect={setSelectedCargo} />
+        )}
+
+            {/* SSS kutusu */}
+            <div className="max-w-[1200px] mx-auto mt-20 mb-12 px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-10">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-foreground tracking-tight flex items-center justify-center gap-2">
+                  <MessageCircle className="w-6 h-6 text-[#ffc107]" />
+                  Sık Sorulan Sorular
+                </h2>
+                <p className="text-gray-500 dark:text-gray-400 mt-2">Müşterilerimizin en çok merak ettiği sorular ve cevapları.</p>
+              </div>
+              <div className="space-y-4 max-w-3xl mx-auto">
+                {faqs.length === 0 && <div className="text-gray-400 text-center bg-white dark:bg-card p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-border">Henüz SSS eklenmemiş.</div>}
+                {faqs.slice(0, faqVisibleCount).map((faq, idx) => (
+                  <motion.div 
+                    key={faq.id} 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: idx * 0.05 }}
+                    className="bg-white dark:bg-card rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 dark:border-border overflow-hidden transition-all duration-300 hover:shadow-[0_4px_20px_rgb(0,0,0,0.06)]"
+                  >
+                    <button
+                      className="w-full flex justify-between items-center text-left font-bold text-gray-800 dark:text-gray-200 p-5 focus:outline-none hover:bg-gray-50/50 transition-colors"
+                      onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                      aria-expanded={openFaq === idx}
+                    >
+                      <span className="pr-4">{faq.question}</span>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${openFaq === idx ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500 dark:text-gray-400'}`}>
+                        {openFaq === idx ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                      </div>
+                    </button>
+                    <motion.div 
+                      initial={false}
+                      animate={{ height: openFaq === idx ? 'auto' : 0, opacity: openFaq === idx ? 1 : 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-5 pt-0 text-gray-600 dark:text-gray-400 whitespace-pre-line leading-relaxed text-sm border-t border-gray-50 mt-2">
+                        {faq.answer}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                ))}
+                
+                {faqVisibleCount < faqs.length && (
+                  <div className="flex justify-center mt-6 pt-4">
+                    <Button 
+                      variant="outline" 
+                      className="rounded-full px-8 font-bold border-gray-200 dark:border-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-background hover:text-gray-900 dark:text-foreground shadow-sm"
+                      onClick={() => setFaqVisibleCount(v => v + 5)}
+                    >
+                      Daha Fazla Göster ({faqs.length - faqVisibleCount})
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Son Eklenen Bloglar kutusu */}
+            <div className="max-w-[1200px] mx-auto mt-16 mb-20 px-4 sm:px-6 lg:px-8">
+              <div className="text-center mb-10">
+                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-foreground tracking-tight flex items-center justify-center gap-2">
+                  <Tag className="w-6 h-6 text-[#ffc107]" />
+                  Son Eklenen Bloglar
+                </h2>
+                <p className="text-gray-500 dark:text-gray-400 mt-2">Araç bakımı ve yedek parça hakkında güncel bilgiler.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
+                {blogs.slice(0, blogVisibleCount).map((blog, idx) => (
+                  <motion.div 
+                    key={blog.id} 
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: idx * 0.1 }}
+                    className="bg-white dark:bg-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 dark:border-border flex flex-col items-center hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 cursor-pointer overflow-hidden group" 
+                    onClick={() => window.location.href = `/blog/${blog.slug}` }
+                  >
+                    <div className="w-full h-48 overflow-hidden bg-gray-50 dark:bg-background relative">
+                      {blog.image_url ? (
+                        <img src={blog.image_url} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                          <Tag className="w-12 h-12" />
+                        </div>
+                      )}
+                      <div className="absolute top-3 left-3 bg-[#ffc107] text-black text-xs font-black px-2 py-1 rounded shadow-sm">
+                        YENİ
+                      </div>
+                    </div>
+                    <div className="p-5 w-full">
+                      <div className="font-bold text-lg text-gray-900 dark:text-foreground line-clamp-2 mb-3 group-hover:text-yellow-600 transition-colors leading-tight">
+                        {blog.title}
+                      </div>
+                      <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        Devamını Oku <ChevronRight className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+                {blogs.length === 0 && <div className="col-span-full text-gray-400 text-center bg-white dark:bg-card p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-border">Henüz blog eklenmemiş.</div>}
+              </div>
+              
+              {blogVisibleCount < blogs.length && (
+                <div className="flex justify-center mt-10">
+                  <Button 
+                    variant="outline" 
+                    className="rounded-full px-8 font-bold border-gray-200 dark:border-border text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:bg-background hover:text-gray-900 dark:text-foreground shadow-sm"
+                    onClick={() => setBlogVisibleCount(v => v + 3)}
+                  >
+                    Daha Fazla Göster ({blogs.length - blogVisibleCount})
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white dark:bg-card py-16 md:py-24 border-t border-gray-100 dark:border-border">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1200px]">
+                <div className="flex flex-col items-center mb-12">
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 dark:text-foreground tracking-tight text-center">Güvenilir Çözüm Ortaklarımız</h2>
+                  <div className="w-20 h-1 bg-[#ffc107] rounded-full mt-4"></div>
+                  <p className="text-gray-500 dark:text-gray-400 mt-4 text-center max-w-2xl text-sm md:text-base font-medium">
+                    Dünyanın en prestijli otomotiv yedek parça üreticileriyle çalışıyor, aracınız için sadece garantili ve üst düzey markaları sunuyoruz.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-5">
+                  {(partnerBrands.length > 0 ? partnerBrands : localImages.map(img => ({ image_url: img }))).slice(0, showAllBrands ? 999 : 18).map((brand, i) => (
+                    <div key={i} className="bg-white dark:bg-card border border-gray-100 dark:border-border shadow-[0_4px_15px_rgb(0,0,0,0.02)] hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)] rounded-2xl flex items-center justify-center p-4 h-20 md:h-24 hover:-translate-y-1 transition-all duration-300 group cursor-pointer">
+                      <img 
+                        src={brand.image_url} 
+                        alt={brand.name || `Marka ${i}`} 
+                        className="max-h-8 md:max-h-12 max-w-[85%] object-contain filter grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500" 
+                        loading="lazy" 
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {(partnerBrands.length > 18 || localImages.length > 18) && !showAllBrands && (
+                   <div className="mt-10 text-center flex justify-center">
+                     <button onClick={() => setShowAllBrands(true)} className="flex items-center gap-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:text-yellow-600 transition-colors group cursor-pointer">
+                       Tüm Markalarımızı İnceleyin 
+                       <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                     </button>
+                   </div>
+                )}
+              </div>
+            </div>
       </div>
 
       {selectedProduct && <ProductDetailModal product={selectedProduct} isOpen={!!selectedProduct} onClose={() => setSelectedProduct(null)} />}
@@ -589,7 +750,7 @@ const HomePage = () => {
               className="w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
             />
             {selectedCargo.title && (
-              <div className="bg-white/90 text-gray-800 font-semibold text-center py-2 px-4 rounded-b-xl">
+              <div className="bg-white/90 text-gray-800 dark:text-gray-200 font-semibold text-center py-2 px-4 rounded-b-xl">
                 {selectedCargo.title}
               </div>
             )}

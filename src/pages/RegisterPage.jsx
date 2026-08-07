@@ -70,28 +70,28 @@ const RegisterPage = () => {
 
   return (
     <div className="container mx-auto py-12 min-h-[70vh] flex flex-col items-center justify-start">
-      <div className="w-full max-w-4xl bg-white rounded shadow p-10">
-        <h2 className="text-3xl font-bold mb-2 text-gray-900">YENİ ÜYELİK</h2>
+      <div className="w-full max-w-4xl bg-card rounded shadow p-10">
+        <h2 className="text-3xl font-bold mb-2 text-gray-900 dark:text-foreground">YENİ ÜYELİK</h2>
         <div className="h-1 w-24 bg-yellow-400 mb-8" />
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
           <div className="flex flex-col gap-2">
-            <label className="font-semibold text-gray-800">Adı</label>
+            <label className="font-semibold text-gray-800 dark:text-gray-200">Adı</label>
             <input type="text" name="first_name" value={form.first_name} onChange={handleChange} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring" required />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="font-semibold text-gray-800">Soyadı</label>
+            <label className="font-semibold text-gray-800 dark:text-gray-200">Soyadı</label>
             <input type="text" name="last_name" value={form.last_name} onChange={handleChange} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring" required />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="font-semibold text-gray-800">Email</label>
+            <label className="font-semibold text-gray-800 dark:text-gray-200">Email</label>
             <input type="email" name="email" value={form.email} onChange={handleChange} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring" required />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="font-semibold text-gray-800">Şifre</label>
+            <label className="font-semibold text-gray-800 dark:text-gray-200">Şifre</label>
             <input type="password" name="password" value={form.password} onChange={handleChange} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring" required />
           </div>
           <div className="flex flex-col gap-2 md:col-span-2">
-            <label className="font-semibold text-gray-800">Cinsiyet</label>
+            <label className="font-semibold text-gray-800 dark:text-gray-200">Cinsiyet</label>
             <div className="flex gap-6 mt-1">
               <label className="flex items-center gap-2"><input type="radio" name="gender" value="Erkek" className="accent-yellow-500" /> Erkek</label>
               <label className="flex items-center gap-2"><input type="radio" name="gender" value="Kadın" className="accent-yellow-500" /> Kadın</label>
@@ -99,7 +99,7 @@ const RegisterPage = () => {
             </div>
           </div>
           <div className="flex flex-col gap-2 md:col-span-2">
-            <label className="font-semibold text-gray-800">Cep Telefonu</label>
+            <label className="font-semibold text-gray-800 dark:text-gray-200">Cep Telefonu</label>
             <InputMask
               mask="(599) 999 99 99"
               maskChar={null}
@@ -120,19 +120,19 @@ const RegisterPage = () => {
           </div>
           <div className="md:col-span-2 flex flex-col gap-2 mt-2">
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="accent-yellow-500" /> Aydınlatma Metninde belirtilen ilkeler nezdinde Elektronik Ticaret İletisi almak istiyorum.</label>
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="accent-yellow-500" required /> <span> <button type="button" className="underline text-gray-800" onClick={() => setShowAgreement('uyelik')}>Üyelik sözleşmesini kabul ediyorum.</button></span></label>
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="accent-yellow-500" required /> <span><button type="button" className="underline text-gray-800" onClick={() => setShowAgreement('kvkk')}>Kişisel verilerin işlenmesine ilişkin Aydınlatma Metnini okudum.</button></span></label>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="accent-yellow-500" required /> <span> <button type="button" className="underline text-gray-800 dark:text-gray-200" onClick={() => setShowAgreement('uyelik')}>Üyelik sözleşmesini kabul ediyorum.</button></span></label>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="accent-yellow-500" required /> <span><button type="button" className="underline text-gray-800 dark:text-gray-200" onClick={() => setShowAgreement('kvkk')}>Kişisel verilerin işlenmesine ilişkin Aydınlatma Metnini okudum.</button></span></label>
           </div>
           <div className="md:col-span-2 mt-2">
-            <div className="bg-gray-50 border rounded p-4 flex items-center gap-4">
+            <div className="bg-gray-50 dark:bg-background border rounded p-4 flex items-center gap-4">
               <input type="checkbox" className="w-6 h-6 accent-yellow-500" required checked={robotChecked} onChange={e => setRobotChecked(e.target.checked)} />
-              <span className="text-gray-700 font-semibold">Ben robot değilim</span>
+              <span className="text-gray-700 dark:text-gray-300 font-semibold">Ben robot değilim</span>
               <div className="ml-auto"><span className="text-xs text-gray-400">reCAPTCHA<br />Gizlilik - Şartlar</span></div>
             </div>
           </div>
           {error && <div className="md:col-span-2 text-red-600 font-semibold mb-2">{error}</div>}
           <div className="md:col-span-2 flex justify-end gap-4 mt-6">
-            <button type="button" className="bg-gray-100 text-gray-500 font-semibold px-8 py-2 rounded" onClick={() => navigate(-1)}>İptal</button>
+            <button type="button" className="bg-gray-100 text-gray-500 dark:text-gray-400 font-semibold px-8 py-2 rounded" onClick={() => navigate(-1)}>İptal</button>
             <button type="submit" className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold px-8 py-2 rounded">Kayıt Ol</button>
           </div>
         </form>

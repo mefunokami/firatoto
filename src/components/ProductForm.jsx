@@ -6,39 +6,46 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { toast } from '@/components/ui/use-toast';
 import { motion } from 'framer-motion';
 import Select from 'react-select';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import MediaLibrary from '@/components/MediaLibrary';
+import { ImageIcon, Search, Wrench } from 'lucide-react';
 
 const SABIT_MARKALAR = [
-  { value: "OPEL", label: "OPEL" },
-  { value: "CHEVROLET", label: "CHEVROLET" },
   { value: "BMW", label: "BMW" },
   { value: "MERCEDES-BENZ", label: "MERCEDES-BENZ" },
   { value: "VOLKSWAGEN", label: "VOLKSWAGEN" },
   { value: "AUDİ", label: "AUDİ" },
   { value: "SEAT", label: "SEAT" },
   { value: "SKODA", label: "SKODA" },
+  { value: "PORSCHE", label: "PORSCHE" },
+  { value: "MİNİ COOPER", label: "MİNİ COOPER" },
+  { value: "TESLA", label: "TESLA" },
   { value: "PEUGEOT", label: "PEUGEOT" },
   { value: "CİTROEN", label: "CİTROEN" },
   { value: "FORD", label: "FORD" },
-  { value: "TESLA", label: "TESLA" },
+  { value: "OPEL", label: "OPEL" },
+  { value: "CHEVROLET", label: "CHEVROLET" },
   { value: "GENEL MARKALAR", label: "GENEL MARKALAR" }
 ];
 
 const ProductForm = ({ product, onSave, onCancel }) => {
   const [formData, setFormData] = useState({
-    name: '', brand: '', model: '', year: '', price: '', stock: '', description: '', category: '', partNumber: '', imageUrl: '', imageUrl1: '', imageUrl2: '', trendyolUrl: '', is_weekly_deal: false
+    name: '', brand: '', model: '', year: '', price: '', stock: '', description: '', category: '', partNumber: '', imageUrl: '', imageUrl1: '', imageUrl2: '', trendyolUrl: '', is_weekly_deal: false, seoTitle: '', seoDescription: '', seoKeywords: '', product_condition: 'Sıfır'
   });
   const [categories, setCategories] = useState([]);
   const [modelOptions, setModelOptions] = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [brandOptions, setBrandOptions] = useState([]);
   const [productBrandOptions, setProductBrandOptions] = useState([]);
+  const [mediaSelectorOpen, setMediaSelectorOpen] = useState(false);
+  const [currentMediaField, setCurrentMediaField] = useState('');
 
   useEffect(() => {
     if (product) {
       setFormData({ ...product, is_weekly_deal: product.is_weekly_deal == 1 || product.is_weekly_deal === "1" });
     } else {
       setFormData({
-        name: '', brand: '', model: '', year: '', price: '', stock: '', description: '', category: '', partNumber: '', imageUrl: '', imageUrl1: '', imageUrl2: '', trendyolUrl: '', is_weekly_deal: false
+        name: '', brand: '', model: '', year: '', price: '', stock: '', description: '', category: '', partNumber: '', imageUrl: '', imageUrl1: '', imageUrl2: '', trendyolUrl: '', is_weekly_deal: false, seoTitle: '', seoDescription: '', seoKeywords: '', product_condition: 'Sıfır'
       });
     }
   }, [product]);
@@ -187,6 +194,19 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Durum (Sıfır / Çıkma)</label>
+                <Select
+                  options={[
+                    { value: 'Sıfır', label: 'Sıfır (Yeni)' },
+                    { value: 'Çıkma', label: 'Çıkma (İkinci El)' }
+                  ]}
+                  value={[{ value: 'Sıfır', label: 'Sıfır (Yeni)' }, { value: 'Çıkma', label: 'Çıkma (İkinci El)' }].find(opt => opt.value === formData.product_condition) || { value: 'Sıfır', label: 'Sıfır (Yeni)' }}
+                  onChange={opt => setFormData(f => ({ ...f, product_condition: opt ? opt.value : 'Sıfır' }))}
+                  placeholder="Durum seçin"
+                  className="mb-4"
+                />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-1">Parça Numarası</label>
                 <Input name="partNumber" value={formData.partNumber} onChange={handleChange} className="bg-background" placeholder="Örn: 0 986 424 797" />
               </div>
@@ -196,21 +216,30 @@ const ProductForm = ({ product, onSave, onCancel }) => {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-muted-foreground mb-1">Ana Ürün Fotoğrafı URL *</label>
-                <Input name="imageUrl" value={formData.imageUrl} onChange={handleChange} className="bg-background" placeholder="https://example.com/resim.jpg" required />
+                <div className="flex gap-2">
+                  <Input name="imageUrl" value={formData.imageUrl} onChange={handleChange} className="bg-background flex-1" placeholder="https://example.com/resim.jpg" required />
+                  <Button type="button" variant="secondary" onClick={() => { setCurrentMediaField('imageUrl'); setMediaSelectorOpen(true); }}><ImageIcon className="w-4 h-4 mr-2" /> Seç</Button>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-muted-foreground mb-1">İkinci Ürün Fotoğrafı URL (Opsiyonel)</label>
-                <Input name="imageUrl1" value={formData.imageUrl1} onChange={handleChange} className="bg-background" placeholder="https://example.com/resim1.jpg" />
+                <div className="flex gap-2">
+                  <Input name="imageUrl1" value={formData.imageUrl1} onChange={handleChange} className="bg-background flex-1" placeholder="https://example.com/resim1.jpg" />
+                  <Button type="button" variant="secondary" onClick={() => { setCurrentMediaField('imageUrl1'); setMediaSelectorOpen(true); }}><ImageIcon className="w-4 h-4 mr-2" /> Seç</Button>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-muted-foreground mb-1">Üçüncü Ürün Fotoğrafı URL (Opsiyonel)</label>
-                <Input name="imageUrl2" value={formData.imageUrl2} onChange={handleChange} className="bg-background" placeholder="https://example.com/resim2.jpg" />
+                <div className="flex gap-2">
+                  <Input name="imageUrl2" value={formData.imageUrl2} onChange={handleChange} className="bg-background flex-1" placeholder="https://example.com/resim2.jpg" />
+                  <Button type="button" variant="secondary" onClick={() => { setCurrentMediaField('imageUrl2'); setMediaSelectorOpen(true); }}><ImageIcon className="w-4 h-4 mr-2" /> Seç</Button>
+                </div>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-muted-foreground mb-1">Trendyol Satın Alma Linki</label>
                 <Input name="trendyolUrl" value={formData.trendyolUrl} onChange={handleChange} className="bg-background" placeholder="https://www.trendyol.com/..." />
               </div>
-              <div className="md:col-span-2 flex items-center gap-3 pt-2">
+              <div className="md:col-span-2 flex items-center gap-3 pt-2 pb-4">
                 <input
                   type="checkbox"
                   id="is_weekly_deal"
@@ -223,6 +252,65 @@ const ProductForm = ({ product, onSave, onCancel }) => {
                   Haftanın Fırsatı olarak işaretle
                 </label>
               </div>
+
+              {/* SEO Alanı */}
+              <div className="md:col-span-2 pt-6 border-t border-gray-100 dark:border-border">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-foreground flex items-center gap-2 mb-4">
+                  <Search className="w-5 h-5 text-blue-500" />
+                  SEO Ayarları (Google)
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Inputs */}
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-sm font-medium text-muted-foreground">SEO Başlığı (Meta Title)</label>
+                        <span className={`text-xs ${(formData.seoTitle?.length || 0) > 60 ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
+                          {formData.seoTitle?.length || 0}/60
+                        </span>
+                      </div>
+                      <Input name="seoTitle" value={formData.seoTitle || ''} onChange={handleChange} className="bg-background" placeholder="Google'da görünecek başlık" />
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-sm font-medium text-muted-foreground">SEO Açıklaması (Meta Description)</label>
+                        <span className={`text-xs ${(formData.seoDescription?.length || 0) > 160 ? 'text-red-500 font-bold' : 'text-gray-400'}`}>
+                          {formData.seoDescription?.length || 0}/160
+                        </span>
+                      </div>
+                      <Textarea name="seoDescription" value={formData.seoDescription || ''} onChange={handleChange} className="bg-background min-h-[80px]" placeholder="Google'da başlığın altında görünecek açıklama metni" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Anahtar Kelimeler (Keywords)</label>
+                      <Input name="seoKeywords" value={formData.seoKeywords || ''} onChange={handleChange} className="bg-background" placeholder="Örn: bmw f30, fren balatası, ucuz yedek parça" />
+                    </div>
+                  </div>
+
+                  {/* Google Preview */}
+                  <div className="bg-white dark:bg-card p-4 rounded-xl border border-gray-200 dark:border-border shadow-sm flex flex-col justify-center">
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Google Önizlemesi</p>
+                    <div className="font-sans">
+                      <div className="flex items-center gap-3 mb-1">
+                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 dark:border-border">
+                          <Wrench className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-gray-800 dark:text-gray-200">Fırat Oto Yedek Parça</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">https://www.firatotoyedekparca.com › urunler</span>
+                        </div>
+                      </div>
+                      <h3 className="text-[20px] text-[#1a0dab] hover:underline cursor-pointer truncate max-w-full">
+                        {formData.seoTitle || formData.name || 'Ürün Başlığı'}
+                      </h3>
+                      <p className="text-sm text-[#4d5156] mt-1 line-clamp-2">
+                        {formData.seoDescription || formData.description?.substring(0, 150) || 'Ürün açıklaması burada görünecek. Google arama sonuçlarında müşterilerin ilgisini çekecek detayları buraya yazın.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
             <div className="flex gap-4 pt-4">
               <Button type="submit" size="lg" className="flex-1 font-bold">{product ? 'Değişiklikleri Kaydet' : 'Ürünü Ekle'}</Button>
@@ -231,6 +319,19 @@ const ProductForm = ({ product, onSave, onCancel }) => {
           </form>
         </CardContent>
       </Card>
+      
+      <Dialog open={mediaSelectorOpen} onOpenChange={setMediaSelectorOpen}>
+        <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
+          <MediaLibrary 
+            isModal={true} 
+            onClose={() => setMediaSelectorOpen(false)}
+            onSelect={(url) => {
+              setFormData({ ...formData, [currentMediaField]: url });
+              setMediaSelectorOpen(false);
+            }} 
+          />
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 };

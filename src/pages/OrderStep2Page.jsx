@@ -201,7 +201,7 @@ export default function OrderStep2Page() {
       `}</style>
       <div className="w-full bg-[#d7efdf] border-b border-[#c2e3ce]">
         <div className="max-w-7xl mx-auto flex items-center justify-center py-2 px-4">
-          <span className="inline-flex items-center gap-2 text-sm text-gray-700 font-medium">
+          <span className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
             <svg width="18" height="18" fill="none" stroke="#4caf50" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
             Bu sitede yapacağınız alışveriş işlemleri 256bit SSL ile korunmaktadır.
           </span>
@@ -210,7 +210,7 @@ export default function OrderStep2Page() {
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8 py-8">
         {/* Sol: Adres seçimi ve ekleme */}
         <div className="flex-1 flex flex-col gap-6">
-          <div className="bg-white rounded-2xl shadow p-6 mb-0">
+          <div className="bg-card rounded-2xl shadow p-6 mb-0">
             <div className="flex gap-2 mb-6">
               <div className="flex-1 text-center font-bold text-lg border-b-4 border-yellow-400 pb-2">TESLİMAT BİLGİLERİ</div>
             </div>
@@ -218,20 +218,20 @@ export default function OrderStep2Page() {
             {addresses.length > 0 ? (
               <ul className="space-y-2 mb-6">
                 {addresses.map(addr => (
-                  <li key={addr.id} className={`border rounded p-4 cursor-pointer ${selectedAddressId === addr.id ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 bg-white'}`} onClick={() => setSelectedAddressId(addr.id)}>
+                  <li key={addr.id} className={`border rounded p-4 cursor-pointer ${selectedAddressId === addr.id ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 dark:border-border bg-card'}`} onClick={() => setSelectedAddressId(addr.id)}>
                     <div className="flex justify-between items-center">
                       <div>
                         <div className="font-semibold">{addr.title} - {addr.name} {addr.surname}</div>
-                        <div className="text-xs text-gray-500">{addr.address}, {addr.district}, {addr.city}, {addr.country}</div>
-                        <div className="text-xs text-gray-500">Tel: {addr.mobile} {addr.phone && `/ ${addr.phone}`}</div>
-                        <div className="text-xs text-gray-500">Fatura Tipi: {addr.type} {addr.tc && `| TC: ${addr.tc}`}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{addr.address}, {addr.district}, {addr.city}, {addr.country}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Tel: {addr.mobile} {addr.phone && `/ ${addr.phone}`}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Fatura Tipi: {addr.type} {addr.tc && `| TC: ${addr.tc}`}</div>
                       </div>
                       {selectedAddressId === addr.id && <span className="ml-4 px-3 py-1 bg-yellow-400 text-white rounded text-xs font-bold">SEÇİLİ</span>}
                     </div>
                   </li>
                 ))}
               </ul>
-            ) : <div className="text-sm text-gray-500 mb-4">Kayıtlı adresiniz yok. Aşağıdan ekleyebilirsiniz.</div>}
+            ) : <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">Kayıtlı adresiniz yok. Aşağıdan ekleyebilirsiniz.</div>}
             <h3 className="font-bold text-lg mb-2">Yeni Adres Ekle</h3>
             {!showForm && (
               <button type="button" className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded mb-4" onClick={() => setShowForm(true)}>
@@ -274,7 +274,7 @@ export default function OrderStep2Page() {
                 )}
                 <div className="col-span-3 flex justify-end mt-2 gap-2">
                   <button type="submit" className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-8 rounded" disabled={loading}>{loading ? 'Kaydediliyor...' : 'KAYDET'}</button>
-                  <button type="button" onClick={() => { setShowForm(false); setForm(initialForm); }} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-8 rounded">İptal</button>
+                  <button type="button" onClick={() => { setShowForm(false); setForm(initialForm); }} className="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 font-bold py-2 px-8 rounded">İptal</button>
               </div>
             </form>
             )}
@@ -282,7 +282,7 @@ export default function OrderStep2Page() {
             {error && <div className="mb-2 text-red-600 font-semibold">{error}</div>}
           </div>
           {/* Kargo ve not alanı aynı kalabilir */}
-          <div className="bg-white rounded-2xl shadow p-6 mb-0 mt-6">
+          <div className="bg-card rounded-2xl shadow p-6 mb-0 mt-6">
             <div className="font-bold mb-2">DEĞERLİ MÜŞTERİLERİMİZ, 16:00 ÖNCESİ SİPARİŞLERİNİZ AYNI GÜN HIZLA KARGODA! GÜVENLİ, HIZLI VE SORUNSUZ ALIŞVERİŞ İÇİN BURADAYIZ, ÇÜNKÜ MEMNUNİYETİNİZ BİZİM ÖNCELİĞİMİZ!</div>
             <div className="text-xs text-yellow-700 mb-2">LÜTFEN SİPARİŞ NOTUNA ŞASİ NUMARANIZI YAZARAK ÜRÜNLERİN KONTROL EDİLEREK GÖNDERİLMESİNİ SAĞLAYINIZ.</div>
             <div className="flex flex-col md:flex-row gap-4 mb-4">
@@ -290,7 +290,7 @@ export default function OrderStep2Page() {
                 <input type="radio" checked readOnly />
                 <img src="/araskargo.png" alt="Aras Kargo" className="h-6" />
                 <span>Aras Kargo</span>
-                <span className="ml-auto text-xs text-gray-500">ÜCRETSİZ</span>
+                <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">ÜCRETSİZ</span>
               </label>
             </div>
             <div className="mb-4">
@@ -303,7 +303,7 @@ export default function OrderStep2Page() {
         </div>
         {/* Sağ: Sepet Özeti */}
         <div className="w-full lg:w-96 flex-shrink-0">
-          <div className="bg-white rounded-2xl shadow p-6 mb-0">
+          <div className="bg-card rounded-2xl shadow p-6 mb-0">
             <div className="font-bold text-lg mb-4 border-b pb-2">SEPET ÖZETİ</div>
             {cart.map(item => (
               <div key={item.id} className="flex justify-between items-center border-b py-2">
@@ -332,7 +332,7 @@ export default function OrderStep2Page() {
               <span>Toplam</span>
               <span>
                 {total.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
-                {kargoUcreti > 0 ? <span className="text-xs text-gray-500 ml-1">(Kargo Fiyatı Dahil)</span> : null}
+                {kargoUcreti > 0 ? <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">(Kargo Fiyatı Dahil)</span> : null}
               </span>
             </div>
             {/* Banka hesaplarını API'den çekme kodlarını ve state'lerini kaldırıyorum */}

@@ -57,12 +57,12 @@ export default function AdminGoogleMapsPage() {
     <AdminLayout title="Google Maps">
     <div className="max-w-xl mx-auto">
       <h2 className="text-2xl font-bold mb-2 text-foreground">Google Maps Puanı</h2>
-      <p className="text-gray-500 text-sm mb-6">
+      <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
         Ürün sayfalarında gösterilen yıldız ve yorum sayısı Google Maps&apos;ten alınır.
         Google işletme sayfanızdaki puan ve yorum sayısını buraya girin (ara sıra güncelleyin).
       </p>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-6 space-y-4 border border-gray-100">
+      <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow p-6 space-y-4 border border-gray-100 dark:border-border">
         <div>
           <label className="block text-sm font-semibold mb-1">Yıldız puanı (0–5)</label>
           <input
@@ -105,8 +105,8 @@ export default function AdminGoogleMapsPage() {
           />
         </div>
 
-        <div className="bg-gray-50 rounded-lg p-4 border">
-          <div className="text-xs text-gray-500 mb-2">Önizleme (ürün sayfasında böyle görünür)</div>
+        <div className="bg-gray-50 dark:bg-background rounded-lg p-4 border">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Önizleme (ürün sayfasında böyle görünür)</div>
           <GoogleMapsRating
             rating={form.rating}
             reviewCount={form.review_count}

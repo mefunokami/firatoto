@@ -74,16 +74,16 @@ export default function BlogDetailPage() {
         <meta name="description" content={blog.content.slice(0, 160)} />
       </Helmet>
       {/* Kategoriye dönüş */}
-      <button onClick={() => navigate('/blog')} className="mb-6 text-gray-600 hover:text-yellow-500 font-semibold flex items-center gap-2">
+      <button onClick={() => navigate('/blog')} className="mb-6 text-gray-600 dark:text-gray-400 hover:text-yellow-500 font-semibold flex items-center gap-2">
         <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
         Tüm Bloglar
       </button>
       {blog.image_url && (
         <img src={blog.image_url} alt={blog.title} className="w-full h-64 object-cover rounded-2xl mb-6" />
       )}
-      <div className="text-xs text-gray-500 mb-2">{new Date(blog.created_at).toLocaleDateString('tr-TR')}</div>
-      <h1 className="text-2xl font-bold mb-4 text-gray-900">{blog.title}</h1>
-      <div className="text-gray-800 whitespace-pre-line text-lg leading-8 mb-6">{blog.content}</div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">{new Date(blog.created_at).toLocaleDateString('tr-TR')}</div>
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-foreground">{blog.title}</h1>
+      <div className="text-gray-800 dark:text-gray-200 whitespace-pre-line text-lg leading-8 mb-6">{blog.content}</div>
       {/* WhatsApp'a yönlendirme ve ilgili ürünler butonu */}
       <div className="flex flex-wrap gap-3 mb-8">
         <a
@@ -106,8 +106,8 @@ export default function BlogDetailPage() {
       </div>
       {/* Benzer bloglar kutusu */}
       {similarBlogs.length > 0 && (
-        <div className="bg-gray-50 border border-yellow-200 rounded-lg p-4 mb-8">
-          <div className="font-bold text-lg mb-2 text-gray-900">Benzer Bloglar</div>
+        <div className="bg-gray-50 dark:bg-background border border-yellow-200 rounded-lg p-4 mb-8">
+          <div className="font-bold text-lg mb-2 text-gray-900 dark:text-foreground">Benzer Bloglar</div>
           <div className="flex flex-col gap-2">
             {similarBlogs.map(b => (
               <button
@@ -116,7 +116,7 @@ export default function BlogDetailPage() {
                 className="flex items-center gap-3 p-2 rounded hover:bg-yellow-50 transition text-left"
               >
                 {b.image_url && <img src={b.image_url} alt={b.title} className="w-16 h-12 object-cover rounded" />}
-                <span className="font-semibold text-gray-800 line-clamp-2">{b.title}</span>
+                <span className="font-semibold text-gray-800 dark:text-gray-200 line-clamp-2">{b.title}</span>
               </button>
             ))}
           </div>

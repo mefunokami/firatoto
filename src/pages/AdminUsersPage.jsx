@@ -22,7 +22,7 @@ export default function AdminUsersPage() {
     <AdminLayout title="Kullanıcılar">
     <div className="max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-foreground border-b-2 border-yellow-400 pb-2 inline-block">Kullanıcılar</h2>
-      <div className="bg-white rounded shadow p-6">
+      <div className="bg-card rounded shadow p-6">
         {loading ? (
           <div>Yükleniyor...</div>
         ) : error ? (

@@ -6,11 +6,12 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, GripVertical, Pencil, X, Image as ImageIcon, Tag } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import MediaLibrary from '@/components/MediaLibrary';
 import AdminLayout from '@/components/AdminLayout';
 
 const SABIT_MARKALAR = [
-  "OPEL", "CHEVROLET", "BMW", "MERCEDES-BENZ", "VOLKSWAGEN", "AUDİ", "TESLA", "SEAT", "SKODA", "PEUGEOT", "CİTROEN", "FORD",
-  "GENEL MARKALAR"
+  "OPEL", "CHEVROLET", "BMW", "MERCEDES-BENZ", "VOLKSWAGEN", "AUDİ", "TESLA", "SEAT", "SKODA", "PEUGEOT", "CİTROEN", "FORD", "PORSCHE", "MİNİ COOPER"
 ];
 
 /* ─── Düzenleme Modalı ─────────────────────────────────────────────────────── */
@@ -19,6 +20,7 @@ function EditModal({ model, onClose, onSave }) {
   const [imageUrl, setImageUrl] = useState(model.image_url || '');
   const [saving, setSaving] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [mediaOpen, setMediaOpen] = useState(false);
 
   // İlk inputa otomatik focus
   const nameRef = useRef(null);
@@ -68,23 +70,23 @@ function EditModal({ model, onClose, onSave }) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.92, y: 24 }}
         transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
+        className="bg-card rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100 dark:border-border">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-yellow-400/20 flex items-center justify-center">
               <Pencil className="h-4 w-4 text-yellow-600" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-900">Modeli Düzenle</h2>
+              <h2 className="text-base font-bold text-gray-900 dark:text-foreground">Modeli Düzenle</h2>
               <p className="text-xs text-gray-400">Ad ve resim güncellenebilir</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 dark:text-gray-300 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
@@ -94,7 +96,7 @@ function EditModal({ model, onClose, onSave }) {
         <div className="px-6 py-5 space-y-5">
           {/* Model Adı */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1.5 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 flex items-center gap-1">
               <Tag className="h-3 w-3" /> Model Adı
             </label>
             <Input
@@ -109,20 +111,39 @@ function EditModal({ model, onClose, onSave }) {
 
           {/* Resim URL */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1.5 flex items-center gap-1">
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 flex items-center gap-1">
               <ImageIcon className="h-3 w-3" /> Resim URL'si
             </label>
-            <Input
-              value={imageUrl}
-              onChange={e => { setImageUrl(e.target.value); setImgError(false); }}
-              placeholder="https://..."
-              type="url"
-              className="w-full h-10"
-            />
+            <div className="flex gap-2">
+              <Input
+                value={imageUrl}
+                onChange={e => { setImageUrl(e.target.value); setImgError(false); }}
+                placeholder="https://..."
+                type="url"
+                className="w-full h-10 flex-1"
+              />
+              <Button type="button" variant="secondary" onClick={() => setMediaOpen(true)} className="h-10">
+                <ImageIcon className="w-4 h-4 mr-2" /> Seç
+              </Button>
+            </div>
           </div>
 
+          <Dialog open={mediaOpen} onOpenChange={setMediaOpen}>
+            <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden" style={{ zIndex: 100 }}>
+              <MediaLibrary 
+                isModal={true} 
+                onClose={() => setMediaOpen(false)}
+                onSelect={(url) => {
+                  setImageUrl(url);
+                  setImgError(false);
+                  setMediaOpen(false);
+                }} 
+              />
+            </DialogContent>
+          </Dialog>
+
           {/* Resim Önizlemesi */}
-          <div className="rounded-xl border-2 border-dashed border-gray-100 bg-gray-50 flex items-center justify-center overflow-hidden"
+          <div className="rounded-xl border-2 border-dashed border-gray-100 dark:border-border bg-gray-50 dark:bg-background flex items-center justify-center overflow-hidden"
             style={{ minHeight: 110 }}>
             {imageUrl && !imgError ? (
               <img
@@ -173,15 +194,33 @@ function EditModal({ model, onClose, onSave }) {
 
 /* ─── Ana Sayfa ─────────────────────────────────────────────────────────────── */
 const ModelManagementPage = () => {
-  const [selectedBrand, setSelectedBrand] = useState('');
+  const [dynamicBrands, setDynamicBrands] = useState([...SABIT_MARKALAR]);
+  const [selectedBrand, setSelectedBrand] = useState(SABIT_MARKALAR[0]);
+  const [newTabName, setNewTabName] = useState('');
+  const [isAddingTab, setIsAddingTab] = useState(false);
   const [models, setModels] = useState([]);
   const [newModel, setNewModel] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [editingModel, setEditingModel] = useState(null); // popup için
+  const [mediaOpen, setMediaOpen] = useState(false);
+  const [editingModel, setEditingModel] = useState(null);
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
+
+  useEffect(() => {
+    fetch('/api/brand_models.php?action=brands')
+      .then(res => res.json())
+      .then(data => {
+        // Merge fetched brands with SABIT_MARKALAR, ignoring GENEL MARKALAR
+        if (Array.isArray(data)) {
+          const fetched = data.filter(b => b && b !== 'GENEL MARKALAR');
+          const merged = Array.from(new Set([...SABIT_MARKALAR, ...fetched]));
+          setDynamicBrands(merged);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (selectedBrand) {
@@ -314,8 +353,8 @@ const ModelManagementPage = () => {
             </CardHeader>
             <CardContent>
               {/* Marka Seçimi */}
-              <div className="flex flex-wrap gap-2 mb-6 justify-center">
-                {SABIT_MARKALAR.map(brand => (
+              <div className="flex flex-wrap gap-2 mb-6 justify-center items-center">
+                {dynamicBrands.map(brand => (
                   <Button
                     key={brand}
                     variant={selectedBrand === brand ? 'default' : 'outline'}
@@ -325,12 +364,60 @@ const ModelManagementPage = () => {
                     {brand}
                   </Button>
                 ))}
+                
+                {isAddingTab ? (
+                  <form 
+                    onSubmit={e => {
+                      e.preventDefault();
+                      if (newTabName.trim()) {
+                        const brandName = newTabName.trim().toUpperCase();
+                        if (!dynamicBrands.includes(brandName)) {
+                          setDynamicBrands([...dynamicBrands, brandName]);
+                        }
+                        setSelectedBrand(brandName);
+                        setNewTabName('');
+                        setIsAddingTab(false);
+                      }
+                    }}
+                    className="flex items-center gap-1"
+                  >
+                    <Input 
+                      value={newTabName} 
+                      onChange={e => setNewTabName(e.target.value)} 
+                      placeholder="Marka Adı..." 
+                      className="w-32 h-9 text-sm uppercase"
+                      autoFocus
+                    />
+                    <Button type="submit" size="sm" className="h-9 px-2">Ekle</Button>
+                    <Button type="button" size="sm" variant="ghost" className="h-9 px-2 text-gray-400 hover:text-gray-600 dark:text-gray-400" onClick={() => setIsAddingTab(false)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </form>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="border-dashed text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:text-foreground"
+                    onClick={() => setIsAddingTab(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-1" /> Yeni Marka
+                  </Button>
+                )}
+
+                <div className="w-px h-6 bg-gray-200 mx-2 hidden md:block"></div>
+
+                <Button
+                  variant={selectedBrand === 'GENEL MARKALAR' ? 'default' : 'outline'}
+                  className={selectedBrand === 'GENEL MARKALAR' ? 'bg-primary text-white' : 'border-yellow-500 text-yellow-600'}
+                  onClick={() => setSelectedBrand('GENEL MARKALAR')}
+                >
+                  GENEL MARKALAR
+                </Button>
               </div>
 
               {selectedBrand && (
                 <>
                   {/* Yeni Model Ekle Formu */}
-                  <form onSubmit={handleAddModel} className="flex flex-col gap-2 mb-6">
+                  <form onSubmit={handleAddModel} className="flex flex-col gap-3 mb-6">
                     <div className="flex gap-2">
                       <Input
                         value={newModel}
@@ -343,13 +430,35 @@ const ModelManagementPage = () => {
                         <Plus className="h-5 w-5" />
                       </Button>
                     </div>
-                    <Input
-                      value={newImageUrl}
-                      onChange={e => setNewImageUrl(e.target.value)}
-                      placeholder="Resim URL'si (opsiyonel)"
-                      disabled={isAdding}
-                      type="url"
-                    />
+                    
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">Resim URL (Opsiyonel)</label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={newImageUrl}
+                          onChange={e => setNewImageUrl(e.target.value)}
+                          placeholder="https://... (Görsel linki)"
+                          className="bg-gray-50 dark:bg-background flex-1"
+                        />
+                        <Button type="button" variant="secondary" onClick={() => setMediaOpen(true)}>
+                          <ImageIcon className="w-4 h-4 mr-2" /> Seç
+                        </Button>
+                      </div>
+                    </div>
+
+                    <Dialog open={mediaOpen} onOpenChange={setMediaOpen}>
+                      <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden" style={{ zIndex: 100 }}>
+                        <MediaLibrary 
+                          isModal={true} 
+                          onClose={() => setMediaOpen(false)}
+                          onSelect={(url) => {
+                            setNewImageUrl(url);
+                            setMediaOpen(false);
+                          }} 
+                        />
+                      </DialogContent>
+                    </Dialog>
+
                     {newImageUrl && (
                       <img src={newImageUrl} alt="Önizleme" className="h-14 w-auto object-contain rounded border mt-1" />
                     )}
@@ -370,7 +479,7 @@ const ModelManagementPage = () => {
                       models.map((m, index) => (
                         <div
                           key={m.id}
-                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-white shadow-sm border border-gray-100 hover:border-yellow-200 hover:bg-yellow-50/30 transition-colors cursor-grab active:cursor-grabbing select-none group"
+                          className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-card shadow-sm border border-gray-100 dark:border-border hover:border-yellow-200 hover:bg-yellow-50/30 transition-colors cursor-grab active:cursor-grabbing select-none group"
                           draggable
                           onDragStart={() => handleDragStart(index)}
                           onDragEnter={() => handleDragEnter(index)}
@@ -391,7 +500,7 @@ const ModelManagementPage = () => {
                           </div>
 
                           {/* Model Adı */}
-                          <span className="font-medium text-sm text-gray-800 flex-1 truncate">{m.model}</span>
+                          <span className="font-medium text-sm text-gray-800 dark:text-gray-200 flex-1 truncate">{m.model}</span>
 
                           {/* Düzenle Butonu */}
                           <button

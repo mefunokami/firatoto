@@ -91,12 +91,12 @@ export default function AdminWeeklyDealPage() {
     <AdminLayout title="Haftanın Fırsatı">
       <div className="max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold mb-2 text-foreground">Haftanın Fırsatı Yönetimi</h2>
-        <p className="text-gray-500 mb-6 text-sm">
+        <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">
           Anasayfada "Haftanın Fırsatı" bölümünde gösterilecek ürünleri buradan yönetin. Ürün ara ve ekle, veya mevcut ürünleri listeden çıkar.
         </p>
 
         {/* Ürün Arama */}
-        <div className="bg-white rounded-xl shadow p-6 mb-6 border border-gray-100">
+        <div className="bg-card rounded-xl shadow p-6 mb-6 border border-gray-100 dark:border-border">
           <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
             <Search className="w-5 h-5 text-yellow-500" />
             Ürün Ara ve Ekle
@@ -111,7 +111,7 @@ export default function AdminWeeklyDealPage() {
               className="w-full border rounded-lg pl-9 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 outline-none"
             />
             {searchQuery && (
-              <button onClick={() => { setSearchQuery(''); setSearchResults([]); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setSearchQuery(''); setSearchResults([]); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                 <X className="h-4 w-4" />
               </button>
             )}
@@ -126,18 +126,18 @@ export default function AdminWeeklyDealPage() {
                 <div className="text-center py-4 text-gray-400 text-sm">Sonuç bulunamadı veya tüm eşleşenler zaten eklenmiş.</div>
               ) : (
                 searchResults.map(product => (
-                  <div key={product.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition">
+                  <div key={product.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 dark:bg-background transition">
                     <img
                       src={product.imageUrl || product.image_url}
                       alt={product.name}
-                      className="w-12 h-10 object-contain rounded border bg-gray-50 flex-shrink-0"
+                      className="w-12 h-10 object-contain rounded border bg-gray-50 dark:bg-background flex-shrink-0"
                       onError={e => { e.target.style.display = 'none'; }}
                     />
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm truncate">{product.name}</div>
                       <div className="text-xs text-gray-400">{product.brand} {product.model ? `· ${product.model}` : ''}</div>
                     </div>
-                    <div className="text-sm font-bold text-gray-700 flex-shrink-0">
+                    <div className="text-sm font-bold text-gray-700 dark:text-gray-300 flex-shrink-0">
                       {(!product.price || parseFloat(product.price) === 0)
                         ? 'Fiyatı Sorunuz'
                         : Number(product.price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
@@ -156,7 +156,7 @@ export default function AdminWeeklyDealPage() {
         </div>
 
         {/* Mevcut Haftanın Fırsatı Ürünleri */}
-        <div className="bg-white rounded-xl shadow p-6 border border-gray-100">
+        <div className="bg-card rounded-xl shadow p-6 border border-gray-100 dark:border-border">
           <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500 fill-yellow-400" />
             Mevcut Haftanın Fırsatı Ürünleri ({weeklyProducts.length})
@@ -176,7 +176,7 @@ export default function AdminWeeklyDealPage() {
                   <img
                     src={product.imageUrl || product.image_url}
                     alt={product.name}
-                    className="w-16 h-12 object-contain rounded border bg-gray-50 flex-shrink-0"
+                    className="w-16 h-12 object-contain rounded border bg-gray-50 dark:bg-background flex-shrink-0"
                     onError={e => { e.target.style.display = 'none'; }}
                   />
                   <div className="flex-1 min-w-0">

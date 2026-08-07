@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from 'react-router-dom';
+import { Calendar, ArrowRight, Clock, BookOpen } from 'lucide-react';
 // import Header from '../components/Header';
-// import Footer from '../components/Footer';
 
 function slugify(str) {
   return (str || "")
@@ -61,53 +61,122 @@ const BlogPage = () => {
         <link rel="canonical" href="https://firatotoyedekparca.com/blog" />
       </Helmet>
       {/* <Header /> */}
-      <div className="max-w-5xl mx-auto py-10 px-2 md:px-4">
-        {/* Öne Çıkanlar Kutusu */}
-        {blogs.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-2xl font-bold mb-4 text-center text-yellow-700">Araç Marka Rehberleri</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {blogs.slice(0, 4).map(blog => (
-                <div key={blog.id} className="bg-white rounded-xl shadow border p-2 flex flex-col items-center hover:shadow-lg transition cursor-pointer" onClick={() => navigate(`/blog/${blog.slug ? blog.slug : slugify(blog.title)}`)}>
-                  {blog.image_url && <img src={blog.image_url} alt={blog.title} className="w-full h-24 object-cover rounded mb-2" />}
-                  <div className="font-semibold text-base text-gray-900 text-center line-clamp-2 mb-1">{blog.title}</div>
-                </div>
-              ))}
+      <div className="bg-gray-50 dark:bg-background min-h-screen pb-20">
+        {/* Hero Section */}
+        <div className="bg-[#18181b] relative overflow-hidden pt-16 pb-24 md:pt-24 md:pb-32">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent z-10"></div>
+            <div className="w-full h-full opacity-10" style={{ backgroundImage: 'linear-gradient(#374151 1px, transparent 1px), linear-gradient(90deg, #374151 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+          </div>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-yellow-500 font-semibold text-sm mb-6">
+                <BookOpen className="w-4 h-4" />
+                <span>Fırat Oto Blog</span>
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight mb-6">
+                Otomotiv <span className="text-[#ffc107]">Rehberiniz</span>
+              </h1>
+              <p className="text-lg text-gray-400 leading-relaxed max-w-xl">
+                Otomotiv sektörü, yedek parça seçim rehberleri, bakım ipuçları ve güncel haberleri uzman ekibimizin kaleminden okuyun.
+              </p>
             </div>
           </div>
-        )}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold mb-2 text-gray-900">Blog Yazıları</h1>
-          <div className="w-16 h-1 bg-yellow-500 rounded mx-auto mb-2"></div>
-          <p className="text-gray-600 text-base">Otomotiv, yedek parça ve güncel haberler hakkında yazılarımızı burada bulabilirsiniz.</p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loading && <div className="col-span-full text-gray-400">Yükleniyor...</div>}
-          {!loading && blogs.length === 0 && <div className="col-span-full text-gray-400">Henüz blog yazısı yok.</div>}
-          {blogs.map((blog, idx) => (
-            <div key={blog.id} className="bg-white rounded-2xl shadow-lg border border-gray-100 flex flex-col overflow-hidden h-full">
-              {blog.image_url && (
-                <img src={blog.image_url} alt="Blog görseli" className="w-full h-48 object-cover" />
-              )}
-              <div className="flex-1 flex flex-col p-5">
-                <div className="text-xs text-gray-500 mb-1">{new Date(blog.created_at).toLocaleDateString('tr-TR')}</div>
-                <div className="font-bold text-lg mb-2 text-gray-900">{blog.title}</div>
-                {openIndex === idx ? (
-                  <>
-                    <div className="text-gray-700 whitespace-pre-line mb-4 text-base">{blog.content}</div>
-                    <button onClick={() => setOpenIndex(null)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded transition">Kapat</button>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-gray-700 whitespace-pre-line mb-4 text-base line-clamp-4">{blog.content.length > 250 ? blog.content.slice(0, 250) + '...' : blog.content}</div>
-                    {blog.content.length > 250 && (
-                      <button onClick={() => navigate(`/blog/${blog.slug ? blog.slug : slugify(blog.title)}`)} className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded transition">Daha Fazla Görüntüle</button>
-                    )}
-                  </>
-                )}
-              </div>
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-30">
+          
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-card rounded-2xl shadow-xl">
+              <div className="w-12 h-12 border-4 border-yellow-200 border-t-[#ffc107] rounded-full animate-spin mb-4"></div>
+              <p className="text-gray-500 dark:text-gray-400 font-medium">Yazılar Yükleniyor...</p>
             </div>
-          ))}
+          )}
+
+          {!loading && blogs.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-card rounded-2xl shadow-xl border border-gray-100 dark:border-border">
+              <BookOpen className="w-16 h-16 text-gray-300 mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">Henüz Yazı Yok</h3>
+              <p className="text-gray-500 dark:text-gray-400">Yakında yepyeni içeriklerle karşınızda olacağız.</p>
+            </div>
+          )}
+
+          {!loading && blogs.length > 0 && (
+            <div className="space-y-12">
+              {/* Featured Blog (First Item) */}
+              <div 
+                onClick={() => navigate(`/blog/${blogs[0].slug ? blogs[0].slug : slugify(blogs[0].title)}`)}
+                className="bg-white dark:bg-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 dark:border-border overflow-hidden flex flex-col lg:flex-row group cursor-pointer hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)] transition-all duration-300"
+              >
+                <div className="lg:w-1/2 relative overflow-hidden h-64 lg:h-auto">
+                  {blogs[0].image_url ? (
+                    <img src={blogs[0].image_url} alt={blogs[0].title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 dark:bg-muted flex items-center justify-center">
+                      <BookOpen className="w-12 h-12 text-gray-400" />
+                    </div>
+                  )}
+                  <div className="absolute top-4 left-4 bg-[#ffc107] text-black text-xs font-extrabold px-3 py-1.5 rounded-lg shadow-sm">
+                    Öne Çıkan
+                  </div>
+                </div>
+                <div className="lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-gray-500 dark:text-gray-400 mb-4">
+                    <Calendar className="w-4 h-4 text-yellow-500" />
+                    {new Date(blogs[0].created_at).toLocaleDateString('tr-TR')}
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-foreground mb-4 group-hover:text-yellow-600 transition-colors line-clamp-2">
+                    {blogs[0].title}
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-8 line-clamp-3">
+                    {blogs[0].content}
+                  </p>
+                  <div className="mt-auto flex items-center gap-2 text-yellow-600 font-bold text-sm uppercase tracking-wider group-hover:gap-4 transition-all">
+                    Yazıyı Oku <ArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid for Rest of Blogs */}
+              {blogs.length > 1 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {blogs.slice(1).map((blog) => (
+                    <div 
+                      key={blog.id} 
+                      onClick={() => navigate(`/blog/${blog.slug ? blog.slug : slugify(blog.title)}`)}
+                      className="bg-white dark:bg-card rounded-2xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 dark:border-border overflow-hidden flex flex-col group cursor-pointer hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300"
+                    >
+                      <div className="relative h-56 overflow-hidden">
+                        {blog.image_url ? (
+                          <img src={blog.image_url} alt={blog.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        ) : (
+                          <div className="w-full h-full bg-gray-100 dark:bg-muted flex items-center justify-center">
+                            <BookOpen className="w-8 h-8 text-gray-300" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-6 md:p-8 flex-1 flex flex-col">
+                        <div className="flex items-center gap-2 text-xs font-semibold text-gray-400 mb-3">
+                          <Clock className="w-3.5 h-3.5 text-yellow-500" />
+                          {new Date(blog.created_at).toLocaleDateString('tr-TR')}
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-3 group-hover:text-yellow-600 transition-colors line-clamp-2">
+                          {blog.title}
+                        </h3>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-6 line-clamp-3">
+                          {blog.content}
+                        </p>
+                        <div className="mt-auto pt-4 border-t border-gray-100 dark:border-border flex items-center justify-between text-sm">
+                          <span className="font-bold text-gray-900 dark:text-foreground group-hover:text-yellow-600 transition-colors">İncele</span>
+                          <ArrowRight className="w-4 h-4 text-yellow-500 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div style={{display:'none'}}>
           BMW yedek parça, Mercedes yedek parça, Volkswagen yedek parça, Audi yedek parça, Skoda yedek parça, Seat yedek parça, Mini Cooper parça, orijinal yedek parça, çıkma parça, motor parçası, oto elektrik, oto mekanik, uygun fiyatlı yedek parça.

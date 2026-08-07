@@ -74,10 +74,10 @@ const UserLoginPage = ({ open, setOpen, setUser }) => {
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md p-0 bg-white rounded-xl shadow-lg border-4 border-white p-2 sm:p-6">
+        <DialogContent className="max-w-md p-0 bg-card rounded-xl shadow-lg border-4 border-white dark:border-border/50 p-2 sm:p-6">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold mb-1 text-gray-900">HOŞ GELDİNİZ</DialogTitle>
-            <DialogDescription className="text-gray-600 text-base">Hızlı ve güvenli alışverişe giriş yapın!</DialogDescription>
+            <DialogTitle className="text-2xl font-bold mb-1 text-gray-900 dark:text-foreground">HOŞ GELDİNİZ</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400 text-base">Hızlı ve güvenli alışverişe giriş yapın!</DialogDescription>
           </DialogHeader>
           <div className="p-8 pt-0">
             {success && <div className="mb-4 text-green-600 font-semibold">Giriş başarılı!</div>}
@@ -106,7 +106,7 @@ const UserLoginPage = ({ open, setOpen, setUser }) => {
                   <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} className="accent-yellow-500" />
                   Beni Hatırla
                 </label>
-                <button type="button" className="text-gray-600 hover:text-yellow-600 underline" tabIndex={-1} onClick={() => { setOpen(false); navigate('/forgot-password'); }}>
+                <button type="button" className="text-gray-600 dark:text-gray-400 hover:text-yellow-600 underline" tabIndex={-1} onClick={() => { setOpen(false); navigate('/forgot-password'); }}>
                   Şifremi Unuttum
                 </button>
               </div>
@@ -120,8 +120,8 @@ const UserLoginPage = ({ open, setOpen, setUser }) => {
             </form>
             <div className="my-8 border-t" />
             <div className="mb-2 text-center">
-              <span className="font-bold text-lg text-gray-900">HENÜZ ÜYE DEĞİL MİSİNİZ?</span>
-              <div className="text-gray-600 text-base mt-1 mb-4">Kolayca üye olabilirsiniz.</div>
+              <span className="font-bold text-lg text-gray-900 dark:text-foreground">HENÜZ ÜYE DEĞİL MİSİNİZ?</span>
+              <div className="text-gray-600 dark:text-gray-400 text-base mt-1 mb-4">Kolayca üye olabilirsiniz.</div>
               <button
                 className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 rounded text-lg transition"
                 onClick={() => { setOpen(false); navigate('/register'); }}
@@ -132,7 +132,7 @@ const UserLoginPage = ({ open, setOpen, setUser }) => {
             </div>
           </div>
           <DialogClose asChild>
-            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">×</button>
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:text-gray-300 text-2xl">×</button>
           </DialogClose>
         </DialogContent>
       </Dialog>

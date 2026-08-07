@@ -20,7 +20,7 @@ export default function FavoritesPage() {
     <div className="container mx-auto py-8">
       <h2 className="text-2xl font-bold mb-6 border-b-2 border-yellow-400 inline-block">FAVORİ ÜRÜNLERİM</h2>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border rounded shadow">
+        <table className="min-w-full bg-card border rounded shadow">
           <thead>
             <tr className="bg-gray-100">
               <th className="p-3 text-left">Ürün Adı</th>

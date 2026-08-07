@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { FaHeart } from 'react-icons/fa';
+import { ShoppingCart, Flame } from 'lucide-react';
 import { CartContext } from '@/lib/CartContext.jsx';
 import { toast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const WEEKLY_DEAL_API = '/api/products.php?weekly_deal=1';
 
@@ -17,25 +19,36 @@ export default function WeeklyDealSlider({ large }) {
   useEffect(() => {
     const fetchProducts = () => {
       fetch(WEEKLY_DEAL_API)
-        .then(res => res.json())
-        .then(setProducts);
+        .then(res => {
+          if (!res.ok) throw new Error('API bulunamadı');
+          return res.json();
+        })
+        .then(data => {
+          if (data && data.length > 0) {
+            setProducts(data);
+          } else {
+            throw new Error('Veri boş');
+          }
+        })
+        .catch(() => {
+          // Geliştirici ortamı için mock data (API çalışmadığında görünmesi için)
+          setProducts([
+            { id: 999, name: "BMW 5 SERİ F10 LCİ M TECH ÖN TAMPON SET", brand: "BMW", price: "6500.00", imageUrl: "https://placehold.co/400x400/png?text=BMW+Tampon" },
+            { id: 998, name: "Mercedes C Serisi W205 Far Seti", brand: "MERCEDES-BENZ", price: "12000.00", imageUrl: "https://placehold.co/400x400/png?text=Mercedes+Far" }
+          ]);
+        });
     };
     
     fetchProducts();
     const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
     setFavorites(favs);
     
-    // Her 30 saniyede bir güncelle
     const interval = setInterval(fetchProducts, 30000);
     
-    // Sayfa aktif olduğunda da güncelle
     const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchProducts();
-      }
+      if (!document.hidden) fetchProducts();
     };
     
-    // Haftanın fırsatı değiştiğinde güncelle
     const handleWeeklyDealUpdate = () => {
       fetchProducts();
     };
@@ -70,7 +83,6 @@ export default function WeeklyDealSlider({ large }) {
     }
   };
 
-  // Slider okları için fonksiyonlar (düzgün çalışacak şekilde)
   const prev = () => {
     if (products.length > 1) setCurrent(c => (c - 1 + products.length) % products.length);
   };
@@ -80,7 +92,8 @@ export default function WeeklyDealSlider({ large }) {
 
   const isFavorite = products[current] && favorites.some(f => f.id === products[current].id);
 
-  const toggleFavorite = () => {
+  const toggleFavorite = (e) => {
+    e.stopPropagation();
     if (!products[current]) return;
     let newFavs;
     if (isFavorite) {
@@ -94,85 +107,113 @@ export default function WeeklyDealSlider({ large }) {
     localStorage.setItem('favorites', JSON.stringify(newFavs));
   };
 
-  // slugify fonksiyonu
   function slugify(str) {
-    return (str || "")
-      .toString()
-      .toLowerCase()
-      .replace(/\s+/g, '_')
-      .replace(/ı/g, 'i')
-      .replace(/ç/g, 'c')
-      .replace(/ş/g, 's')
-      .replace(/ğ/g, 'g')
-      .replace(/ü/g, 'u')
-      .replace(/ö/g, 'o')
-      .replace(/[^a-z0-9_]/g, '')
-      .replace(/_+/g, '_')
-      .replace(/^_+|_+$/g, '');
+    return (str || "").toString().toLowerCase().replace(/\s+/g, '_').replace(/ı/g, 'i').replace(/ç/g, 'c').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/[^a-z0-9_]/g, '').replace(/_+/g, '_').replace(/^_+|_+$/g, '');
   }
 
+  const formatPrice = (price) => {
+    if (!price || parseFloat(price) === 0) return 'Fiyatı Sorunuz.';
+    return Number(price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' });
+  };
+
+  const currentProduct = products[current];
+
   return (
-    <div className="w-full max-w-sm mx-auto rounded-xl overflow-hidden shadow bg-white border border-gray-200" style={{height: 370}}>
-      {/* Üst Bar */}
-      <div className="relative bg-black h-14 flex items-center px-4">
-        <span className="absolute left-0 top-0 h-full flex items-center">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <path d="M8 0L0 16H8L4 32L24 8H16L20 0H8Z" fill="#FFC107"/>
+    <div className="w-full max-w-sm mx-auto rounded-2xl overflow-hidden shadow-soft hover:shadow-glow transition-shadow duration-300 bg-card border-none flex flex-col h-full">
+      
+      {/* Üst Bar (Sarı Siyah Tema) */}
+      <div className="relative bg-[#ffc107] h-12 sm:h-14 flex items-center justify-between px-3 flex-shrink-0 shadow-sm border-b border-yellow-500 overflow-hidden">
+        <div className="flex items-center gap-1.5 z-10">
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none" className="drop-shadow-sm opacity-50">
+            <path d="M8 0L0 16H8L4 32L24 8H16L20 0H8Z" fill="#000000"/>
           </svg>
-        </span>
-        <span className="flex-1 text-center text-white font-extrabold text-lg tracking-wide">HAFTANIN FIRSATI</span>
-        <span className="absolute right-2 flex gap-2">
-          <button onClick={prev} disabled={products.length <= 1} className={`text-white opacity-60 hover:opacity-100 p-1 ${products.length <= 1 ? 'cursor-not-allowed opacity-30' : ''}`}><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
-          <button onClick={next} disabled={products.length <= 1} className={`text-white opacity-60 hover:opacity-100 p-1 ${products.length <= 1 ? 'cursor-not-allowed opacity-30' : ''}`}><svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
-        </span>
+          <span className="text-black font-extrabold text-sm sm:text-base tracking-wide drop-shadow-sm whitespace-nowrap">
+            HAFTANIN FIRSATLARI
+          </span>
+        </div>
+        <div className="flex gap-0.5 z-10 shrink-0">
+          <button onClick={prev} disabled={products.length <= 1} className={`text-black hover:bg-black/10 rounded-full p-1 transition-colors ${products.length <= 1 ? 'opacity-30 cursor-not-allowed' : ''}`}>
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+          <button onClick={next} disabled={products.length <= 1} className={`text-black hover:bg-black/10 rounded-full p-1 transition-colors ${products.length <= 1 ? 'opacity-30 cursor-not-allowed' : ''}`}>
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+        </div>
       </div>
-      {/* Ürün Kartı */}
-      <div className="flex flex-col items-center px-4 pt-6 pb-4 overflow-hidden h-[310px]" onClick={() => {
-        const p = products[current];
-        if (p && p.brand && p.name) {
-          navigate(`/${slugify(p.brand)}/${slugify(p.name)}`);
-        } else if (p && p.id) {
-          navigate(`/product/${p.id}`);
-        }
-      }} style={{ cursor: 'pointer' }}>
-        <img
-          src={products[current].imageUrl}
-          alt={products[current].name}
-          className="object-contain w-[180px] h-[90px] mb-4"
-        />
-        <div className="flex items-center gap-2 mb-2 w-full justify-center">
-          <button
-            className="bg-white border border-gray-300 rounded px-4 py-1 text-gray-700 text-sm font-semibold shadow-sm hover:bg-gray-50"
-            onClick={() => {
-              addToCart({ ...products[current], quantity: 1, image: products[current].imageUrl });
-              toast({ description: 'Ürün sepete eklendi', duration: 3000 });
-            }}
+
+      {/* Ürün Alanı */}
+      <div 
+        className="flex flex-col flex-1 px-4 pt-3 pb-3 justify-between relative cursor-pointer group min-h-0" 
+        onClick={() => {
+          if (currentProduct.brand && currentProduct.name) {
+            navigate(`/${slugify(currentProduct.brand)}/${slugify(currentProduct.name)}`);
+          } else {
+            navigate(`/product/${currentProduct.id}`);
+          }
+        }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={current}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col h-full"
           >
-            Sepete Ekle
-          </button>
-          <button
-            className="bg-white border border-gray-300 rounded p-2 hover:bg-gray-50"
-            onClick={toggleFavorite}
-            aria-label="Favorilere ekle/çıkar"
-          >
-            <FaHeart 
-              size={18} 
-              fill={isFavorite ? '#facc15' : 'none'} 
-              stroke={isFavorite ? '#facc15' : '#6b7280'} 
-              strokeWidth={1.5}
-            />
-          </button>
-        </div>
-        <div
-          className="text-center text-gray-700 text-sm font-medium mb-2 leading-tight break-words max-w-[200px] line-clamp-2 overflow-hidden"
-          style={{display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis', minHeight: '2.5em', maxHeight: '2.5em'}}
-        >
-          {products[current].name}
-        </div>
-        <div className="text-center text-black text-xl font-bold mt-2">
-          {(!products[current].price || parseFloat(products[current].price) === 0) ? 'Fiyatı Sorunuz.' : Number(products[current].price).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
-        </div>
+            {/* Fotoğraf (Beyaz arka plan sorununu çözen container) */}
+            <div className="w-full h-[100px] sm:h-[120px] shrink-0 bg-white dark:bg-white/5 rounded-xl flex items-center justify-center p-2 mb-2 overflow-hidden relative">
+              <motion.img
+                src={currentProduct.imageUrl}
+                alt={currentProduct.name}
+                className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.4 }}
+              />
+              
+              {/* Favori Butonu */}
+              <button
+                className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-background/80 backdrop-blur-md rounded-full shadow-sm hover:bg-background border border-border transition-all z-10"
+                onClick={toggleFavorite}
+                title="Favorilere ekle/çıkar"
+              >
+                <FaHeart size={14} fill={isFavorite ? 'var(--primary)' : 'none'} stroke={isFavorite ? 'var(--primary)' : 'currentColor'} strokeWidth={isFavorite ? 0 : 30} color={isFavorite ? 'var(--primary)' : 'currentColor'} />
+              </button>
+            </div>
+
+            {/* Metin ve Bilgiler */}
+            <div className="flex-1 flex flex-col justify-center text-center min-h-0 overflow-hidden">
+              <span className="inline-block self-center px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-bold tracking-wider rounded-md mb-1 uppercase shrink-0">
+                  {currentProduct.brand || 'ÖZEL FIRSAT'}
+              </span>
+              <div
+                className="text-foreground text-xs font-semibold mb-1 leading-snug line-clamp-2 group-hover:text-primary transition-colors shrink-0"
+              >
+                {currentProduct.name}
+              </div>
+              <div className="text-foreground text-lg sm:text-xl font-extrabold tracking-tight mb-2 shrink-0">
+                {formatPrice(currentProduct.price)}
+              </div>
+            </div>
+            
+            {/* Sepete Ekle Butonu */}
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              animate={{ scale: [1, 1.02, 1], boxShadow: ["0px 0px 0px rgba(255,193,7,0)", "0px 0px 15px rgba(255,193,7,0.6)", "0px 0px 0px rgba(255,193,7,0)"] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+              className="w-full flex items-center justify-center gap-2 bg-[#ffc107] hover:bg-[#e0a800] text-black font-extrabold py-2 rounded-xl transition-all shadow-md active:scale-95 z-10 border border-yellow-500 shrink-0 text-sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart({ ...currentProduct, quantity: 1, image: currentProduct.imageUrl });
+                toast({ description: 'Ürün sepete eklendi', duration: 3000 });
+              }}
+            >
+              <ShoppingCart className="w-5 h-5" />
+              HEMEN AL
+            </motion.button>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
-} 
+}

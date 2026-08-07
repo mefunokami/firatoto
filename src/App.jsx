@@ -31,6 +31,7 @@ const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const BlogPage = lazy(() => import('./pages/BlogPage'));
+const CikmaParcaPage = lazy(() => import('./pages/CikmaParcaPage'));
 const AdminBlogPage = lazy(() => import('./pages/AdminBlogPage'));
 const BlogDetailPage = lazy(() => import('./pages/BlogDetailPage'));
 const AdminFaqPage = lazy(() => import('./pages/AdminFaqPage'));
@@ -80,6 +81,7 @@ function App() {
             <Route path="iletisim" element={<ContactInfoPage />} />
             <Route path="blog" element={<BlogPage />} />
             <Route path="blog/:slug" element={<BlogDetailPage />} />
+            <Route path="cikma-parcalar" element={<CikmaParcaPage />} />
           </Route>
           {/* /login route'u tamamen kaldırıldı */}
           <Route path="/admin" element={

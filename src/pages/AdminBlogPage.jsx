@@ -105,7 +105,7 @@ export default function AdminBlogPage() {
     <AdminLayout title="Blog">
     <div className="max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-foreground">Blog Yönetimi</h1>
-      <form onSubmit={handleSubmit} className="bg-white rounded shadow p-6 mb-8 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="bg-card rounded shadow p-6 mb-8 flex flex-col gap-4">
         <input
           name="title"
           value={form.title}
@@ -135,7 +135,7 @@ export default function AdminBlogPage() {
             {editId !== null ? 'Güncelle' : 'Ekle'}
           </button>
           {editId !== null && (
-            <button type="button" onClick={() => { setForm({ title: '', content: '', image_url: '' }); setEditId(null); }} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-6 py-2 rounded" disabled={saving}>İptal</button>
+            <button type="button" onClick={() => { setForm({ title: '', content: '', image_url: '' }); setEditId(null); }} className="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 font-bold px-6 py-2 rounded" disabled={saving}>İptal</button>
           )}
         </div>
         {error && <div className="text-red-600 font-semibold mt-2">{error}</div>}
@@ -144,11 +144,11 @@ export default function AdminBlogPage() {
         {loading && <div className="text-gray-400">Yükleniyor...</div>}
         {!loading && blogs.length === 0 && <div className="text-gray-400">Henüz blog yazısı yok.</div>}
         {blogs.map((blog, idx) => (
-          <div key={blog.id} className="bg-white rounded shadow p-4 relative">
+          <div key={blog.id} className="bg-card rounded shadow p-4 relative">
             <div className="font-bold text-lg mb-1">{blog.title}</div>
-            <div className="text-gray-600 text-sm mb-2">{new Date(blog.created_at).toLocaleString('tr-TR')}</div>
+            <div className="text-gray-600 dark:text-gray-400 text-sm mb-2">{new Date(blog.created_at).toLocaleString('tr-TR')}</div>
             {blog.image_url && <img src={blog.image_url} alt="Blog görseli" className="w-full h-40 object-cover rounded mb-2" />}
-            <div className="text-gray-700 whitespace-pre-line mb-2 line-clamp-4">{blog.content.length > 200 ? blog.content.slice(0, 200) + '...' : blog.content}</div>
+            <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-2 line-clamp-4">{blog.content.length > 200 ? blog.content.slice(0, 200) + '...' : blog.content}</div>
             <div className="flex gap-2 absolute top-4 right-4">
               <button onClick={() => handleEdit(idx)} className="text-blue-600 font-bold" disabled={saving}>Düzenle</button>
               <button onClick={() => handleDelete(idx)} className="text-red-600 font-bold" disabled={saving}>Sil</button>

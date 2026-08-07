@@ -50,16 +50,16 @@ export default function ModelCategoryPage() {
         <title>{seoTitle}</title>
         <meta name="description" content={seoDesc} />
       </Helmet>
-      <div className="bg-gray-50 min-h-screen py-4 px-2">
+      <div className="bg-gray-50 dark:bg-background min-h-screen py-4 px-2">
         <div className="max-w-7xl mx-auto">
           {brand && model && (
             <h1 className="text-3xl font-extrabold text-center mb-6">{seoBrand} {seoModel} Yedek Parça</h1>
           )}
           {/* Sol Menü */}
-          <div className="w-72 bg-white rounded shadow p-4 flex flex-col gap-6">
+          <div className="w-72 bg-card rounded shadow p-4 flex flex-col gap-6">
             <div>
               <h3 className="font-bold text-lg mb-2">{model?.toUpperCase() || 'MODEL'}</h3>
-              <ul className="text-sm text-gray-700 space-y-1">
+              <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                 {categories.map(cat => (
                   <li key={cat.id}>- {cat.name}</li>
                 ))}
@@ -84,8 +84,8 @@ export default function ModelCategoryPage() {
             {products
               .filter(p => selectedBrand.length === 0 || selectedBrand.includes(p.brand))
               .map(p => (
-                <div key={p.id} className="bg-white rounded shadow p-4 flex flex-col items-center">
-                  <div className="h-32 w-full flex items-center justify-center mb-2 bg-gray-50 rounded">
+                <div key={p.id} className="bg-card rounded shadow p-4 flex flex-col items-center">
+                  <div className="h-32 w-full flex items-center justify-center mb-2 bg-gray-50 dark:bg-background rounded">
                     {p.imageUrl ? <img src={p.imageUrl} alt={p.name} className="max-h-28" /> : <span className="text-gray-300">Görsel Yok</span>}
                   </div>
                   <div className="font-semibold text-center mb-2">{p.name}</div>
@@ -100,7 +100,7 @@ export default function ModelCategoryPage() {
                     Sepete Ekle
                   </button>
                   <button 
-                    className="w-full border border-gray-300 rounded py-2 text-gray-500 hover:text-red-500 flex items-center justify-center gap-2"
+                    className="w-full border border-gray-300 rounded py-2 text-gray-500 dark:text-gray-400 hover:text-red-500 flex items-center justify-center gap-2"
                     onClick={() => {
                       let favs = JSON.parse(localStorage.getItem('favorites') || '[]');
                       if (favs.some(f => f.id === p.id)) {

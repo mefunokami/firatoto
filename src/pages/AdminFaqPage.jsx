@@ -105,7 +105,7 @@ export default function AdminFaqPage() {
     <AdminLayout title="SSS">
     <div className="max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-foreground">Sık Sorulan Sorular</h1>
-      <form onSubmit={handleSubmit} className="bg-white rounded shadow p-6 mb-8 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="bg-card rounded shadow p-6 mb-8 flex flex-col gap-4">
         <input
           name="question"
           value={form.question}
@@ -136,7 +136,7 @@ export default function AdminFaqPage() {
             {editId !== null ? 'Güncelle' : 'Ekle'}
           </button>
           {editId !== null && (
-            <button type="button" onClick={() => { setForm({ question: '', answer: '', faq_order: 0 }); setEditId(null); }} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-6 py-2 rounded" disabled={saving}>İptal</button>
+            <button type="button" onClick={() => { setForm({ question: '', answer: '', faq_order: 0 }); setEditId(null); }} className="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 font-bold px-6 py-2 rounded" disabled={saving}>İptal</button>
           )}
         </div>
         {error && <div className="text-red-600 font-semibold mt-2">{error}</div>}
@@ -145,10 +145,10 @@ export default function AdminFaqPage() {
         {loading && <div className="text-gray-400">Yükleniyor...</div>}
         {!loading && faqs.length === 0 && <div className="text-gray-400">Henüz SSS eklenmemiş.</div>}
         {faqs.map((faq, idx) => (
-          <div key={faq.id} className="bg-white rounded shadow p-4 relative">
+          <div key={faq.id} className="bg-card rounded shadow p-4 relative">
             <div className="font-bold text-lg mb-1">{faq.question}</div>
-            <div className="text-gray-700 whitespace-pre-line mb-2">{faq.answer}</div>
-            <div className="text-gray-500 text-xs mb-2">Sıra: {faq.faq_order}</div>
+            <div className="text-gray-700 dark:text-gray-300 whitespace-pre-line mb-2">{faq.answer}</div>
+            <div className="text-gray-500 dark:text-gray-400 text-xs mb-2">Sıra: {faq.faq_order}</div>
             <div className="flex gap-2 absolute top-4 right-4">
               <button onClick={() => handleEdit(idx)} className="text-blue-600 font-bold" disabled={saving}>Düzenle</button>
               <button onClick={() => handleDelete(idx)} className="text-red-600 font-bold" disabled={saving}>Sil</button>

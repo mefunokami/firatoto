@@ -112,6 +112,13 @@ if (isset($_GET['add_mercedes_models']) && $_GET['add_mercedes_models'] == 1) {
 // GET: Belirli markanın modellerini listele
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $brand = $_GET['brand'] ?? null;
+    $action = $_GET['action'] ?? null;
+
+    if ($action === 'brands') {
+        $stmt = $pdo->query("SELECT DISTINCT brand FROM brand_models ORDER BY brand ASC");
+        echo json_encode($stmt->fetchAll(PDO::FETCH_COLUMN));
+        exit;
+    }
 
     if (!$brand || !preg_match('/^[\p{L}0-9\s-]{2,50}$/u', $brand)) {
         http_response_code(400);

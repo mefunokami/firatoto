@@ -106,15 +106,15 @@ export default function AdminSliderPage() {
     <AdminLayout title="Hero Slider">
     <div className="max-w-3xl mx-auto">
       <h2 className="text-2xl font-bold mb-2 text-foreground">Hero Slider Yönetimi</h2>
-      <p className="text-gray-500 text-sm mb-6">Anasayfadaki büyük banner görsellerini buradan ekleyip güncelleyebilirsiniz. Sık değişecek fotoğraflar için idealdir.</p>
-      <form onSubmit={handleSubmit} className="bg-white rounded shadow p-6 mb-8 space-y-4">
+      <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">Anasayfadaki büyük banner görsellerini buradan ekleyip güncelleyebilirsiniz. Sık değişecek fotoğraflar için idealdir.</p>
+      <form onSubmit={handleSubmit} className="bg-card rounded shadow p-6 mb-8 space-y-4">
         <div>
           <label className="block font-semibold mb-1">Görsel Yükle</label>
           <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="mb-2 w-full" />
           
           {!file && (
             <div className="mt-2">
-              <label className="block text-xs text-gray-500 mb-1">Veya harici bir resim linki girin:</label>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Veya harici bir resim linki girin:</label>
               <input
                 type="text"
                 placeholder="Görsel linki (örn: https://...)"
@@ -124,7 +124,7 @@ export default function AdminSliderPage() {
               />
             </div>
           )}
-          {form.image_url && <img src={form.image_url} alt="Önizleme" className="mt-3 h-32 object-contain bg-gray-50 rounded border p-1" />}
+          {form.image_url && <img src={form.image_url} alt="Önizleme" className="mt-3 h-32 object-contain bg-gray-50 dark:bg-background rounded border p-1" />}
         </div>
         <input
           type="text"
@@ -161,12 +161,12 @@ export default function AdminSliderPage() {
           {editId ? 'Güncelle' : 'Ekle'}
         </button>
         {editId && (
-          <button type="button" className="ml-4 text-gray-500 underline" onClick={() => { setEditId(null); setForm({ image_url: '', title: '', description: '', link: '', slider_order: 0 }); setFile(null); fileInputRef.current.value = ''; }}>
+          <button type="button" className="ml-4 text-gray-500 dark:text-gray-400 underline" onClick={() => { setEditId(null); setForm({ image_url: '', title: '', description: '', link: '', slider_order: 0 }); setFile(null); fileInputRef.current.value = ''; }}>
             İptal
           </button>
         )}
       </form>
-      <div className="bg-white rounded shadow p-6">
+      <div className="bg-card rounded shadow p-6">
         <h3 className="font-bold mb-4">Mevcut Sliderlar</h3>
         <div className="space-y-4">
           {sliders.map(slider => (
@@ -174,7 +174,7 @@ export default function AdminSliderPage() {
               <img src={slider.image_url} alt={slider.title} className="h-16 w-24 object-cover rounded" />
               <div className="flex-1">
                 <div className="font-semibold">{slider.title}</div>
-                <div className="text-xs text-gray-500">{slider.description}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{slider.description}</div>
                 <div className="text-xs text-blue-500">{slider.link}</div>
                 <div className="text-xs text-gray-400">Sıra: {slider.slider_order}</div>
               </div>

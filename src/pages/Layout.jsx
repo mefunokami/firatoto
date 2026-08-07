@@ -77,7 +77,7 @@ const Layout = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-card">
       <Header 
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}

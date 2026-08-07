@@ -34,9 +34,9 @@ export default function GoogleMapsRating({
   const content = (
     <>
       <div className="flex items-center gap-0.5">{stars}</div>
-      <span className={`font-bold text-gray-800 ${textSize}`}>{r.toFixed(1)}</span>
+      <span className={`font-bold text-gray-800 dark:text-gray-200 ${textSize}`}>{r.toFixed(1)}</span>
       {showGoogleLabel && (
-        <span className={`text-gray-500 ${textSize}`}>
+        <span className={`text-gray-500 dark:text-gray-400 ${textSize}`}>
           Google · {count.toLocaleString('tr-TR')} yorum
         </span>
       )}

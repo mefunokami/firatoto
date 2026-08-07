@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
-import { Plus, Package, AlertCircle, Settings, Wrench, Car, Loader2 } from 'lucide-react';
+import { Plus, Package, AlertCircle, Settings, Wrench, Car, Loader2, Image as ImageIcon } from 'lucide-react';
 import AdminLayout from '@/components/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import ProductList from '@/components/ProductList';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { CartProvider } from '@/lib/CartContext.jsx';
+import MediaLibrary from '@/components/MediaLibrary';
 
 const API_URL = '/api/products.php';
 const PAGE_SIZE = 50; // Sayfa başı ürün sayısı
@@ -257,11 +258,13 @@ function AdminPage() {
         <meta name="description" content="Fırat Oto Yedek Parça için ürün yönetim sistemi." />
       </Helmet>
 
+
       <AdminLayout
         title="Ürün Yönetimi"
         activeTab={activeTab}
         showForm={showForm}
         onNewProduct={handleNewProduct}
+        onMediaLibrary={() => setActiveTab('media')}
         onProductList={() => {
           setActiveTab('list');
           setShowForm(false);
@@ -270,61 +273,81 @@ function AdminPage() {
       >
           {/* İstatistik Kartları */}
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="bg-card shadow-sm border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Toplam Ürün</CardTitle>
-                <Package className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : totalProducts.toLocaleString('tr-TR')}
+            {/* Toplam Ürün Kartı */}
+            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm p-6 group hover:shadow-md transition-all duration-300">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">Toplam Ürün</h3>
+                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                  <Package className="h-5 w-5" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="text-3xl font-extrabold text-gray-900 dark:text-foreground relative z-10">
+                {loading ? <Loader2 className="h-6 w-6 animate-spin text-blue-500" /> : totalProducts.toLocaleString('tr-TR')}
+              </div>
+              <p className="text-xs text-gray-400 mt-2 font-medium">Sistemde kayıtlı toplam parça</p>
+            </div>
 
-            <Card className="bg-card shadow-sm border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Bu Sayfada</CardTitle>
-                <Car className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent><div className="text-2xl font-bold text-foreground">{products.length}</div></CardContent>
-            </Card>
-
-            <Card className="bg-card shadow-sm border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Düşük Stoklu</CardTitle>
-                <AlertCircle className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent><div className="text-2xl font-bold text-foreground">{stats.lowStock}</div></CardContent>
-            </Card>
-
-            <Card className="bg-card shadow-sm border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Sayfa</CardTitle>
-                <Settings className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  {currentPage} <span className="text-base text-muted-foreground">/ {totalPages}</span>
+            {/* Bu Sayfada Kartı */}
+            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm p-6 group hover:shadow-md transition-all duration-300">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">Görüntülenen</h3>
+                <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                  <Car className="h-5 w-5" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="text-3xl font-extrabold text-gray-900 dark:text-foreground relative z-10">
+                {products.length}
+              </div>
+              <p className="text-xs text-gray-400 mt-2 font-medium">Bu sayfadaki ürün sayısı</p>
+            </div>
+
+            {/* Düşük Stok Kartı */}
+            <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-border shadow-sm p-6 group hover:shadow-md transition-all duration-300">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">Kritik Stok</h3>
+                <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600">
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="text-3xl font-extrabold text-gray-900 dark:text-foreground relative z-10">
+                {stats.lowStock}
+              </div>
+              <p className="text-xs text-red-400 mt-2 font-medium">5 adetin altındaki (bu sayfada)</p>
+            </div>
+
+            {/* Sayfa Bilgisi Kartı */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-500 border border-yellow-300 shadow-md p-6 group hover:shadow-lg transition-all duration-300 text-white">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <h3 className="text-sm font-bold tracking-wide uppercase text-yellow-900/80">Geçerli Sayfa</h3>
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white backdrop-blur-sm">
+                  <Settings className="h-5 w-5" />
+                </div>
+              </div>
+              <div className="text-3xl font-extrabold relative z-10 drop-shadow-sm flex items-baseline gap-2">
+                {currentPage} <span className="text-lg font-bold text-yellow-900/60">/ {totalPages}</span>
+              </div>
+              <p className="text-xs text-yellow-900/80 mt-2 font-bold">Sayfa navigasyonu alttadır</p>
+            </div>
           </motion.div>
 
           <motion.div
-            key={showForm ? 'form' : 'list'}
+            key={activeTab + (showForm ? '-form' : '')}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             {showForm ? (
               <ProductForm product={editingProduct} onSave={handleSaveProduct} onCancel={handleCancelEdit} />
-            ) : (
+            ) : activeTab === 'list' ? (
               <ProductList
                 products={products}
                 onEdit={handleEditProduct}
@@ -344,11 +367,17 @@ function AdminPage() {
                 filterNoImage={filterNoImage}
                 onNoImageChange={handleNoImageChange}
               />
-            )}
+            ) : null}
           </motion.div>
 
+          {activeTab === 'media' && (
+            <div className="h-[800px] max-h-[80vh]">
+              <MediaLibrary />
+            </div>
+          )}
+
           {activeTab === 'categories' && (
-            <div className="bg-white rounded shadow p-6 max-w-xl mx-auto">
+            <div className="bg-card rounded shadow p-6 max-w-xl mx-auto">
               <h2 className="text-xl font-bold mb-4">Kategorileri Yönet</h2>
               <form onSubmit={handleAddCategory} className="flex gap-2 mb-6">
                 <input

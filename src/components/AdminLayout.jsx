@@ -5,7 +5,7 @@ import AdminSidebar from '@/components/AdminSidebar';
 /**
  * Admin sayfaları için sol menü + içerik düzeni
  */
-export default function AdminLayout({ children, activeTab, showForm, onNewProduct, onProductList, title = 'Yönetim Paneli' }) {
+export default function AdminLayout({ children, activeTab, showForm, onNewProduct, onProductList, onMediaLibrary, title = 'Yönetim Paneli' }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -17,6 +17,7 @@ export default function AdminLayout({ children, activeTab, showForm, onNewProduc
         showForm={showForm}
         onNewProduct={onNewProduct}
         onProductList={onProductList}
+        onMediaLibrary={onMediaLibrary}
         className="self-stretch"
       />
 

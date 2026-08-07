@@ -9,7 +9,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
   if (!product) return null;
 
   const formatPrice = (price) => {
-    if (!price || parseFloat(price) === 0) return 'Fiyatı Sorunuz.';
+    if (!price || parseFloat(price) === 0) return null;
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(price);
   };
 
@@ -66,7 +66,7 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
                         <div
                           key={index}
                           className={`w-2 h-2 rounded-full ${
-                            index === currentImageIndex ? 'bg-white' : 'bg-white bg-opacity-50'
+                            index === currentImageIndex ? 'bg-card' : 'bg-card bg-opacity-50'
                           }`}
                         />
                       ))}
@@ -93,7 +93,15 @@ const ProductDetailModal = ({ product, isOpen, onClose }) => {
               <p className="text-xs sm:text-base"><strong>Stok:</strong> {product.stock > 0 ? `${product.stock} Adet` : 'Stokta Yok'}</p>
             </div>
             <div className="mt-auto pt-2 sm:pt-4">
-              <p className="text-2xl sm:text-3xl font-bold text-right mb-2 sm:mb-4">{formatPrice(product.price)}</p>
+              {(!product.price || parseFloat(product.price) === 0) ? (
+                <div className="text-right mb-2 sm:mb-4">
+                  <span className="inline-block text-yellow-600 text-sm uppercase tracking-wide font-extrabold bg-yellow-50 px-3 py-1.5 rounded-lg border border-yellow-200">
+                    Fiyat Sorunuz
+                  </span>
+                </div>
+              ) : (
+                <p className="text-2xl sm:text-3xl font-bold text-right mb-2 sm:mb-4">{formatPrice(product.price)}</p>
+              )}
               <div className="space-y-2 sm:space-y-3">
                 {product.trendyolUrl && (
                   <Button asChild size="lg" className="w-full font-bold bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-base">

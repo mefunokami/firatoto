@@ -16,8 +16,8 @@ html {
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
-    --primary: 44 98% 50%;
-    --primary-foreground: 224 71.4% 4.1%;
+    --primary: 44 98% 50%; /* Orijinal Sari */
+    --primary-foreground: 224 71.4% 4.1%; /* Orijinal siyah yazi */
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 0 0% 96.1%;
@@ -29,34 +29,34 @@ html {
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 44 98% 50%;
-    --radius: 0.5rem;
+    --radius: 0.75rem; 
   }
   .dark {
-    --background: 224 71.4% 4.1%;
+    --background: 240 5.9% 10%; /* #18181b */
     --foreground: 0 0% 98%;
-    --card: 224 71.4% 4.1%;
+    --card: 240 5.9% 10%;
     --card-foreground: 0 0% 98%;
-    --popover: 224 71.4% 4.1%;
+    --popover: 240 5.9% 10%;
     --popover-foreground: 0 0% 98%;
-    --primary: 44 98% 50%;
-    --primary-foreground: 224 71.4% 4.1%;
-    --secondary: 215 27.9% 16.9%;
+    --primary: 44 98% 50%; /* Orijinal Sari */
+    --primary-foreground: 240 5.9% 10%; /* Siyah yazi */
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-    --accent: 215 27.9% 16.9%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
     --ring: 44 98% 50%;
   }
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground transition-colors duration-300;
     font-family: 'Inter', sans-serif;
   }
 }

@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white rounded shadow p-8 max-w-md w-full">
+      <div className="bg-card rounded shadow p-8 max-w-md w-full">
         <h2 className="text-2xl font-bold mb-4 text-center">Şifremi Unuttum</h2>
         {sent ? (
           <div className="text-green-600 text-center">Eğer bu e-posta ile kayıtlı bir hesabınız varsa, şifre sıfırlama bağlantısı gönderildi.</div>

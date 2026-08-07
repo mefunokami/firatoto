@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LayoutGrid } from 'lucide-react'; // Diğer markalar ikonu için
 
 const SABIT_MARKALAR = [
-  'BMW', 'MERCEDES-BENZ', 'VOLKSWAGEN', 'AUDİ', 'TESLA', 'SEAT', 'SKODA', 'PEUGEOT', 'CİTROEN', 'FORD', 'OPEL', 'CHEVROLET',
-  'GENEL MARKALAR'
+  { name: 'VOLKSWAGEN', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Volkswagen_logo_2019.svg' },
+  { name: 'AUDİ', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/92/Audi-Logo_2016.svg' },
+  { name: 'SEAT', logo: 'https://www.google.com/s2/favicons?domain=seat.com&sz=128' },
+  { name: 'SKODA', logo: 'https://www.google.com/s2/favicons?domain=skoda-auto.com&sz=128' },
+  { name: 'BMW', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/44/BMW.svg', isMain: true },
+  { name: 'MERCEDES-BENZ', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/90/Mercedes-Logo.svg', isMain: true },
+  { name: 'PORSCHE', logo: 'https://www.google.com/s2/favicons?domain=porsche.com&sz=128' },
+  { name: 'MİNİ COOPER', logo: 'https://www.google.com/s2/favicons?domain=mini.com&sz=128' },
+  { name: 'DİĞER MARKALAR', logo: 'other' }
+];
+
+const DIGER_MARKALAR_LISTESI = [
+  'TESLA', 'PEUGEOT', 'CİTROEN', 'FORD', 'OPEL', 'CHEVROLET', 'GENEL MARKALAR'
 ];
 
 const BrandMenu = () => {
@@ -31,34 +43,29 @@ const BrandMenu = () => {
       .replace(/^_+|_+$/g, '');
   }
 
-  // Markaya tıklanınca modelleri çek
+  // Markaya tıklanınca yönlendir
   const handleBrandClick = (brand) => {
-    if (openBrand === brand) {
-      setOpenBrand(null);
-      setModels([]);
-      setError(null);
+    if (brand === 'DİĞER MARKALAR') {
+      if (openBrand === brand) {
+        setOpenBrand(null);
+        setModels([]);
+      } else {
+        setOpenBrand(brand);
+        const digerModeller = DIGER_MARKALAR_LISTESI.map(b => ({
+          id: b,
+          model: b,
+          isBrand: true
+        }));
+        setModels(digerModeller);
+      }
       return;
     }
-    setOpenBrand(brand);
-    setLoading(true);
-    setError(null);
-    fetch(`/api/brand_models.php?brand=${encodeURIComponent(brand)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setModels(data);
-          setError(null);
-        } else {
-          setModels([]);
-          setError('Model bulunamadı');
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setModels([]);
-        setError('API Hatası');
-        setLoading(false);
-      });
+
+    // Diğer tüm markalar için doğrudan kategori sayfasına git
+    setOpenBrand(brand); // Aktif markayı vurgulamak için
+    setModels([]); // Modelleri temizle ki kutu açılmasın
+    setMobileOpen(false);
+    navigate(`/kategori/${getBrandSlug(brand)}/tumu`);
   };
 
   const getBrandSlug = (brand) => {
@@ -73,10 +80,10 @@ const BrandMenu = () => {
     if (brand === 'VOLKSWAGEN') return 'Volkswagen';
     if (brand === 'AUDİ') return 'Audi';
     if (brand === 'GENEL MARKALAR') return 'Genel Markalar';
+    if (brand === 'DİĞER MARKALAR') return 'Diğer Markalar';
     return brand.charAt(0) + brand.slice(1).toLowerCase();
   };
 
-  // Markanın tüm parçalarını göster (BMW Yedek Parça - Tümü vb.)
   const handleViewAllBrand = (brand) => {
     setOpenBrand(null);
     setModels([]);
@@ -84,7 +91,6 @@ const BrandMenu = () => {
     navigate(`/kategori/${getBrandSlug(brand)}/tumu`);
   };
 
-  // Model seçilince yönlendirme
   const handleModelSelect = (brand, model) => {
     if (brand && model) {
       const normalizedModel = model.trim().toUpperCase();
@@ -96,7 +102,7 @@ const BrandMenu = () => {
   };
 
   return (
-    <nav className="w-full bg-[#ffc107] shadow">
+    <nav className="w-full shadow relative z-40 bg-[linear-gradient(to_right,#ffc107_0%,#ffc107_15%,#18181b_40%,#18181b_60%,#ffc107_85%,#ffc107_100%)] max-md:bg-[#ffc107]">
       {/* Mobilde Markalar başlığı ve açılır menü */}
       <div className="md:hidden block">
         <button
@@ -107,114 +113,138 @@ const BrandMenu = () => {
           <svg className={`w-5 h-5 transition-transform ${mobileOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
         </button>
         {mobileOpen && (
-          <div className="bg-white border-b border-yellow-200">
+          <div className="bg-card border-b border-yellow-200">
             <div className="flex flex-col gap-1 py-2">
-              {SABIT_MARKALAR.map(brand => (
+              {SABIT_MARKALAR.map(brandObj => (
                 <button
-                  key={brand}
-                  className={`w-full text-left px-4 py-2 font-semibold uppercase text-black hover:bg-yellow-100 ${openBrand === brand ? 'bg-black text-[#ffc107]' : ''}`}
-                  onClick={() => handleBrandClick(brand)}
+                  key={brandObj.name}
+                  className={`w-full flex items-center gap-3 px-4 py-3 font-bold uppercase transition-colors ${
+                    openBrand === brandObj.name 
+                      ? 'bg-black text-[#ffc107]' 
+                      : brandObj.isMain 
+                        ? 'bg-gray-900 text-white hover:bg-black' 
+                        : 'text-black hover:bg-yellow-100'
+                  }`}
+                  onClick={() => handleBrandClick(brandObj.name)}
                 >
-                  {brand}
+                  <div className="w-7 h-7 flex items-center justify-center bg-white dark:bg-card rounded-full p-0.5 shadow-sm">
+                    {brandObj.logo === 'other' ? (
+                      <LayoutGrid className="w-4 h-4 text-black" />
+                    ) : (
+                      <img src={brandObj.logo} alt={brandObj.name} className="w-full h-full object-contain" />
+                    )}
+                  </div>
+                  <span className={brandObj.isMain ? 'text-base tracking-wide text-[#ffc107]' : ''}>{brandObj.name}</span>
                 </button>
               ))}
             </div>
-            {openBrand && (
-              <div className="bg-gray-50 border-t border-yellow-100 px-4 py-2">
-                <button
-                  type="button"
-                  className="w-full mb-3 py-2.5 px-3 rounded-lg bg-black text-[#ffc107] font-bold text-sm text-left hover:bg-gray-900 transition"
-                  onClick={() => handleViewAllBrand(openBrand)}
-                >
-                  {getBrandLabel(openBrand)} Yedek Parça — Tümü
-                </button>
-                {loading ? (
-                  <span className="text-gray-500">Yükleniyor...</span>
-                ) : error ? (
-                  <span className="text-red-500 font-bold">{error}</span>
-                ) : models.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-2">
-                    {models.map(model => (
-                      <button
-                        key={model.id || model.model}
-                        className="bg-white border border-yellow-200 rounded p-2 text-xs font-semibold hover:bg-yellow-50"
-                        onClick={() => handleModelSelect(openBrand, model.model)}
-                      >
-                        {model.model}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-gray-400">Model bulunamadı</span>
-                )}
+            {openBrand === 'DİĞER MARKALAR' && models.length > 0 && (
+              <div className="bg-gray-50 dark:bg-background border-t border-yellow-100 px-4 py-3 shadow-inner">
+                <div className="grid grid-cols-2 gap-2">
+                  {models.map(model => (
+                    <button
+                      key={model.id || model.model}
+                      className="bg-card border border-yellow-200 rounded p-2 text-xs font-semibold hover:bg-yellow-50 shadow-sm"
+                      onClick={() => {
+                        handleViewAllBrand(model.model);
+                      }}
+                    >
+                      {model.model}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
-            {/* Ekstra linkler - Sadece markalar açıkken görünür */}
           </div>
         )}
         {/* Ekstra linkler - Her zaman görünür */}
-        <div className="bg-white border-b border-yellow-200 flex flex-col gap-1 py-2">
+        <div className="bg-card border-b border-yellow-200 flex flex-col gap-1 py-2 shadow-sm">
           <button onClick={() => { setMobileOpen(false); navigate('/blog'); }} className="w-full text-left px-4 py-2 font-semibold text-black hover:bg-yellow-100">Blog</button>
           <a href="/#faq" onClick={() => setMobileOpen(false)} className="w-full text-left px-4 py-2 font-semibold text-black hover:bg-yellow-100">Sık Sorulanlar</a>
           <button onClick={() => { setMobileOpen(false); navigate('/hakkımızda'); }} className="w-full text-left px-4 py-2 font-semibold text-black hover:bg-yellow-100">Hakkımızda</button>
-                      <button onClick={() => { setMobileOpen(false); navigate('/iletisim'); }} className="w-full text-left px-4 py-2 font-semibold text-black hover:bg-yellow-100">İletişim</button>
+          <button onClick={() => { setMobileOpen(false); navigate('/iletisim'); }} className="w-full text-left px-4 py-2 font-semibold text-black hover:bg-yellow-100">İletişim</button>
         </div>
       </div>
-      {/* Masaüstü için eski yapı */}
-      <div className="max-w-7xl mx-auto px-2 py-2 flex flex-col md:flex-row flex-nowrap md:justify-center items-stretch md:items-center gap-1 md:block hidden">
-        {SABIT_MARKALAR.map(brand => (
-          <button
-            key={brand}
-            className={
-              `w-full py-3 text-base text-center rounded px-2 md:w-auto md:py-2 md:text-sm md:text-left md:px-3 md:rounded font-bold uppercase transition ` +
-              (openBrand === brand
-                ? 'bg-black text-[#ffc107] shadow font-extrabold'
-                : 'bg-[#ffc107] text-black hover:bg-black hover:text-[#ffc107]')
+      
+      {/* Masaüstü */}
+      <div className="max-w-[1400px] mx-auto px-2 py-3 hidden md:flex flex-wrap justify-center items-center gap-2 lg:gap-4 relative">
+        {SABIT_MARKALAR.map(brandObj => {
+          const isMain = brandObj.isMain;
+          const isActive = openBrand === brandObj.name;
+          
+          let baseClasses = "";
+          
+          if (isMain) {
+            // Siyah arka plan üzerine oturan Sarı VIP Kapsüller
+            baseClasses = "relative flex items-center rounded-full font-extrabold uppercase transition-all duration-300 shadow-2xl pl-14 pr-5 h-11 mx-3 overflow-visible ";
+            if (isActive) {
+               baseClasses += "bg-white dark:bg-card text-black scale-110 z-50 ring-2 ring-white";
+            } else {
+               baseClasses += "bg-gradient-to-r from-[#e0a800] to-[#ffc107] text-black hover:scale-110 hover:shadow-[0_0_20px_rgba(255,193,7,0.5)] z-40 border border-[#ffc107]/50 ";
             }
-            style={{minWidth: 0, letterSpacing: 0.5, border: 'none', boxShadow: 'none'}}
-            onClick={() => handleBrandClick(brand)}
-          >
-            {brand}
-          </button>
-        ))}
-      </div>
-      {openBrand && (
-        <div className="w-full bg-white border-t border-yellow-200 shadow-inner md:block hidden">
-          <div className="max-w-7xl mx-auto px-2 py-3 flex justify-center">
+          } else {
+            // Sarı arka plan üzerine oturan siyah/şeffaf normal butonlar
+            baseClasses = "flex items-center gap-2 rounded-full font-bold uppercase transition-all duration-300 py-1.5 px-3 text-[11px] lg:text-xs ";
+            if (isActive) {
+               baseClasses += "bg-black text-[#ffc107] scale-105 shadow-md";
+            } else {
+               baseClasses += "bg-black/80 text-white hover:bg-black hover:text-[#ffc107] hover:scale-105";
+            }
+          }
+
+          return (
             <button
-              type="button"
-              className="px-6 py-2.5 rounded-lg bg-black text-[#ffc107] font-bold text-sm hover:bg-gray-900 transition shadow"
-              onClick={() => handleViewAllBrand(openBrand)}
+              key={brandObj.name}
+              className={baseClasses}
+              onClick={() => handleBrandClick(brandObj.name)}
             >
-              {getBrandLabel(openBrand)} Yedek Parça — Tümünü Gör
-            </button>
-          </div>
-          <div className="max-w-7xl mx-auto px-2 pb-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 justify-center">
-            {loading ? (
-              <span className="col-span-full text-gray-500">Yükleniyor...</span>
-            ) : error ? (
-              <span className="col-span-full text-red-500 font-bold">{error}</span>
-            ) : models.length > 0 ? (
-              models.map(model => (
-                <button
-                  key={model.id || model.model}
-                  className="flex flex-col items-center justify-center bg-gray-50 hover:bg-yellow-50 border border-yellow-200 rounded-lg p-3 shadow-sm transition focus:outline-none"
-                  style={{minHeight: 110, height: 110, fontSize: '1rem'}}
-                  onClick={() => handleModelSelect(openBrand, model.model)}
-                >
-                  <div style={{height:'40px', display:'flex', alignItems:'center', justifyContent:'center', width:'100%'}}>
-                    {model.image_url ? (
-                      <img src={model.image_url} alt={model.model} className="object-contain border rounded bg-white mx-auto" style={{maxWidth:'80px',maxHeight:'40px'}} />
+              {isMain ? (
+                <>
+                  <div className="absolute -left-6 -top-2.5 w-16 h-16 flex items-center justify-center bg-black rounded-full shadow-[0_8px_16px_rgba(0,0,0,0.6)] border-2 border-[#ffc107] transition-transform duration-500 hover:rotate-6">
+                    <img src={brandObj.logo} alt={brandObj.name} className="w-10 h-10 object-contain drop-shadow-md" />
+                  </div>
+                  <span className="tracking-wider ml-1">{brandObj.name}</span>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-center bg-white dark:bg-card rounded-full shadow-sm shrink-0 transition-all w-5 h-5 p-1">
+                    {brandObj.logo === 'other' ? (
+                      <LayoutGrid className="w-3 h-3 text-black" />
                     ) : (
-                      <span className="text-gray-400 text-xs">Görsel yok</span>
+                      <img src={brandObj.logo} alt={brandObj.name} className="w-full h-full object-contain" />
                     )}
                   </div>
-                  <span className="text-xs md:text-sm font-semibold text-center mt-2 w-full truncate">{model.model}</span>
-                </button>
-              ))
-            ) : (
-              <span className="col-span-full text-gray-400">Model bulunamadı</span>
-            )}
+                  <span className="tracking-wide font-semibold">{brandObj.name}</span>
+                </>
+              )}
+            </button>
+          );
+        })}
+      </div>
+      
+      {/* Açılır Kutu (Masaüstü) - Sadece Diğer Markalar için */}
+      {openBrand === 'DİĞER MARKALAR' && models.length > 0 && (
+        <div className="w-full bg-card border-t border-yellow-200 shadow-xl md:block hidden absolute left-0 right-0 z-50 rounded-b-xl border-b pb-2">
+          <div className="max-w-[1400px] mx-auto px-4 pt-6 pb-6 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-4 justify-center">
+            {models.map(model => (
+              <button
+                key={model.id || model.model}
+                className="group flex flex-col items-center justify-center bg-background hover:bg-yellow-50 border border-border hover:border-primary rounded-xl p-3 shadow-sm hover:shadow-md transition-all focus:outline-none"
+                style={{height: 120}}
+                onClick={() => {
+                  handleViewAllBrand(model.model);
+                }}
+              >
+                <div className="h-12 flex items-center justify-center w-full mb-2 bg-white dark:bg-card rounded-lg border border-gray-100 dark:border-border shadow-inner group-hover:scale-105 transition-transform p-1">
+                  {model.image_url ? (
+                    <img src={model.image_url} alt={model.model} className="object-contain w-full h-full mix-blend-multiply" />
+                  ) : (
+                    <span className="text-gray-400 text-xs text-center font-bold">Markaya Git</span>
+                  )}
+                </div>
+                <span className="text-xs font-bold text-center w-full line-clamp-2 text-foreground group-hover:text-primary transition-colors">{model.model}</span>
+              </button>
+            ))}
           </div>
         </div>
       )}
@@ -222,4 +252,4 @@ const BrandMenu = () => {
   );
 };
 
-export default BrandMenu; 
+export default BrandMenu;

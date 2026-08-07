@@ -74,8 +74,8 @@ const AccountPage = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white rounded-xl shadow p-8 mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900">Hesap Bilgilerim</h2>
+    <div className="max-w-lg mx-auto bg-card rounded-xl shadow p-8 mt-10">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-foreground">Hesap Bilgilerim</h2>
       {success && <div className="mb-4 text-green-600 font-semibold">Bilgileriniz kaydedildi.</div>}
       {error && <div className="mb-4 text-red-600 font-semibold">{error}</div>}
       <form onSubmit={handleSave} className="space-y-4">
@@ -164,7 +164,7 @@ const AccountPage = () => {
             </div>
             <div className="flex gap-2">
               <button type="submit" className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded">Kaydet</button>
-              <button type="button" onClick={() => { setShowPasswordForm(false); setOldPassword(''); setNewPassword(''); setNewPassword2(''); }} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded">İptal</button>
+              <button type="button" onClick={() => { setShowPasswordForm(false); setOldPassword(''); setNewPassword(''); setNewPassword2(''); }} className="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 font-bold py-2 px-6 rounded">İptal</button>
             </div>
           </div>
         )}
@@ -191,7 +191,7 @@ const AccountPage = () => {
         {editMode && !showPasswordForm ? (
           <div className="flex gap-2 mt-2">
             <button type="submit" className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-6 rounded">Kaydet</button>
-            <button type="button" onClick={() => setEditMode(false)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-6 rounded">İptal</button>
+            <button type="button" onClick={() => setEditMode(false)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 font-bold py-2 px-6 rounded">İptal</button>
           </div>
         ) : null}
       </form>

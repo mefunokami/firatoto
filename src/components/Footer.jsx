@@ -1,99 +1,178 @@
 import React, { useState } from 'react';
-import { Cog, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
+import { Instagram, MapPin, Mail, Phone, ChevronRight, Youtube, Facebook } from 'lucide-react';
 import AgreementModal from './AgreementModal';
 import logo from '../../logo.png';
 
 const Footer = () => {
-  const [modal, setModal] = useState(null); // 'satis', 'gizlilik', 'iade', 'politikasi', 'kosullar', null
+  const [modal, setModal] = useState(null);
 
   return (
-    <footer className="bg-neutral-800 text-white pt-10 md:pt-16 pb-6 md:pb-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* LOGO EN ÜSTE */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 md:gap-8">
-          {/* 1. Logo */}
-          <div>
-            <div className="mb-4">
-              <a href="https://firatotoyedekparca.com" target="_self">
-                <img src={logo} alt="Fırat Oto Logo" className="h-20 w-auto" width="160" height="80" loading="lazy" />
+    <footer className="bg-[#18181b] text-gray-400 pt-16 md:pt-24 pb-8 mt-16 relative border-t-4 border-[#ffc107]">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+          
+          {/* 1. Marka ve Sosyal Medya */}
+          <div className="lg:col-span-3 pr-0 lg:pr-4">
+            <div className="mb-6">
+              <a href="https://firatotoyedekparca.com" target="_self" className="inline-block">
+                <img src={logo} alt="Fırat Oto Logo" className="h-16 w-auto drop-shadow-lg" loading="lazy" />
               </a>
+              <p className="mt-6 text-sm text-gray-400 leading-relaxed font-medium">
+                Aradığınız tüm yedek parçalar güvenle ve en hızlı şekilde kapınızda. Binlerce orijinal ve garantili yan sanayi ürün seçeneği ile aracınıza en uygun parçayı anında bulun.
+              </p>
             </div>
-            <div className="flex gap-4 mt-6">               
-                <a href="https://www.instagram.com/firatotoyedekparcafbm/" target="_blank" rel="noopener noreferrer" className="text-red-600 hover:text-red-700"><Instagram /></a>
+            <div className="flex flex-wrap gap-3 mt-8">               
+                <a 
+                  href="https://www.instagram.com/firatotoyedekparcafbm/" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-11 h-11 flex items-center justify-center rounded-full bg-white/5 text-gray-300 hover:bg-[#ffc107] hover:text-black transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(255,193,7,0.4)] hover:-translate-y-1"
+                  title="Instagram"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a 
+                  href="https://www.facebook.com/profile.php?id=61579219284531&locale=tr_TR" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-11 h-11 flex items-center justify-center rounded-full bg-white/5 text-gray-300 hover:bg-[#1877F2] hover:text-white transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(24,119,242,0.4)] hover:-translate-y-1"
+                  title="Facebook"
+                >
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a 
+                  href="https://www.youtube.com/@F%C4%B1ratOtoYedekPar%C3%A7aFBM" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-11 h-11 flex items-center justify-center rounded-full bg-white/5 text-gray-300 hover:bg-red-600 hover:text-white transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(220,38,38,0.4)] hover:-translate-y-1"
+                  title="YouTube"
+                >
+                  <Youtube className="w-5 h-5" />
+                </a>
+                <a 
+                  href="https://www.tiktok.com/@firatotoyedekparcafbm" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-11 h-11 flex items-center justify-center rounded-full bg-white/5 text-gray-300 hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] border border-transparent hover:border-gray-700 hover:-translate-y-1"
+                  title="TikTok"
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.23-1.13 4.45-2.92 5.75-1.95 1.4-4.5 1.74-6.66.7-2.03-.96-3.4-2.85-3.66-5.06-.29-2.32.74-4.7 2.61-5.96 1.71-1.16 3.93-1.39 5.86-.71.13.04.28.1.41.13v4.13c-1.17-.46-2.58-.33-3.64.44-.8.56-1.17 1.6-1.04 2.56.12.92.86 1.76 1.75 2.06 1.05.37 2.33.15 3.12-.6.7-.65 1.02-1.6 1.02-2.56V.02z" />
+                  </svg>
+                </a>
+                <a 
+                  href="https://x.com/firatotoyedek" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-11 h-11 flex items-center justify-center rounded-full bg-white/5 text-gray-300 hover:bg-black hover:text-white transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] border border-transparent hover:border-gray-700 hover:-translate-y-1"
+                  title="X (Twitter)"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                  </svg>
+                </a>
             </div>
           </div>
-          {/* 2. Alışveriş */}
-          <div>
-            <p className="font-bold text-lg mb-2 flex items-center gap-2">
-              ALIŞVERİŞ
-              <span className="block w-8 h-1 bg-yellow-500 rounded ml-2"></span>
-            </p>
-            <ul className="space-y-1 text-sm">
-              <li><a href="/iletisim" className="hover:text-yellow-400">İletişim Ve Hesap Numaraları</a></li>
-              <li><a href="/hakkımızda" className="hover:text-yellow-400">Hakkımızda</a></li>
-              <li><a href="/blog" className="hover:text-yellow-400">Blog</a></li>
+
+          {/* 2. Kurumsal */}
+          <div className="lg:col-span-2">
+            <h3 className="font-extrabold text-lg text-white mb-6 flex flex-col">
+              Kurumsal
+              <span className="block w-10 h-1 bg-[#ffc107] rounded-full mt-3"></span>
+            </h3>
+            <ul className="space-y-4 text-sm font-medium">
+              <li><a href="/hakkımızda" className="hover:text-[#ffc107] transition-colors flex items-center gap-2"><ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />Hakkımızda</a></li>
+              <li><a href="/blog" className="hover:text-[#ffc107] transition-colors flex items-center gap-2"><ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />Blog</a></li>
+              <li><a href="/iletisim" className="hover:text-[#ffc107] transition-colors flex items-center gap-2"><ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />İletişim Bilgileri</a></li>
             </ul>
           </div>
-          {/* 3. Sipariş */}
-          <div>
-            <p className="font-bold text-lg mb-2 flex items-center gap-2">
-              SİPARİŞ
-              <span className="block w-8 h-1 bg-yellow-500 rounded ml-2"></span>
-            </p>
-            <ul className="space-y-1 text-sm">
-              <li><button type="button" className="underline text-left" onClick={() => setModal('satis')}>Satış Sözleşmesi</button></li>
-              <li><button type="button" className="underline text-left" onClick={() => setModal('gizlilik')}>Gizlilik ve Güvenlik</button></li>
-              <li><button type="button" className="underline text-left" onClick={() => setModal('iade')}>İade ve Değişim</button></li>
-              <li><button type="button" className="underline text-left" onClick={() => setModal('politikasi')}>Gizlilik Politikası</button></li>
-              <li><button type="button" className="underline text-left" onClick={() => setModal('kosullar')}>Şartlar ve Koşullar</button></li>
+
+          {/* 3. Müşteri Hizmetleri */}
+          <div className="lg:col-span-2">
+            <h3 className="font-extrabold text-lg text-white mb-6 flex flex-col">
+              Sözleşmeler
+              <span className="block w-10 h-1 bg-[#ffc107] rounded-full mt-3"></span>
+            </h3>
+            <ul className="space-y-4 text-sm font-medium">
+              <li><button type="button" className="hover:text-[#ffc107] transition-colors text-left flex items-center gap-2" onClick={() => setModal('satis')}><ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />Satış Sözleşmesi</button></li>
+              <li><button type="button" className="hover:text-[#ffc107] transition-colors text-left flex items-center gap-2" onClick={() => setModal('gizlilik')}><ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />Gizlilik ve Güvenlik</button></li>
+              <li><button type="button" className="hover:text-[#ffc107] transition-colors text-left flex items-center gap-2" onClick={() => setModal('iade')}><ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />İade ve Değişim</button></li>
             </ul>
           </div>
-          {/* 4. Bize Ulaşın */}
-          <div>
-            <p className="font-bold text-lg mb-4">Bize Ulaşın</p>
-            <address className="text-gray-400 not-italic space-y-2 text-sm">
-                <p>Fırat Oto Yedek Parça</p>
-                <div>
-                  <p>Fevzipaşa, 48046 sokak No: 29/A, 01190 Seyhan/Adana</p>
-                  <a href="https://share.google/Xbd8gaVyvr5t7W9Kf" target="_blank" rel="noopener noreferrer" className="text-yellow-400 hover:text-yellow-300 underline text-xs">Konumu Görüntüle</a>
-                </div>
-                <p className="font-semibold text-white">Eposta: <a href="mailto:eksaeticaret@gmail.com" className="underline text-white">eksaeticaret@gmail.com</a></p>
-                <p><strong className="text-white">Telefon:</strong> 0543 974 0121</p>
-                <p><strong className="text-white">Telefon:</strong> 0501 353 0101</p>
-                <p><strong className="text-white">Telefon:</strong> 0555 178 6221</p>
-            </address>
+
+          {/* 4. İletişim */}
+          <div className="lg:col-span-3">
+            <h3 className="font-extrabold text-lg text-white mb-6 flex flex-col">
+              İletişim
+              <span className="block w-10 h-1 bg-[#ffc107] rounded-full mt-3"></span>
+            </h3>
+            <div className="bg-white/5 rounded-2xl p-4 md:p-5 border border-white/5 shadow-inner">
+              <ul className="space-y-4 text-sm font-medium">
+                <li className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 text-[#ffc107]">
+                    <MapPin className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="leading-relaxed text-gray-300">
+                    Fevzipaşa, 48046 sokak No: 29/A, 01190 Seyhan/Adana
+                    <a href="https://www.google.com/maps?ll=36.997894,35.274545&z=15&t=m&hl=tr&gl=TR&mapclient=embed&cid=10460540445391545626" target="_blank" rel="noopener noreferrer" className="block text-[#ffc107] hover:text-white transition-colors mt-1 underline underline-offset-4 decoration-[#ffc107]/30 font-bold">Haritada Yol Tarifi Al</a>
+                  </span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 text-[#ffc107]">
+                    <Mail className="w-3.5 h-3.5" />
+                  </div>
+                  <a href="mailto:eksaeticaret@gmail.com" className="hover:text-[#ffc107] transition-colors text-gray-300 truncate">eksaeticaret@gmail.com</a>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 text-[#ffc107]">
+                    <Phone className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="flex flex-col space-y-1 text-gray-300 font-bold">
+                    <a href="tel:+905013530101" className="hover:text-[#ffc107] transition-colors">0501 353 01 01</a>
+                    <a href="tel:+905439740121" className="hover:text-[#ffc107] transition-colors">0543 974 01 21</a>
+                    <a href="tel:+905551786221" className="hover:text-[#ffc107] transition-colors">0555 178 62 21</a>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
+
           {/* 5. Harita */}
-          <div>
-            <div className="w-full h-full min-h-[200px] rounded-lg overflow-hidden shadow-lg border border-gray-700">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3184.3591!2d35.3087!3d36.9822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x15288f6d38796da7%3A0x912b4e1cde2b651a!2zRsSxcmF0IE90byBZZWRlayBQYXLDp2E!5e0!3m2!1str!2str!4v1709971035652!5m2!1str!2str"
-                title="Fırat Oto Yedek Parça Konum"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
-            </div>
+          <div className="lg:col-span-2">
+            <h3 className="font-extrabold text-lg text-white mb-6 flex flex-col">
+              Konum
+              <span className="block w-10 h-1 bg-[#ffc107] rounded-full mt-3"></span>
+            </h3>
+            <a href="https://www.google.com/maps?ll=36.997894,35.274545&z=15&t=m&hl=tr&gl=TR&mapclient=embed&cid=10460540445391545626" target="_blank" rel="noopener noreferrer" className="block w-full h-[180px] rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-white/10 group relative bg-white/5 flex flex-col items-center justify-center hover:border-[#ffc107] hover:shadow-[0_0_20px_rgba(255,193,7,0.2)] transition-all duration-300">
+                <div className="absolute inset-0 opacity-20 flex items-center justify-center pointer-events-none transition-opacity duration-500 group-hover:opacity-30">
+                  <div className="w-full h-full" style={{ backgroundImage: 'linear-gradient(#4b5563 1px, transparent 1px), linear-gradient(90deg, #4b5563 1px, transparent 1px)', backgroundSize: '15px 15px' }}></div>
+                </div>
+                
+                <div className="w-14 h-14 rounded-full bg-[#ffc107]/10 border border-[#ffc107]/30 flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-[#ffc107] transition-all duration-500 relative z-10 shadow-[0_0_15px_rgba(255,193,7,0.2)]">
+                  <MapPin className="w-6 h-6 text-[#ffc107] group-hover:text-black transition-colors" />
+                </div>
+                <span className="text-white font-extrabold tracking-wide relative z-10 group-hover:text-[#ffc107] transition-colors">Haritayı Aç</span>
+                <span className="text-gray-400 text-xs mt-1 relative z-10 font-medium">Google Haritalar</span>
+            </a>
           </div>
+
         </div>
-        <div className="mt-8 md:mt-12">
-          <div className="text-center mb-2">
-            <span className="block text-xs text-gray-400">Diğer Tüm Parça ve Markalar İçin Telefon Numaramız: <span className="font-semibold">+90 543 974 01 21</span></span>
-          </div>
-
-
-          <div className="border-t border-gray-700 pt-4 md:pt-6 text-center text-gray-500 text-xs md:text-sm">
-            <p>&copy; {new Date().getFullYear()} Fırat Oto Yedek Parça. Tüm hakları saklıdır. Designed by <a href="https://www.mefunet.com" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-primary">MefuNet</a></p>
-          </div>
+        
+        {/* Alt Bilgi */}
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-sm font-medium text-gray-400">
+            Diğer Tüm Parça ve Markalar İçin Bizi Arayın: <span className="font-bold text-[#ffc107]">+90 543 974 01 21</span>
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            &copy; {new Date().getFullYear()} Fırat Oto Yedek Parça. Tüm hakları saklıdır. Designed by <a href="https://www.mefunet.com" target="_blank" rel="noopener noreferrer" className="font-bold text-gray-400 hover:text-[#ffc107] transition-colors">MefuNet</a>
+          </p>
         </div>
       </div>
-      {/* Modal */}
+
+      {/* Modals */}
       <AgreementModal open={modal==='satis'} onClose={()=>setModal(null)} title="Satış Sözleşmesi">
         <p>Bu satış sözleşmesi, web sitemiz üzerinden yapılan alışverişlerde geçerlidir. Sipariş veren kullanıcı, aşağıdaki şartları kabul etmiş sayılır:</p>
-        <ul className="list-disc pl-6">
+        <ul className="list-disc pl-6 mt-2 space-y-1">
           <li>Ürünler, stok durumuna göre en kısa sürede kargoya verilir.</li>
           <li>Alıcı, teslimat adresini doğru ve eksiksiz bildirmekle yükümlüdür.</li>
           <li>İptal ve iade koşulları yasal mevzuata ve sitemizdeki iade politikalarına tabidir.</li>

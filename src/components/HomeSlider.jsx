@@ -34,7 +34,7 @@ export default function HomeSlider() {
   };
 
   return (
-    <div className="relative w-full max-w-3xl mx-auto rounded-lg overflow-hidden shadow-lg bg-white">
+    <div className="relative w-full max-w-3xl mx-auto rounded-lg overflow-hidden shadow-lg bg-card">
       {slides.map((slide, i) => (
         <div
           key={slide.id}
@@ -42,10 +42,10 @@ export default function HomeSlider() {
         >
           <div className="flex flex-col md:flex-row items-center h-80 md:h-96">
             <div className="flex-1 flex flex-col justify-center items-start p-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">
+              <h2 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900 dark:text-foreground">
                 {slide.title}
               </h2>
-              <p className="text-base md:text-lg text-gray-700 mb-4">{slide.description}</p>
+              <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 mb-4">{slide.description}</p>
               {slide.link && (
                 <a href={slide.link} className="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded transition">Detaylı Bilgi</a>
               )}
@@ -61,7 +61,7 @@ export default function HomeSlider() {
         {slides.map((_, i) => (
           <button
             key={i}
-            className={`w-3 h-3 rounded-full border-2 ${i === current ? 'bg-yellow-500 border-yellow-500' : 'bg-white border-gray-300'} transition`}
+            className={`w-3 h-3 rounded-full border-2 ${i === current ? 'bg-yellow-500 border-yellow-500' : 'bg-card border-gray-300'} transition`}
             onClick={() => goTo(i)}
             aria-label={`Slider ${i + 1}`}
           />

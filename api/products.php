@@ -419,9 +419,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_GET['id']) && intval($_GET
     $slug_name = slugify($data['name']);
     $imageUrl1 = isset($data['imageUrl1']) ? $data['imageUrl1'] : '';
     $imageUrl2 = isset($data['imageUrl2']) ? $data['imageUrl2'] : '';
-    $stmt = $conn->prepare("UPDATE products SET name=?, brand=?, model=?, year=?, price=?, stock=?, description=?, category=?, partNumber=?, imageUrl=?, imageUrl1=?, imageUrl2=?, trendyolUrl=?, is_weekly_deal=?, slug_brand=?, slug_name=? WHERE id=?");
+    $product_condition = isset($data['product_condition']) ? $data['product_condition'] : 'Sıfır';
+    $stmt = $conn->prepare("UPDATE products SET name=?, brand=?, model=?, year=?, price=?, stock=?, description=?, category=?, partNumber=?, imageUrl=?, imageUrl1=?, imageUrl2=?, trendyolUrl=?, is_weekly_deal=?, slug_brand=?, slug_name=?, product_condition=? WHERE id=?");
     $stmt->bind_param(
-        "ssssdissssssssssi",
+        "ssssdisssssssssssi",
         $data['name'],
         $data['brand'],
         $data['model'],
@@ -438,6 +439,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_GET['id']) && intval($_GET
         $is_weekly_deal,
         $slug_brand,
         $slug_name,
+        $product_condition,
         $id
     );
     if ($stmt->execute()) {
@@ -483,14 +485,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_GET['id']) || empty($_GET
     $slug_name = slugify($data['name']);
     $imageUrl1 = isset($data['imageUrl1']) ? $data['imageUrl1'] : '';
     $imageUrl2 = isset($data['imageUrl2']) ? $data['imageUrl2'] : '';
+    $product_condition = isset($data['product_condition']) ? $data['product_condition'] : 'Sıfır';
 
     // Debug: imageUrl1 ve imageUrl2 değerlerini logla
     file_put_contents(__DIR__ . '/debug.log', 'imageUrl1: ' . $imageUrl1 . PHP_EOL, FILE_APPEND);
     file_put_contents(__DIR__ . '/debug.log', 'imageUrl2: ' . $imageUrl2 . PHP_EOL, FILE_APPEND);
 
-    $stmt = $conn->prepare("INSERT INTO products (name, brand, model, year, price, stock, description, category, partNumber, imageUrl, imageUrl1, imageUrl2, trendyolUrl, createdAt, is_weekly_deal, slug_brand, slug_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO products (name, brand, model, year, price, stock, description, category, partNumber, imageUrl, imageUrl1, imageUrl2, trendyolUrl, createdAt, is_weekly_deal, slug_brand, slug_name, product_condition) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)");
     $stmt->bind_param(
-        "ssssdissssssssss",
+        "ssssdisssssssssss",
         $data['name'],
         $data['brand'],
         $data['model'],
@@ -503,10 +506,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (!isset($_GET['id']) || empty($_GET
         $data['imageUrl'],
         $imageUrl1,
         $imageUrl2,
-        $data['trendyolUrl'],
+        $trendyolUrl,
         $is_weekly_deal,
         $slug_brand,
-        $slug_name
+        $slug_name,
+        $product_condition
     );
     if ($stmt->execute()) {
         // Yeni sitemap generator'ı çağır

@@ -27,20 +27,32 @@ export default function BrandCategoryPage() {
   // Slug'ı orijinal brand adına çeviren fonksiyon
   function deslugifyBrand(slug) {
     if (!slug) return '';
+    const lower = slug.toLowerCase();
     // Özel durum: genel_markalar
-    if (slug.toLowerCase() === 'genel_markalar') return 'GENEL MARKALAR';
+    if (lower === 'genel_markalar') return 'GENEL MARKALAR';
     // Özel durum: mercedes-benz
-    if (slug.toLowerCase() === 'mercedes-benz' || slug.toLowerCase() === 'mercedesbenz') return 'MERCEDES-BENZ';
+    if (lower === 'mercedes-benz' || lower === 'mercedesbenz') return 'MERCEDES-BENZ';
+    // Marka tam eşleşmeleri (Veritabanındaki yazılışlarıyla birebir eşleştirme)
+    if (lower === 'audi') return 'AUDİ';
+    if (lower === 'citroen') return 'CİTROEN';
+    if (lower === 'mini_cooper' || lower === 'mini-cooper' || lower === 'mini') return 'MİNİ COOPER';
+    if (lower === 'porsche') return 'PORSCHE';
+    if (lower === 'tesla') return 'TESLA';
+    
     // Diğer markalar için alt çizgi yerine boşluk, tireyi koru, büyük harf
     return slug.replace(/_/g, ' ').toUpperCase();
   }
   // brand parametresini orijinal brand adına çevir
   function normalizeBrand(str) {
-    // MERCEDES-BENZ gibi özel durumlar için tire ve boşlukları koru
-    if (str === 'MERCEDES-BENZ') return 'MERCEDES-BENZ';
-    if (str === 'GENEL MARKALAR') return 'GENEL MARKALAR';
+    if (!str) return '';
+    const upper = str.toUpperCase();
+    if (upper === 'MERCEDES-BENZ' || upper === 'MERCEDESBENZ') return 'MERCEDES-BENZ';
+    if (upper === 'GENEL MARKALAR') return 'GENEL MARKALAR';
+    if (upper === 'AUDI' || upper === 'AUDİ') return 'AUDİ';
+    if (upper === 'CITROEN' || upper === 'CİTROEN') return 'CİTROEN';
+    if (upper === 'MINI COOPER' || upper === 'MİNİ COOPER') return 'MİNİ COOPER';
     // Diğer markalar için sadece alt çizgileri kaldır
-    return (str || '').replace(/_/g, ' ').toUpperCase();
+    return str.replace(/_/g, ' ').toUpperCase();
   }
   const realBrand = normalizeBrand(deslugifyBrand(brand));
   const [selectedModel, setSelectedModel] = useState(null);
@@ -176,6 +188,12 @@ export default function BrandCategoryPage() {
     return Array.from(new Set(cats));
   }, [products, selectedModel]);
 
+  // Ürünlerden ve DB'den gelen modelleri birleştir (DB'de eksik model varsa ürünlerden tamamlar)
+  const allAvailableModels = React.useMemo(() => {
+    const productModels = products.map(p => p.model).filter(m => m && m.trim() !== '');
+    return Array.from(new Set([...models, ...productModels]));
+  }, [models, products]);
+
   // slugify fonksiyonu ekle
   function slugify(str) {
     return (str || "")
@@ -213,20 +231,20 @@ export default function BrandCategoryPage() {
         <title>{seoTitle}</title>
         <meta name="description" content={seoDesc} />
       </Helmet>
-      <div className="bg-gray-50 min-h-screen py-4 px-2">
+      <div className="bg-gray-50 dark:bg-background min-h-screen py-4 px-2">
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
-          <nav className="text-sm text-gray-500 mb-4">
-            <Link to="/" className="hover:underline">Anasayfa</Link> &gt; <span className="font-semibold text-gray-700">{deslugifyBrand(brand)}</span>
+          <nav className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            <Link to="/" className="hover:underline">Anasayfa</Link> &gt; <span className="font-semibold text-gray-700 dark:text-gray-300">{deslugifyBrand(brand)}</span>
           </nav>
           {isSabitMarka && (
             <h1 className="text-3xl font-extrabold text-center mb-2">{seoBrand} Yedek Parça</h1>
           )}
           {isSabitMarka && isAllModels && (
-            <p className="text-center text-gray-600 mb-6">Tüm {seoBrand} modellerine ait yedek parçalar — toplam {brandTotalCount} ürün</p>
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">Tüm {seoBrand} modellerine ait yedek parçalar — toplam {brandTotalCount} ürün</p>
           )}
           {isSabitMarka && selectedModel && (
-            <p className="text-center text-gray-600 mb-6">{selectedModel} modeli — {sortedProducts.length} ürün</p>
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">{selectedModel} modeli — {sortedProducts.length} ürün</p>
           )}
           {/* Mobil Hamburger Menü Butonu */}
           <div className="md:hidden mb-4">
@@ -242,9 +260,9 @@ export default function BrandCategoryPage() {
           {/* Mobil Menü Overlay */}
           {mobileMenuOpen && (
             <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setMobileMenuOpen(false)}>
-              <div className="bg-white h-full w-80 max-w-[90vw] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                  <h3 className="text-lg font-bold text-gray-800">Filtreler</h3>
+              <div className="bg-card h-full w-80 max-w-[90vw] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="p-4 border-b border-gray-200 dark:border-border flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">Filtreler</h3>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -254,7 +272,7 @@ export default function BrandCategoryPage() {
                 </div>
                 <div className="p-4 space-y-4">
                   {/* Araç Markaları */}
-                  <div className="bg-white rounded shadow p-4">
+                  <div className="bg-card rounded shadow p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-bold">Araç Markaları</h4>
                       <button
@@ -290,7 +308,7 @@ export default function BrandCategoryPage() {
                             {/* Tümü Seçeneği */}
                             <li>
                               <button
-                                className={`block w-full text-left px-2 py-1.5 rounded font-semibold hover:bg-yellow-100 transition-colors ${!selectedModel ? 'bg-yellow-100 text-yellow-700 font-bold' : 'text-gray-700'}`}
+                                className={`block w-full text-left px-2 py-1.5 rounded font-semibold hover:bg-yellow-100 transition-colors ${!selectedModel ? 'bg-yellow-100 text-yellow-700 font-bold' : 'text-gray-700 dark:text-gray-300'}`}
                                 onClick={() => {
                                   setSelectedModel(null);
                                   setSelectedCategory('');
@@ -301,7 +319,7 @@ export default function BrandCategoryPage() {
                                 🔖 Tümü ({brandTotalCount || products.length} ürün)
                               </button>
                             </li>
-                            {models.map((model, i) => (
+                            {allAvailableModels.map((model, i) => (
                               <li key={model}>
                                 <button
                                   className={`block w-full text-left px-2 py-1 rounded hover:bg-yellow-100 ${selectedModel === model ? 'font-bold text-yellow-600' : ''}`}
@@ -318,10 +336,10 @@ export default function BrandCategoryPage() {
                                 {selectedModel === model && modelCategories.length > 0 && (
                                   <div className="mt-2 ml-4">
                                     <ThemedSelect value={selectedCategory} onValueChange={setSelectedCategory}>
-                                      <SelectTrigger className="border border-gray-300 bg-white font-bold shadow-sm rounded-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 hover:bg-yellow-100 transition-colors">
+                                      <SelectTrigger className="border border-gray-300 bg-card font-bold shadow-sm rounded-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 hover:bg-yellow-100 transition-colors">
                                         <SelectValue placeholder="Kategori seçin" />
                                       </SelectTrigger>
-                                      <SelectContent className="border border-gray-200 shadow-lg rounded-sm bg-white">
+                                      <SelectContent className="border border-gray-200 dark:border-border shadow-lg rounded-sm bg-card">
                                         {modelCategories.map(cat => (
                                           <SelectItem key={cat} value={cat} className="font-bold hover:bg-yellow-100 rounded-sm cursor-pointer transition-colors">
                                             {cat}
@@ -340,7 +358,7 @@ export default function BrandCategoryPage() {
                   </div>
 
                   {/* Tüm Markalar */}
-                  <div className="bg-white rounded shadow p-4">
+                  <div className="bg-card rounded shadow p-4">
                     <h4 className="font-bold mb-2">Tüm Markalar</h4>
                     <div className="space-y-1 text-sm">
                       {allBrands.length === 0 ? (
@@ -376,7 +394,7 @@ export default function BrandCategoryPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Sol Panel: Modeller ve Filtreler - Sadece Desktop'ta görünür */}
             <aside className="hidden md:block md:col-span-1">
-              <div className="bg-white rounded shadow p-4 mb-6">
+              <div className="bg-card rounded shadow p-4 mb-6">
                 <h3 className="font-bold mb-2">Araç Markaları</h3>
                 <div className="border rounded p-3">
                   <div className="font-semibold mb-2 flex items-center justify-between">
@@ -415,7 +433,7 @@ export default function BrandCategoryPage() {
                           {/* Tümü Seçeneği */}
                           <li>
                             <button
-                              className={`block w-full text-left px-2 py-1.5 rounded font-semibold hover:bg-yellow-100 transition-colors ${!selectedModel ? 'bg-yellow-100 text-yellow-700 font-bold' : 'text-gray-700'}`}
+                              className={`block w-full text-left px-2 py-1.5 rounded font-semibold hover:bg-yellow-100 transition-colors ${!selectedModel ? 'bg-yellow-100 text-yellow-700 font-bold' : 'text-gray-700 dark:text-gray-300'}`}
                               onClick={() => {
                                 setSelectedModel(null);
                                 setSelectedCategory('');
@@ -425,7 +443,7 @@ export default function BrandCategoryPage() {
                               🔖 Tümü ({brandTotalCount || products.length} ürün)
                             </button>
                           </li>
-                          {models.map((model, i) => (
+                          {allAvailableModels.map((model, i) => (
                             <li key={model}>
                               <button
                                 className={`block w-full text-left px-2 py-1 rounded hover:bg-yellow-100 ${selectedModel === model ? 'font-bold text-yellow-600' : ''}`}
@@ -441,10 +459,10 @@ export default function BrandCategoryPage() {
                               {selectedModel === model && modelCategories.length > 0 && (
                                 <div className="mt-2 ml-4">
                                   <ThemedSelect value={selectedCategory} onValueChange={setSelectedCategory}>
-                                    <SelectTrigger className="border border-gray-300 bg-white font-bold shadow-sm rounded-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 hover:bg-yellow-100 transition-colors">
+                                    <SelectTrigger className="border border-gray-300 bg-card font-bold shadow-sm rounded-sm focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 hover:bg-yellow-100 transition-colors">
                                       <SelectValue placeholder="Kategori seçin" />
                                     </SelectTrigger>
-                                    <SelectContent className="border border-gray-200 shadow-lg rounded-sm bg-white">
+                                    <SelectContent className="border border-gray-200 dark:border-border shadow-lg rounded-sm bg-card">
                                       {modelCategories.map(cat => (
                                         <SelectItem key={cat} value={cat} className="font-bold hover:bg-yellow-100 rounded-sm cursor-pointer transition-colors">
                                           {cat}
@@ -463,7 +481,7 @@ export default function BrandCategoryPage() {
                 </div>
               </div>
               {/* Filtreler */}
-              <div className="bg-white rounded shadow p-4">
+              <div className="bg-card rounded shadow p-4">
                 <h4 className="font-bold mb-2">Tüm Markalar</h4>
                 <div className="space-y-1 text-sm">
                   {allBrands.length === 0 ? (
@@ -499,7 +517,7 @@ export default function BrandCategoryPage() {
                   <input type="checkbox" className="accent-yellow-500" />
                   <span className="text-sm">Stoktakiler</span>
                 </div>
-                <div className="text-sm text-gray-500">Toplam {sortedProducts.length} ürün</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Toplam {sortedProducts.length} ürün</div>
                 <div className="w-48">
                   <ThemedSelect value={sortOption} onValueChange={setSortOption}>
                     <SelectTrigger>
@@ -520,7 +538,7 @@ export default function BrandCategoryPage() {
                     paginatedProducts.map(product => (
                     <div
                       key={product.id}
-                      className="bg-white rounded shadow p-4 flex flex-col items-center relative cursor-pointer hover:shadow-lg transition"
+                      className="bg-card rounded shadow p-4 flex flex-col items-center relative cursor-pointer hover:shadow-lg transition"
                       onClick={() => {
                         if (product.slug_brand && product.slug_name) {
                           navigate(`/${product.slug_brand}/${product.slug_name}`);
@@ -529,7 +547,7 @@ export default function BrandCategoryPage() {
                         }
                       }}
                     >
-                      <div className="text-center text-xs text-gray-700 mb-2 font-semibold w-full min-h-[32px]">{product.name}</div>
+                      <div className="text-center text-xs text-gray-700 dark:text-gray-300 mb-2 font-semibold w-full min-h-[32px]">{product.name}</div>
                       <img src={product.imageUrl || product.image} alt={product.name} className="w-32 h-32 object-contain mb-2" />
                       <div className="font-bold text-lg mb-4">{(!product.price || parseFloat(product.price) === 0) ? 'Fiyatı Sorunuz.' : product.price?.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
                       <div className="flex w-full gap-2 mt-auto">
@@ -579,7 +597,7 @@ export default function BrandCategoryPage() {
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 border rounded-lg bg-white text-gray-700 disabled:opacity-50 hover:bg-gray-50 transition-colors font-medium shadow-sm"
+                    className="px-4 py-2 border rounded-lg bg-card text-gray-700 dark:text-gray-300 disabled:opacity-50 hover:bg-gray-50 dark:bg-background transition-colors font-medium shadow-sm"
                   >
                     Önceki
                   </button>
@@ -593,7 +611,7 @@ export default function BrandCategoryPage() {
                               setCurrentPage(page);
                               window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
-                            className={`w-10 h-10 border rounded-lg flex items-center justify-center transition-colors shadow-sm ${currentPage === page ? 'bg-yellow-400 text-white font-bold border-yellow-400' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                            className={`w-10 h-10 border rounded-lg flex items-center justify-center transition-colors shadow-sm ${currentPage === page ? 'bg-yellow-400 text-white font-bold border-yellow-400' : 'bg-card text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-background'}`}
                           >
                             {page}
                           </button>
@@ -605,7 +623,7 @@ export default function BrandCategoryPage() {
                       return null;
                     })}
                   </div>
-                  <div className="flex items-center sm:hidden px-4 text-sm font-medium text-gray-600">
+                  <div className="flex items-center sm:hidden px-4 text-sm font-medium text-gray-600 dark:text-gray-400">
                     Sayfa {currentPage} / {totalPages}
                   </div>
                   <button
@@ -614,7 +632,7 @@ export default function BrandCategoryPage() {
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 border rounded-lg bg-white text-gray-700 disabled:opacity-50 hover:bg-gray-50 transition-colors font-medium shadow-sm"
+                    className="px-4 py-2 border rounded-lg bg-card text-gray-700 dark:text-gray-300 disabled:opacity-50 hover:bg-gray-50 dark:bg-background transition-colors font-medium shadow-sm"
                   >
                     Sonraki
                   </button>

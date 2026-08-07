@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useContext, useState, useEffect } from 'react';
 import { CartContext } from '@/lib/CartContext.jsx';
-import { Heart } from 'lucide-react';
+import { Heart, ShoppingCart } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { slugify } from '@/lib/utils.js';
 
 const PublicProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -40,11 +41,11 @@ const PublicProductCard = ({ product }) => {
   };
 
   const formatPrice = (price) => {
-    if (!price || parseFloat(price) === 0) return 'Fiyatı Sorunuz.';
+    if (!price || parseFloat(price) === 0) return null;
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(price);
   };
 
-  // Fotoğraf URL'sini belirle (öncelik sırası: imageUrl, imageUrl1, imageUrl2)
+  // Fotoğraf URL'sini belirle
   const getImageUrl = () => {
     return product.imageUrl || product.imageUrl1 || product.imageUrl2 || '/placeholder-image.jpg';
   };
@@ -57,69 +58,74 @@ const PublicProductCard = ({ product }) => {
     }
   };
 
-  // slugify fonksiyonu
-  function slugify(str) {
-    return (str || "")
-      .toString()
-      .toLowerCase()
-      .replace(/\s+/g, '_')
-      .replace(/ı/g, 'i')
-      .replace(/ç/g, 'c')
-      .replace(/ş/g, 's')
-      .replace(/ğ/g, 'g')
-      .replace(/ü/g, 'u')
-      .replace(/ö/g, 'o')
-      .replace(/[^a-z0-9_]/g, '')
-      .replace(/_+/g, '_')
-      .replace(/^_+|_+$/g, '');
-  }
-
   return (
     <motion.div 
-        className="h-full cursor-pointer"
-        whileHover={{ y: -5 }}
+        className="h-full cursor-pointer group"
+        whileHover={{ y: -8 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
         onClick={handleClick}
     >
-        <Card className="overflow-hidden group transition-all duration-300 hover:shadow-xl border h-full flex flex-col">
-        <div className="aspect-square bg-secondary overflow-hidden">
-            <img
+        <Card className="relative overflow-hidden transition-all duration-300 border-none shadow-soft hover:shadow-glow bg-card h-full flex flex-col rounded-2xl">
+        
+        {/* Favori Butonu (Absolute, Ustte) */}
+        <button
+            className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-background/80 backdrop-blur-md shadow-sm border border-border hover:bg-background transition-all"
+            title="Favorilere ekle"
+            onClick={toggleFavorite}
+        >
+            <Heart 
+              className="w-5 h-5 transition-colors" 
+              fill={isFavorite ? 'currentColor' : 'none'} 
+              stroke="currentColor" 
+              strokeWidth={1.5}
+              color={isFavorite ? '#ef4444' : 'currentColor'}
+            />
+        </button>
+
+        <div className="relative aspect-[4/3] w-full bg-white dark:bg-white/5 overflow-hidden flex items-center justify-center p-4">
+            <motion.img
               src={getImageUrl()}
               alt={`${product.brand} ${product.name} ${product.model ? product.model : ''} yedek parça`}
-              className="w-full h-48 object-contain mb-2 bg-white rounded shadow"
+              className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal"
               loading="lazy"
+              whileHover={{ scale: 1.1 }}
+              transition={{ duration: 0.4 }}
             />
         </div>
-        <CardContent className="p-4 flex flex-col justify-between flex-grow">
-            <div>
-                <p className="text-xs text-muted-foreground">{product.brand}</p>
-                <p className="font-semibold text-foreground line-clamp-2 mb-2 h-[40px]">{product.name}</p>
+        
+        <CardContent className="p-5 flex flex-col justify-between flex-grow bg-card">
+            <div className="mb-4">
+                <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold tracking-wider rounded-md mb-2 uppercase">
+                    {product.brand}
+                </span>
+                <p className="font-semibold text-foreground text-sm leading-snug line-clamp-2 h-[40px] group-hover:text-primary transition-colors">
+                    {product.name}
+                </p>
             </div>
-            <div>
-                <p className="text-2xl font-bold text-foreground mb-4">{formatPrice(product.price)}</p>
-                <div className="flex gap-2 justify-center">
-                  <button
+            
+            <div className="flex flex-col gap-3 mt-auto">
+                {(!product.price || parseFloat(product.price) === 0) ? (
+                  <span className="self-start text-yellow-600 dark:text-yellow-500 text-[11px] uppercase tracking-wide font-extrabold bg-yellow-50 dark:bg-yellow-900/30 px-2.5 py-1 rounded-md border border-yellow-200 dark:border-yellow-700/50">
+                    FİYAT SORUNUZ
+                  </span>
+                ) : (
+                  <p className="text-xl font-extrabold text-foreground tracking-tight">
+                      {formatPrice(product.price)}
+                  </p>
+                )}
+                
+                {/* Sepete Ekle Butonu - Hover'da beliren şık tasarım */}
+                <button
                     onClick={e => { 
                       e.stopPropagation(); 
                       addToCart({ ...product, quantity: 1, image: getImageUrl() }); 
                       toast({ description: 'Ürün sepete eklendi', duration: 2000 });
                     }}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-4 py-2 rounded"
-                  >
+                    className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2.5 rounded-xl transition-all shadow-sm active:scale-95"
+                >
+                    <ShoppingCart className="w-4 h-4" />
                     Sepete Ekle
-                  </button>
-                  <button
-                    className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded bg-white hover:bg-gray-50"
-                    title="Favorilere ekle"
-                    onClick={toggleFavorite}
-                  >
-                    <Heart 
-                      className="w-6 h-6" 
-                      fill={isFavorite ? '#facc15' : 'none'} 
-                      stroke={isFavorite ? '#facc15' : '#6b7280'} 
-                      strokeWidth={1.5}
-                    />
-                  </button>
-                </div>
+                </button>
             </div>
         </CardContent>
         </Card>

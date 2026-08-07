@@ -89,14 +89,14 @@ export default function CartDrawer({ open, onClose }) {
       />
       {/* Drawer */}
       <aside
-        className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 h-full w-full max-w-md bg-card shadow-2xl z-50 flex flex-col transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}
         style={{ minWidth: 350 }}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <h2 className="font-bold text-lg">ALIŞVERİŞ SEPETİ</h2>
-          <button onClick={onClose} className="text-2xl text-gray-400 hover:text-gray-700">×</button>
+          <button onClick={onClose} className="text-2xl text-gray-400 hover:text-gray-700 dark:text-gray-300">×</button>
         </div>
-        <div className="px-6 py-2 text-sm text-gray-600">
+        <div className="px-6 py-2 text-sm text-gray-600 dark:text-gray-400">
           Sepetinizde {cart.length} ürün var.
         </div>
         <div className="flex-1 overflow-y-auto px-2">
@@ -153,7 +153,7 @@ export default function CartDrawer({ open, onClose }) {
             <span className="font-bold text-lg">{total.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</span>
           </div>
           <button onClick={handleBuy} className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded mb-2 text-base">SATIN AL</button>
-          <button onClick={() => { onClose && onClose(); navigate('/'); }} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded text-base">ALIŞVERİŞE DEVAM ET</button>
+          <button onClick={() => { onClose && onClose(); navigate('/'); }} className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 font-bold py-3 rounded text-base">ALIŞVERİŞE DEVAM ET</button>
         </div>
       </aside>
     </>

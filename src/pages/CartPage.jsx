@@ -57,7 +57,7 @@ export default function CartPage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8 px-2">
+    <div className="bg-gray-50 dark:bg-background min-h-screen py-8 px-2">
       {/* Toast Bildirimi */}
       {showToast && (
         <div
@@ -99,7 +99,7 @@ export default function CartPage() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Sepet Detayı */}
         <div className="md:col-span-2">
-          <div className="bg-white rounded shadow p-6 mb-6">
+          <div className="bg-card rounded shadow p-6 mb-6">
             <h2 className="text-xl font-bold mb-4 border-b pb-2 flex items-center gap-2">
               <span className="border-b-4 border-yellow-500 pb-1">SEPET DETAYI</span>
             </h2>
@@ -110,9 +110,9 @@ export default function CartPage() {
                   <div className="font-semibold text-base md:text-sm truncate mb-1">{item.name}</div>
                   <div className="text-xs text-gray-400 mb-2">{item.brand}</div>
                   <div className="flex justify-center md:justify-start items-center gap-2 mb-2 md:mb-0">
-                    <button onClick={() => updateQuantity(item.id, Math.max(1, (item.quantity || item.qty || 1) - 1))} className="border rounded px-3 py-1 text-lg font-bold text-gray-500">-</button>
+                    <button onClick={() => updateQuantity(item.id, Math.max(1, (item.quantity || item.qty || 1) - 1))} className="border rounded px-3 py-1 text-lg font-bold text-gray-500 dark:text-gray-400">-</button>
                     <span className="px-3">{item.quantity || item.qty}</span>
-                    <button onClick={() => updateQuantity(item.id, (item.quantity || item.qty || 1) + 1)} className="border rounded px-3 py-1 text-lg font-bold text-gray-500">+</button>
+                    <button onClick={() => updateQuantity(item.id, (item.quantity || item.qty || 1) + 1)} className="border rounded px-3 py-1 text-lg font-bold text-gray-500 dark:text-gray-400">+</button>
                     <span className="text-xs text-gray-400 ml-2">Adet</span>
                   </div>
                 </div>
@@ -126,7 +126,7 @@ export default function CartPage() {
               </div>
             ))}
             <div className="mt-4 flex justify-between items-center gap-2">
-              <button onClick={() => navigate('/')} className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded flex items-center gap-2">
+              <button onClick={() => navigate('/')} className="bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-300 px-4 py-2 rounded flex items-center gap-2">
                 ← ALIŞVERİŞE DEVAM ET
               </button>
               <button onClick={clearCart} className="bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-2 rounded">
@@ -137,7 +137,7 @@ export default function CartPage() {
         </div>
         {/* Sepet Özeti */}
         <div>
-          <div className="bg-white rounded shadow p-6 mb-6">
+          <div className="bg-card rounded shadow p-6 mb-6">
             <h2 className="text-xl font-bold mb-4 border-b pb-2 flex items-center gap-2">
               <span className="border-b-4 border-yellow-500 pb-1">SEPET ÖZETİ</span>
             </h2>

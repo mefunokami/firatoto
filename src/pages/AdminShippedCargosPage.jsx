@@ -95,9 +95,9 @@ export default function AdminShippedCargosPage() {
     <AdminLayout title="Gönderilen Kargolar">
     <div className="max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mb-2 text-foreground">Gönderilen Kargolar</h2>
-      <p className="text-gray-500 mb-6 text-sm">Bu bölüme eklediğiniz görseller anasayfada "Gönderilen Kargolar" bölümünde görünecektir.</p>
+      <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">Bu bölüme eklediğiniz görseller anasayfada "Gönderilen Kargolar" bölümünde görünecektir.</p>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow p-6 mb-8 space-y-4 border border-gray-100">
+      <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow p-6 mb-8 space-y-4 border border-gray-100 dark:border-border">
         <h3 className="font-bold text-lg mb-2">{editId ? '✏️ Düzenle' : '➕ Yeni Ekle'}</h3>
         <div>
           <label className="block font-semibold mb-1 text-sm">Görsel Yükle</label>
@@ -106,11 +106,11 @@ export default function AdminShippedCargosPage() {
             accept="image/*"
             ref={fileInputRef}
             onChange={handleFileChange}
-            className="mb-2 block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
+            className="mb-2 block w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
           />
           {!file && (
             <div className="mt-2">
-              <label className="block text-xs text-gray-500 mb-1">Veya görsel URL linki girin:</label>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Veya görsel URL linki girin:</label>
               <input
                 type="text"
                 placeholder="Görsel linki (örn: https://...)"
@@ -149,7 +149,7 @@ export default function AdminShippedCargosPage() {
           {editId && (
             <button
               type="button"
-              className="text-gray-500 hover:text-gray-700 underline text-sm"
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 underline text-sm"
               onClick={() => {
                 setEditId(null);
                 setForm({ image_url: '', title: '', display_order: 0 });
@@ -163,7 +163,7 @@ export default function AdminShippedCargosPage() {
         </div>
       </form>
 
-      <div className="bg-white rounded-xl shadow p-6 border border-gray-100">
+      <div className="bg-card rounded-xl shadow p-6 border border-gray-100 dark:border-border">
         <h3 className="font-bold text-lg mb-4">Mevcut Kargo Fotoğrafları ({items.length})</h3>
         {items.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
