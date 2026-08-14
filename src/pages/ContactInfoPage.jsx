@@ -30,14 +30,14 @@ const ContactInfoPage = () => {
     {
       name: "Fırat Cengiz",
       role: "Şirket Yetkilisi",
-      phone: "+90 543 974 01 21",
-      cleanPhone: "+905439740121"
+      phone: "+90 501 353 01 01",
+      cleanPhone: "+905013530101"
     },
     {
       name: "Baran Cengiz",
       role: "Şirket Yetkilisi",
-      phone: "+90 501 353 01 01",
-      cleanPhone: "+905013530101"
+      phone: "+90 543 974 01 21",
+      cleanPhone: "+905439740121"
     },
     {
       name: "Mazlum Cengiz",
