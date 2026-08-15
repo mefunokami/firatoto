@@ -400,6 +400,9 @@ logger.error = (msg, options) => {
 	loggerError(msg, options);
 }
 
+// Mock kullanmak istersen: set USE_MOCK=true && npm run dev
+const useMock = process.env.USE_MOCK === 'true';
+
 export default defineConfig({
 	customLogger: logger,
 	logLevel: 'info',
@@ -407,7 +410,7 @@ export default defineConfig({
 		...(isDev ? [inlineEditPlugin(), editModeDevPlugin()] : []),
 		react(),
 		addTransformIndexHtml,
-		mockApiPlugin()
+		...(useMock ? [mockApiPlugin()] : [])
 	],
 	server: {
 		cors: true,
@@ -415,9 +418,22 @@ export default defineConfig({
 			'Cross-Origin-Embedder-Policy': 'credentialless',
 		},
 		allowedHosts: true,
-		// Proxy yerine yerel test için geçici Mock API
-		// (Bilgisayarda XAMPP/PHP yüklü olmadığı için panele girebilmeniz adına sahte veriler döndürüyoruz)
-
+		// Canlı Hostinger sunucusuna proxy (gerçek veritabanı bağlantısı)
+		proxy: {
+			'/api': {
+				target: 'https://www.firatotoyedekparca.com',
+				changeOrigin: true,
+				secure: true,
+				cookieDomainRewrite: 'localhost',
+				configure: (proxy, _options) => {
+					proxy.on('proxyReq', (proxyReq, req, _res) => {
+						// Origin header'ını canlı sunucu için ayarla (CORS bypass)
+						proxyReq.setHeader('Origin', 'https://www.firatotoyedekparca.com');
+						proxyReq.setHeader('Referer', 'https://www.firatotoyedekparca.com/');
+					});
+				}
+			}
+		},
 	},
 	resolve: {
 		extensions: ['.jsx', '.js', '.tsx', '.ts', '.json', ],
